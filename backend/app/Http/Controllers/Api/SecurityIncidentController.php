@@ -30,7 +30,7 @@ class SecurityIncidentController extends Controller
             'type' => ['required', 'in:phishing_attempt,suspicious_login,data_leak_suspicion,malware,other'],
             'severity' => ['required', 'in:low,medium,high,critical'],
             'description' => ['required', 'string'],
-            'evidence' => ['nullable', 'file', 'max:10240'],
+            'evidence' => ['nullable', 'file', 'max:10240', 'mimes:png,jpg,jpeg,pdf,txt'],
         ]);
 
         $evidencePath = null;

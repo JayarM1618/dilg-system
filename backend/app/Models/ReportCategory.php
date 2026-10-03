@@ -25,6 +25,10 @@ class ReportCategory extends Model
     /** The current/latest template version for this category. */
     public function latestResource()
     {
-        return $this->hasOne(Resource::class)->latestOfMany();
+        return $this->hasOne(Resource::class)
+            ->where('type', 'template')
+            ->where('is_current', true)
+            ->whereNull('archived_at')
+            ->latestOfMany();
     }
 }

@@ -30,10 +30,12 @@ class SubmissionPolicy
 
     public function update(User $user, Submission $submission): bool
     {
-        // A barangay rep may only edit their own submission, and only before it's reviewed.
+        // A barangay rep may (re)upload only for their own barangay, and only while the
+        // report is open: not yet filed, filed but not picked up, or sent back as non-compliant.
+        // Once it is under review or compliant it is locked.
         if ($user->isBarangayRep()) {
             return $user->barangay_id === $submission->barangay_id
-                && in_array($submission->status, ['pending', 'submitted']);
+                && in_array($submission->status, ['pending', 'submitted', 'non_compliant']);
         }
 
         return $user->hasOfficeOversight();

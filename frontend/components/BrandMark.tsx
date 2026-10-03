@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 interface BrandMarkProps {
@@ -11,14 +12,20 @@ export default function BrandMark({ tone = "light", href = "/" }: BrandMarkProps
   const dark = tone === "dark";
 
   return (
-    <Link href={href} className="inline-flex items-center gap-3" aria-label="DILG Makati home">
+    <Link href={href} className="inline-flex items-center gap-3" aria-label="Talaghayan home">
+      {/* Eagle mark. File lives in frontend/public/talaghayan-mark.png */}
       <span
-        className={`flex h-9 w-9 items-center justify-center rounded-md font-display text-sm font-bold ${
-          dark ? "bg-navy-900 text-white" : "bg-white text-navy-900"
-        }`}
+        className={`flex h-11 w-12 items-center justify-center overflow-hidden rounded-md ${dark ? "" : "bg-white"}`}
         aria-hidden="true"
       >
-        DM
+        <Image
+          src="/talaghayan-mark.png"
+          alt=""
+          width={464}
+          height={318}
+          priority
+          className="h-full w-full object-contain"
+        />
       </span>
       <span className="leading-tight">
         <span
@@ -26,7 +33,7 @@ export default function BrandMark({ tone = "light", href = "/" }: BrandMarkProps
             dark ? "text-navy-900" : "text-white"
           }`}
         >
-          DILG Makati
+          Talaghayan
         </span>
         <span className={`block text-xs ${dark ? "text-muted" : "text-navy-100/80"}`}>
           Barangay report tracker

@@ -54,11 +54,25 @@ class Submission extends Model
         return $this->belongsTo(User::class, 'reviewed_by');
     }
 
+    public function files()
+    {
+        return $this->hasMany(SubmissionFile::class)->orderByDesc('version');
+    }
+
+    public function latestFile()
+    {
+        return $this->hasOne(SubmissionFile::class)->latestOfMany('version');
+    }
+
+    /** The due date is a whole day: filing at 9am on the due date is still on time. */
     public function isLate(): bool
     {
+        $deadline = $this->due_date->copy()->endOfDay();
+
         if (!$this->submitted_at) {
-            return now()->isAfter($this->due_date) && $this->status === 'pending';
+            return $this->status === 'pending' && now()->isAfter($deadline);
         }
-        return $this->submitted_at->isAfter($this->due_date);
+
+        return $this->submitted_at->isAfter($deadline);
     }
 }

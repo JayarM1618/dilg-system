@@ -31,7 +31,9 @@ class DashboardController extends Controller
             return [
                 'barangay' => ['id' => $barangay->id, 'name' => $barangay->name, 'code' => $barangay->code],
                 'submissions' => $rows->map(fn ($s) => [
+                    'id' => $s->id,
                     'category' => $s->category->name,
+                    'due_date' => $s->due_date->toDateString(),
                     'cycle' => $s->category->cycle,
                     'period_label' => $s->period_label,
                     'status' => $s->status,
@@ -55,6 +57,8 @@ class DashboardController extends Controller
             'total_barangays' => Barangay::where('is_active', true)->count(),
             'pending' => Submission::where('status', 'pending')->count(),
             'submitted' => Submission::where('status', 'submitted')->count(),
+            'under_review' => Submission::where('status', 'under_review')->count(),
+            'overdue' => Submission::where('status', 'pending')->whereDate('due_date', '<', today())->count(),
             'compliant' => Submission::where('status', 'compliant')->count(),
             'non_compliant' => Submission::where('status', 'non_compliant')->count(),
         ]);

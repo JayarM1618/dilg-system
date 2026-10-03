@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: { default: "DILG Makati | Barangay report tracker", template: "%s | DILG Makati" },
-  description: "File barangay reports, track compliance and review submissions for DILG Makati.",
+  title: { default: "Talaghayan | Barangay report tracker", template: "%s | Talaghayan" },
+  description: "File barangay reports, track compliance and review submissions with Talaghayan.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
