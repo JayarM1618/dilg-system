@@ -109,10 +109,10 @@ export default function LoginPage() {
                 style={{ background: "radial-gradient(circle, rgba(123,77,255,0.16) 0%, rgba(123,77,255,0) 68%)" }}
               />
               <Image
-                src="/talaghayan-logo.png"
+                src="/talaghayan-mark.png"
                 alt="Talaghayan Makati"
                 width={684}
-                height={463}
+                height={684}
                 priority
                 className="relative h-auto w-full"
               />
