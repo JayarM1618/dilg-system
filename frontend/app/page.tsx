@@ -15,54 +15,11 @@ const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700
 
 const SECTIONS = [
   { id: "barangays", label: "Barangays", icon: "grid" },
-  { id: "roles", label: "Who uses it", icon: "people" },
   { id: "journey", label: "A report's trip", icon: "route" },
   { id: "statuses", label: "Statuses", icon: "shield" },
   { id: "faq", label: "FAQ", icon: "help" },
 ] as const;
 
-const ROLES = [
-  {
-    role: "Guest", article: "a", who: "Anyone not signed in",
-    tint: "bg-slate-100 text-slate-700", dot: "bg-slate-700",
-    stories: [
-      "I can read about what the Report Tracker does on this page.",
-      "I can sign in with the email and password the DILG Makati office gave me.",
-      "I cannot see any reports or accounts until I sign in. There is no public sign-up.",
-    ],
-  },
-  {
-    role: "User", article: "a", who: "Barangay representative",
-    tint: "bg-teal-50 text-teal-800", dot: "bg-teal-500",
-    stories: [
-      "I can see every report my barangay owes, with its period and due date.",
-      "I can upload a report (PDF, Word or Excel, up to 10 MB) and watch it move to submitted.",
-      "I can read the reviewer's remarks when a report is marked non-compliant.",
-      "I can download the report templates the office shares.",
-      "I can report a security incident, such as a phishing attempt.",
-      "I can only see my own barangay's reports, never another barangay's.",
-    ],
-  },
-  {
-    role: "Admin", article: "an", who: "Office supervisor",
-    tint: "bg-amber-50 text-amber-900", dot: "bg-amber-500",
-    stories: [
-      "I can see the submissions of every barangay in one place.",
-      "I can mark a report under review, compliant or non-compliant, with remarks.",
-      "I can follow each barangay's compliance rate in the Talaghayan.",
-      "I can see reported security incidents and update their status.",
-    ],
-  },
-  {
-    role: "Super admin", article: "a", who: "Everything an admin can do, plus",
-    tint: "bg-violet-50 text-violet-900", dot: "bg-violet-600",
-    stories: [
-      "I can add barangays, edit their details or deactivate them.",
-      "I can upload new versions of the report templates.",
-      "I can see all user accounts, their roles and their barangays.",
-    ],
-  },
-];
 
 const STEPS = [
   { title: "Office opens a period", body: "Each barangay gets the report, its period and a due date.", color: "#7B4DFF" },
@@ -106,12 +63,10 @@ export default function LandingPage() {
   const { user, loading } = useAuth();
   const [section, setSection] = useState<string>("barangays");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [roleIdx, setRoleIdx] = useState(1);
   const [query, setQuery] = useState("");
   const [picked, setPicked] = useState<MakatiBarangay | null>(null);
 
   const cta = user ? { href: homeFor(user.role), label: "Go to dashboard" } : { href: "/login", label: "Sign in" };
-  const role = ROLES[roleIdx];
 
   // Highlights the current section in the icon menu while scrolling.
   useEffect(() => {
@@ -194,9 +149,8 @@ export default function LandingPage() {
                         className={`group flex w-20 flex-col items-center gap-1.5 rounded-2xl ${focusRing}`}
                       >
                         <span
-                          className={`grid h-12 w-12 place-items-center rounded-2xl transition-colors ${
-                            section === s.id ? "bg-[#7B4DFF] text-white" : "bg-[#EADFFE] text-[#7B4DFF] group-hover:bg-[#DCCBFD]"
-                          }`}
+                          className={`grid h-12 w-12 place-items-center rounded-2xl transition-colors ${section === s.id ? "bg-[#7B4DFF] text-white" : "bg-[#EADFFE] text-[#7B4DFF] group-hover:bg-[#DCCBFD]"
+                            }`}
                         >
                           <RailIcon name={s.icon} />
                         </span>
@@ -336,40 +290,6 @@ export default function LandingPage() {
               </p>
             </section>
 
-            {/* ---------- Row 3: roles ---------- */}
-            <section id="roles" className={`${card} scroll-mt-6 bg-[#F3EDFE] sm:p-8`} aria-labelledby="roles-title">
-              <h2 id="roles-title" className="text-2xl font-semibold text-[#1B1235]">Who are you today?</h2>
-              <p className="mt-1 text-slate-600">Pick a role to see what you can do in the system.</p>
-              <div role="tablist" aria-label="User roles" className="mt-5 flex flex-wrap gap-2">
-                {ROLES.map((x, i) => (
-                  <button
-                    key={x.role}
-                    role="tab"
-                    aria-selected={i === roleIdx}
-                    onClick={() => setRoleIdx(i)}
-                    className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${focusRing} ${
-                      i === roleIdx ? "bg-[#7B4DFF] text-white" : "bg-white text-slate-600 ring-1 ring-[#E3DEF5] hover:ring-[#7B4DFF]"
-                    }`}
-                  >
-                    {x.role}
-                  </button>
-                ))}
-              </div>
-              <div role="tabpanel" className="mt-5 grid overflow-hidden rounded-3xl bg-white md:grid-cols-[15rem_1fr]">
-                <div className={`p-7 ${role.tint}`}>
-                  <p className="text-2xl font-semibold">{role.role}</p>
-                  <p className="mt-1 text-sm font-medium opacity-80">{role.who}</p>
-                </div>
-                <ul className="space-y-3.5 p-7">
-                  {role.stories.map((s) => (
-                    <li key={s} className="flex gap-3 leading-7">
-                      <span aria-hidden="true" className={`mt-2.5 h-2.5 w-2.5 shrink-0 rounded-full ${role.dot}`} />
-                      <span><b className="font-semibold text-slate-900">As {role.article} {role.role.toLowerCase()}, </b>{s}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </section>
 
             {/* ---------- Row 4: journey + statuses ---------- */}
             <div className="grid gap-5 lg:grid-cols-5">
