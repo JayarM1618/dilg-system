@@ -3,7 +3,7 @@ import type { Role } from "@/types";
 /**
  * Who can use the system:
  *
- *   Guest        not signed in          -> "/" (landing) and "/login" only
+ *   Guest        not signed in          -> "/" (profile chooser), "/citizens" (read-only), "/barangays" and "/login"
  *   User         barangay_rep           -> "/user"
  *   Admin        office_supervisor      -> "/admin"
  *   Super admin  super_admin            -> "/super-admin"
@@ -36,7 +36,10 @@ export const ROLE_INFO: Record<Role, RoleInfo> = {
     tag: "User",
     description: "Files reports for one barangay and sees only that barangay's records.",
     home: "/user",
-    nav: [{ href: "/user", label: "My reports" }],
+    nav: [
+      { href: "/user", label: "My reports" },
+      { href: "/user/community", label: "Announcements & programs" },
+    ],
   },
   office_supervisor: {
     label: "Office supervisor",

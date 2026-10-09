@@ -11,13 +11,3 @@ export function formatDate(value: string | null | undefined): string {
   if (Number.isNaN(date.getTime())) return "—";
   return date.toLocaleDateString("en-PH", { year: "numeric", month: "short", day: "numeric" });
 }
-
-/** True once the due date (inclusive) has passed. */
-export function isPastDue(value: string | null | undefined): boolean {
-  if (!value) return false;
-  const due = parseDate(value);
-  if (Number.isNaN(due.getTime())) return false;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return due < today;
-}

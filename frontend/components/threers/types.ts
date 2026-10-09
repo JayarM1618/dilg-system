@@ -27,6 +27,8 @@ export type RepoSubmission = {
   status: SubmissionStatus;
   submitted_at: string | null;
   review_remarks: string | null;
+  /** Computed by Laravel: pending and past its due date. */
+  is_overdue?: boolean;
   barangay?: { id: number; name: string } | null;
   category?: { id: number; name: string; cycle: string } | null;
   latest_file?: SubmissionFileVersion | null;

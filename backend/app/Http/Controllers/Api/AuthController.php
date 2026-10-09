@@ -17,6 +17,8 @@ class AuthController extends Controller
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
+            // Sent by the landing-page tile the person picked (optional on the plain /login page).
+            'barangay_id' => ['nullable', 'integer'],
         ]);
 
         $user = User::where('email', $credentials['email'])->first();
@@ -34,6 +36,20 @@ class AuthController extends Controller
         }
 
         // Sanctum SPA auth: log in via the session guard (cookie-based, not a bearer token)
+        // Barangay representatives may only sign in through their OWN barangay.
+        // Office staff (admin / super admin) can use any tile.
+        if (
+            !empty($credentials['barangay_id'])
+            && $user->isBarangayRep()
+            && (int) $user->barangay_id !== (int) $credentials['barangay_id']
+        ) {
+            $own = $user->barangay?->name ?? 'another barangay';
+
+            throw ValidationException::withMessages([
+                'email' => ["This account belongs to Barangay {$own}. Close this window and pick your own barangay."],
+            ]);
+        }
+
         Auth::login($user);
         $request->session()->regenerate();
 

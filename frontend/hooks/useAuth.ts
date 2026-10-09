@@ -27,8 +27,13 @@ export function useAuth() {
   }, [fetchUser]);
 
   const login = useCallback(
-    async (email: string, password: string) => {
-      const { user } = await api.post<{ user: User }>("/api/login", { email, password });
+    async (email: string, password: string, barangayId?: number) => {
+      // Laravel decides whether this account may use this barangay (see AuthController@login).
+      const { user } = await api.post<{ user: User }>("/api/login", {
+        email,
+        password,
+        ...(barangayId ? { barangay_id: barangayId } : {}),
+      });
       setUser(user);
 
       router.push(homeFor(user.role));

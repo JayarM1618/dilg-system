@@ -23,6 +23,9 @@ class Submission extends Model
         'review_remarks',
     ];
 
+    /** Sent to the frontend with every submission so the browser never has to guess dates. */
+    protected $appends = ['is_overdue'];
+
     protected function casts(): array
     {
         return [
@@ -62,6 +65,13 @@ class Submission extends Model
     public function latestFile()
     {
         return $this->hasOne(SubmissionFile::class)->latestOfMany('version');
+    }
+
+    public function getIsOverdueAttribute(): bool
+    {
+        return $this->status === 'pending'
+            && $this->due_date !== null
+            && now()->isAfter($this->due_date->copy()->endOfDay());
     }
 
     /** The due date is a whole day: filing at 9am on the due date is still on time. */

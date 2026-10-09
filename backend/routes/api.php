@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BarangayContentController;
 use App\Http\Controllers\Api\BarangayController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\PublicController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\ResourceController;
 use App\Http\Controllers\Api\SecurityIncidentController;
@@ -11,12 +13,28 @@ use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
 // --- Public ---
+// Public: the landing page reads the barangay list from the database through this.
+Route::get('/public/barangays', [BarangayController::class, 'publicIndex']);
+// Public: read-only data for the Citizens View.
+Route::get('/public/overview', [PublicController::class, 'overview']);
+Route::get('/public/barangays/{id}', [PublicController::class, 'barangay'])->whereNumber('id');
+
 Route::post('/login', [AuthController::class, 'login']);
 
 // --- Authenticated (any active role) ---
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+
+    // What citizens see about a barangay. A rep manages only their own barangay;
+    // the controller enforces that (office staff may manage any).
+    Route::patch('/barangays/{barangay}/profile', [BarangayContentController::class, 'updateProfile']);
+    Route::post('/barangays/{barangay}/announcements', [BarangayContentController::class, 'storeAnnouncement']);
+    Route::patch('/announcements/{announcement}', [BarangayContentController::class, 'updateAnnouncement']);
+    Route::delete('/announcements/{announcement}', [BarangayContentController::class, 'destroyAnnouncement']);
+    Route::post('/barangays/{barangay}/programs', [BarangayContentController::class, 'storeProgram']);
+    Route::patch('/programs/{program}', [BarangayContentController::class, 'updateProgram']);
+    Route::delete('/programs/{program}', [BarangayContentController::class, 'destroyProgram']);
 
     // Resources ("Resources" of the 3 Rs) - everyone can browse/download
     Route::get('/resources', [ResourceController::class, 'index']);

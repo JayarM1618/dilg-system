@@ -1,19 +1,17 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { homeFor } from "@/lib/roles";
-import { normalizeName, type MakatiBarangay } from "@/lib/makatiBarangays";
+import type { PublicBarangay } from "@/lib/barangays";
+
 export default function BarangayLoginDialog({
   barangay,
   onClose,
 }: {
-  barangay: MakatiBarangay;
+  barangay: PublicBarangay;
   onClose: () => void;
 }) {
-  const { user, login, logout } = useAuth();
-  const router = useRouter();
+  const { login } = useAuth();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const emailId = useId();
   const passwordId = useId();
@@ -22,7 +20,6 @@ export default function BarangayLoginDialog({
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
 
   // Native <dialog>: focus trap, Esc to close and focus restore come for free.
   useEffect(() => {
@@ -30,31 +27,13 @@ export default function BarangayLoginDialog({
     if (d && !d.open) d.showModal();
   }, []);
 
-  // Runs once the sign-in has completed and `user` is available.
-  useEffect(() => {
-    if (!submitted || !user) return;
-
-    if (user.role === "barangay_rep" && normalizeName(user.barangay?.name) !== normalizeName(barangay.name)) {
-      setSubmitted(false);
-      setBusy(false);
-      setError(
-        `That account belongs to Barangay ${user.barangay?.name ?? "another barangay"}, not ${barangay.name}. ` +
-          "Close this window and pick your own barangay.",
-      );
-      void logout();
-      return;
-    }
-
-    router.replace(homeFor(user.role));
-  }, [submitted, user, barangay.name, logout, router]);
-
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
     setError(null);
     try {
-      await login(email.trim(), password);
-      setSubmitted(true);
+      // Laravel checks the account really belongs to this barangay, then login() redirects.
+      await login(email.trim(), password, barangay.id);
     } catch (err) {
       const msg = (err as { message?: unknown } | null)?.message;
       setError(typeof msg === "string" && msg ? msg : "We couldn't sign you in. Check your email and password and try again.");

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useApi } from "@/hooks/useApi";
-import { formatDate, isPastDue } from "@/lib/format";
+import { formatDate } from "@/lib/format";
 import type { Paginated, Submission } from "@/types";
 import StatusBadge from "@/components/StatusBadge";
 
@@ -42,7 +42,7 @@ export default function BarangayDashboard() {
 
   const total = submissions.length;
   const compliantPct = total ? Math.round((counts.compliant / total) * 100) : 0;
-  const overdue = submissions.filter((s) => s.status === "pending" && isPastDue(s.due_date)).length;
+  const overdue = submissions.filter((s) => s.is_overdue).length;
   const recent = submissions.slice(0, 6);
 
   return (
@@ -340,7 +340,7 @@ function RecentCard({ rows, total }: { rows: Submission[]; total: number }) {
                   <td className="px-3 py-3 tabular-nums">{s.period_label}</td>
                   <td className="px-3 py-3 tabular-nums">
                     {formatDate(s.due_date)}
-                    {s.status === "pending" && isPastDue(s.due_date) && (
+                    {s.is_overdue && (
                       <span className="ml-2 text-xs font-semibold text-bad">Overdue</span>
                     )}
                   </td>

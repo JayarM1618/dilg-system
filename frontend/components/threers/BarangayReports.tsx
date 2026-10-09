@@ -4,7 +4,7 @@ import { useRef, useState, type FormEvent } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useFetch } from "@/hooks/useFetch";
 import { apiSend, apiUrl } from "@/lib/http";
-import { formatDate, isPastDue } from "@/lib/format";
+import { formatDate } from "@/lib/format";
 import StatusBadge from "@/components/StatusBadge";
 import ThreeRsTabs from "./ThreeRsTabs";
 import { EmptyRow, UploadButton, type Flash } from "./RepositoryView";
@@ -118,7 +118,7 @@ export default function BarangayReports() {
                     <td className="px-4 py-3.5 tabular-nums">{s.period_label}</td>
                     <td className="px-4 py-3.5 tabular-nums">
                       {formatDate(s.due_date)}
-                      {s.status === "pending" && isPastDue(s.due_date) && (
+                      {s.is_overdue && (
                         <span className="ml-2 text-xs font-semibold text-bad">Overdue</span>
                       )}
                     </td>

@@ -8,6 +8,19 @@ use Illuminate\Http\Request;
 
 class BarangayController extends Controller
 {
+    /**
+     * PUBLIC list for the landing page (no login needed).
+     * Only exposes what the picker tiles need - never contact details.
+     */
+    public function publicIndex()
+    {
+        return response()->json([
+            'data' => Barangay::where('is_active', true)
+                ->orderBy('code')
+                ->get(['id', 'name', 'code']),
+        ]);
+    }
+
     /** List all barangays - office-side only, used for admin dropdowns and dashboard rows. */
     public function index(Request $request)
     {

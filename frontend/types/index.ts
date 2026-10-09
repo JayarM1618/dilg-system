@@ -50,6 +50,8 @@ export interface Submission {
   submitted_at: string | null;
   reviewed_at: string | null;
   review_remarks: string | null;
+  /** Computed by Laravel (pending and past its due date). */
+  is_overdue?: boolean;
   barangay?: Barangay;
   category?: ReportCategory;
 }

@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://backend.test";
+export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://backend.test";
 
 class ApiError extends Error {
   status: number;
@@ -28,7 +28,7 @@ interface RequestOptions extends RequestInit {
   isFormData?: boolean;
 }
 
-async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const method = (options.method ?? "GET").toUpperCase();
 
   if (method !== "GET") {
@@ -54,7 +54,9 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new ApiError(body.message ?? "Request failed", res.status, body.errors);
+    // Laravel validation errors: show the first concrete reason ("The file must be a PDF...").
+    const firstError = body.errors ? (Object.values(body.errors)[0] as string[] | undefined)?.[0] : undefined;
+    throw new ApiError(firstError ?? body.message ?? "Request failed", res.status, body.errors);
   }
 
   if (res.status === 204) return undefined as T;
@@ -72,5 +74,10 @@ export const api = {
     request<T>(path, { method: "PATCH", body: data ? JSON.stringify(data) : undefined }),
   delete: <T>(path: string) => request<T>(path, { method: "DELETE" }),
 };
+
+/** Absolute URL of a Laravel endpoint (for download links and other plain <a href>s). */
+export function apiUrl(path: string): string {
+  return `${API_URL}${path}`;
+}
 
 export { ApiError };

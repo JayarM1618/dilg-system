@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import BrandMark from "@/components/BrandMark";
 import { useAuth } from "@/hooks/useAuth";
-import { homeFor, ROLE_LABELS } from "@/lib/format";
+import { homeFor, ROLE_INFO } from "@/lib/roles";
 
 /**
  * Wraps every /dashboard/* page:
@@ -43,7 +43,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="flex items-center gap-4">
             <div className="hidden text-right text-sm leading-tight sm:block">
               <p className="font-semibold">{user.name}</p>
-              <p className="text-muted">{ROLE_LABELS[user.role] ?? user.role}</p>
+              <p className="text-muted">{ROLE_INFO[user.role]?.label ?? user.role}</p>
             </div>
             <button
               onClick={() => void logout()}
