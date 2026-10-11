@@ -46,20 +46,20 @@ export default function BarangayReports() {
       )}
 
       {all.length > 0 && (
-        <dl className="mb-6 grid grid-cols-2 gap-x-6 gap-y-4 border-y border-line py-5 sm:grid-cols-4">
+        <dl className="mb-6 grid grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-4 border-y border-line dark:border-white/10 py-5 sm:grid-cols-4">
           <Stat label="To file" value={count("pending")} />
           <Stat label="Waiting for review" value={count("submitted", "under_review")} />
-          <Stat label="Compliant" value={count("compliant")} tone="text-ok" />
-          <Stat label="Needs fixing" value={count("non_compliant")} tone="text-bad" />
+          <Stat label="Compliant" value={count("compliant")} tone="text-ok dark:text-emerald-400" />
+          <Stat label="Needs fixing" value={count("non_compliant")} tone="text-bad dark:text-rose-400" />
         </dl>
       )}
 
-      <div className="mb-4 flex items-end justify-between gap-4">
-        <h2 className="text-lg font-semibold text-navy-900">My reports</h2>
+      <div className="mb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4">
+        <h2 className="text-lg font-semibold text-navy-900 dark:text-white">My reports</h2>
         <label className="text-sm">
           <span className="sr-only">Filter by status</span>
           <select
-            className={field}
+            className={`${field} w-full sm:w-auto`}
             value={status}
             onChange={(e) => {
               setStatus(e.target.value);
@@ -76,10 +76,10 @@ export default function BarangayReports() {
         </label>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-line bg-white">
+      <div className="overflow-x-auto rounded-lg border border-line dark:border-white/10 bg-white dark:bg-white/5">
         <table className="w-full min-w-[760px] text-left text-sm">
           <caption className="sr-only">Reports to submit</caption>
-          <thead className="bg-navy-50 text-navy-800">
+          <thead className="bg-navy-50 dark:bg-white/5 text-navy-800 dark:text-[#D1C4F9]">
             <tr>
               <th scope="col" className="px-4 py-3 font-semibold">Report</th>
               <th scope="col" className="px-4 py-3 font-semibold">Period</th>
@@ -88,7 +88,7 @@ export default function BarangayReports() {
               <th scope="col" className="px-4 py-3 font-semibold">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-line">
+          <tbody className="divide-y divide-line dark:divide-white/10">
             {loading && rows.length === 0 ? (
               <EmptyRow cols={5}>Loading your reports...</EmptyRow>
             ) : error ? (
@@ -104,28 +104,28 @@ export default function BarangayReports() {
                 const tpl = templateFor(s.report_category_id);
                 return (
                   <tr key={s.id}>
-                    <td className="px-4 py-3.5 font-medium">
+                    <td className="px-4 py-3.5 font-medium text-navy-900 dark:text-white">
                       {s.category?.name ?? "Report"}
                       {tpl && s.status !== "compliant" && (
                         <a
-                          className="mt-0.5 block text-xs font-normal text-navy-700 underline underline-offset-4"
+                          className="mt-0.5 block text-xs font-normal text-navy-700 dark:text-[#CDBBFF] underline underline-offset-4"
                           href={apiUrl(`/api/resources/${tpl.id}/download`)}
                         >
                           Get the current form (v{tpl.version})
                         </a>
                       )}
                     </td>
-                    <td className="px-4 py-3.5 tabular-nums">{s.period_label}</td>
-                    <td className="px-4 py-3.5 tabular-nums">
+                    <td className="px-4 py-3.5 tabular-nums text-slate-700 dark:text-slate-300">{s.period_label}</td>
+                    <td className="px-4 py-3.5 tabular-nums text-slate-700 dark:text-slate-300">
                       {formatDate(s.due_date)}
                       {s.is_overdue && (
-                        <span className="ml-2 text-xs font-semibold text-bad">Overdue</span>
+                        <span className="ml-2 text-xs font-semibold text-bad dark:text-rose-400">Overdue</span>
                       )}
                     </td>
                     <td className="px-4 py-3.5">
                       <StatusBadge status={s.status} />
                       {s.status === "non_compliant" && s.review_remarks && (
-                        <p className="mt-1.5 max-w-[36ch] text-xs text-muted">{s.review_remarks}</p>
+                        <p className="mt-1.5 max-w-[36ch] text-xs text-muted dark:text-slate-400">{s.review_remarks}</p>
                       )}
                     </td>
                     <td className="px-4 py-3.5">
@@ -140,7 +140,7 @@ export default function BarangayReports() {
                           label={s.status === "pending" ? "Submit report" : s.status === "non_compliant" ? "Resubmit" : "Replace file"}
                         />
                       ) : (
-                        <span className="text-xs text-muted">{s.status === "compliant" ? "Approved" : "Being reviewed"}</span>
+                        <span className="text-xs text-muted dark:text-slate-400">{s.status === "compliant" ? "Approved" : "Being reviewed"}</span>
                       )}
                     </td>
                   </tr>
@@ -151,7 +151,7 @@ export default function BarangayReports() {
         </table>
       </div>
       {data && <Pager page={data.current_page} last={data.last_page} total={data.total} onPage={setPage} />}
-      <p className="mt-3 max-w-prose text-xs text-muted">
+      <p className="mt-3 max-w-prose text-xs text-muted dark:text-slate-400">
         Accepted files: PDF, Word or Excel, up to 10 MB. Filed reports are kept in the Repository tab.
       </p>
 
@@ -160,10 +160,10 @@ export default function BarangayReports() {
   );
 }
 
-function Stat({ label, value, tone = "text-ink" }: { label: string; value: number; tone?: string }) {
+function Stat({ label, value, tone = "text-ink dark:text-white" }: { label: string; value: number; tone?: string }) {
   return (
     <div>
-      <dt className="text-sm text-muted">{label}</dt>
+      <dt className="text-sm text-muted dark:text-slate-400">{label}</dt>
       <dd className={`mt-0.5 font-display text-3xl font-semibold tabular-nums ${tone}`}>{value}</dd>
     </div>
   );
@@ -204,37 +204,37 @@ function IncidentSection({ onFlash }: { onFlash: (f: Flash) => void }) {
 
   return (
     <section aria-labelledby="h-incident" className="mt-12">
-      <h2 id="h-incident" className="text-lg font-semibold text-navy-900">Report a security concern</h2>
-      <p className="mb-4 mt-1 max-w-prose text-sm text-muted">
+      <h2 id="h-incident" className="text-lg font-semibold text-navy-900 dark:text-white">Report a security concern</h2>
+      <p className="mb-4 mt-1 max-w-prose text-sm text-muted dark:text-slate-400">
         Received a suspicious email, link or call? Tell the office here instead of forwarding it informally. Do not open
         attachments or links from the message.
       </p>
 
-      <form onSubmit={submit} className="grid gap-4 rounded-lg border border-line bg-white p-4 sm:grid-cols-2">
+      <form onSubmit={submit} className="grid gap-4 rounded-lg border border-line dark:border-white/10 bg-white dark:bg-white/5 p-4 sm:grid-cols-2">
         <label className="text-sm">
-          <span className="mb-1 block font-medium">What happened?</span>
+          <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">What happened?</span>
           <select name="type" required className={`${field} w-full`} defaultValue="phishing_attempt">
             {INCIDENT_TYPES.map(([v, l]) => (
-              <option key={v} value={v}>{l}</option>
+              <option key={v} value={v} className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">{l}</option>
             ))}
           </select>
         </label>
         <label className="text-sm">
-          <span className="mb-1 block font-medium">How serious does it look?</span>
+          <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">How serious does it look?</span>
           <select name="severity" required className={`${field} w-full`} defaultValue="low">
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-            <option value="critical">Critical (data may already be exposed)</option>
+            <option value="low" className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">Low</option>
+            <option value="medium" className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">Medium</option>
+            <option value="high" className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">High</option>
+            <option value="critical" className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">Critical (data may already be exposed)</option>
           </select>
         </label>
         <label className="text-sm sm:col-span-2">
-          <span className="mb-1 block font-medium">Describe it</span>
+          <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">Describe it</span>
           <textarea name="description" required rows={3} maxLength={5000} className={`${field} w-full`} />
         </label>
         <label className="text-sm sm:col-span-2">
-          <span className="mb-1 block font-medium">Screenshot or file (optional: PNG, JPG, PDF or TXT, up to 10 MB)</span>
-          <input ref={fileRef} name="evidence" type="file" accept=".png,.jpg,.jpeg,.pdf,.txt" className="block w-full text-sm" />
+          <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">Screenshot or file (optional: PNG, JPG, PDF or TXT, up to 10 MB)</span>
+          <input ref={fileRef} name="evidence" type="file" accept=".png,.jpg,.jpeg,.pdf,.txt" className="block w-full text-sm text-slate-700 dark:text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#7B4DFF]/10 file:text-[#7B4DFF] dark:file:bg-[#7B4DFF]/20 dark:file:text-[#CDBBFF]" />
         </label>
         <div className="sm:col-span-2">
           <button className={btn} disabled={busy} type="submit">{busy ? "Sending..." : "Send report"}</button>
@@ -243,15 +243,15 @@ function IncidentSection({ onFlash }: { onFlash: (f: Flash) => void }) {
 
       {incidents.data && incidents.data.data.length > 0 && (
         <div className="mt-6">
-          <h3 className="mb-2 text-sm font-semibold text-navy-800">Your earlier reports</h3>
-          <ul className="divide-y divide-line rounded-lg border border-line bg-white text-sm">
+          <h3 className="mb-2 text-sm font-semibold text-navy-800 dark:text-[#D1C4F9]">Your earlier reports</h3>
+          <ul className="divide-y divide-line dark:divide-white/10 rounded-lg border border-line dark:border-white/10 bg-white dark:bg-white/5 text-sm">
             {incidents.data.data.map((i) => (
               <li key={i.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5">
                 <span>
-                  <span className="font-medium">{i.type.replaceAll("_", " ")}</span>
-                  <span className="text-muted"> &middot; {formatDateTime(i.created_at)}</span>
+                  <span className="font-medium text-navy-900 dark:text-white">{i.type.replaceAll("_", " ")}</span>
+                  <span className="text-muted dark:text-slate-400"> &middot; {formatDateTime(i.created_at)}</span>
                 </span>
-                <span className="rounded-full bg-navy-50 px-2 py-0.5 text-xs font-semibold text-navy-800">
+                <span className="rounded-full bg-navy-50 dark:bg-white/10 px-2 py-0.5 text-xs font-semibold text-navy-800 dark:text-[#D1C4F9]">
                   {i.status.replaceAll("_", " ")}
                 </span>
               </li>

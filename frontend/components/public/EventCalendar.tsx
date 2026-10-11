@@ -43,12 +43,12 @@ export default function EventCalendar({ events }: { events: PublicProgram[] }) {
     setSelected(null);
   }
 
-  const navBtn = `grid h-9 w-9 place-items-center rounded-full bg-white text-[#7B4DFF] ring-1 ring-[#E3DEF5] hover:bg-[#EADFFE] ${focusRing}`;
+  const navBtn = `grid h-9 w-9 place-items-center rounded-full bg-white/70 dark:bg-black/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-md transition-all duration-500 ease-out text-[#7B4DFF] ring-1 ring-[#E3DEF5] hover:bg-[#EADFFE] ${focusRing}`;
 
   return (
     <div>
       <div className="flex items-center justify-between gap-3">
-        <h3 className="text-lg font-semibold text-[#1B1235]" aria-live="polite">{monthLabel}</h3>
+        <h3 className="text-lg font-semibold text-[#1B1235] dark:text-[#E9DFFF] transition-colors duration-500 ease-out" aria-live="polite">{monthLabel}</h3>
         <div className="flex gap-2">
           <button type="button" onClick={() => move(-1)} className={navBtn} aria-label="Previous month">‹</button>
           <button type="button" onClick={() => move(1)} className={navBtn} aria-label="Next month">›</button>
@@ -74,19 +74,19 @@ export default function EventCalendar({ events }: { events: PublicProgram[] }) {
               aria-pressed={isSel}
               aria-label={`${new Date(Date.UTC(y, m, day)).toLocaleDateString("en-PH", { month: "long", day: "numeric", timeZone: "UTC" })}${count ? `, ${count} event${count > 1 ? "s" : ""}` : ""}`}
               className={`relative grid aspect-square place-items-center rounded-xl text-sm transition-colors ${focusRing} ${
-                isSel ? "bg-[#7B4DFF] font-semibold text-white" : count ? "bg-white font-semibold text-[#1B1235] ring-1 ring-[#CDB9FF] hover:bg-[#EADFFE]" : "text-slate-600 hover:bg-white"
+                isSel ? "bg-[#7B4DFF] font-semibold text-white" : count ? "bg-white/70 dark:bg-black/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-md transition-all duration-500 ease-out font-semibold text-[#1B1235] ring-1 ring-[#CDB9FF] hover:bg-[#EADFFE]" : "text-slate-600 hover:bg-white/70 dark:bg-black/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-md transition-all duration-500 ease-out"
               } ${isToday && !isSel ? "ring-2 ring-[#F21DB4]" : ""}`}
             >
               {day}
               {count > 0 && (
-                <span aria-hidden="true" className={`absolute bottom-1 h-1.5 w-1.5 rounded-full ${isSel ? "bg-white" : "bg-[#F21DB4]"}`} />
+                <span aria-hidden="true" className={`absolute bottom-1 h-1.5 w-1.5 rounded-full ${isSel ? "bg-white/70 dark:bg-black/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-md transition-all duration-500 ease-out" : "bg-[#F21DB4]"}`} />
               )}
             </button>
           );
         })}
       </div>
 
-      <p className="mt-4 text-sm font-medium text-[#2A1F4D]">
+      <p className="mt-4 text-sm font-medium text-[#2A1F4D] dark:text-[#D1C4F9] transition-colors duration-500 ease-out">
         {selected ? "Events on this day" : `Events in ${monthLabel}`}
       </p>
       <ul className="mt-2 space-y-2">
@@ -97,11 +97,11 @@ export default function EventCalendar({ events }: { events: PublicProgram[] }) {
             const cat = categoryOf(e.category);
             const b = badgeParts(e.starts_at!);
             return (
-              <li key={e.id} className="flex gap-3 rounded-2xl bg-white p-3">
+              <li key={e.id} className="flex gap-3 rounded-2xl bg-white/70 dark:bg-black/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-md transition-all duration-500 ease-out p-3">
                 <DateBadge {...b} />
                 <div className="min-w-0">
-                  <p className="font-semibold text-slate-900">{e.title}</p>
-                  <p className="text-sm text-slate-600">{eventWhen(e)}{e.venue ? ` · ${e.venue}` : ""}</p>
+                  <p className="font-semibold text-slate-900 dark:text-white transition-colors duration-500 ease-out">{e.title}</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 transition-colors duration-500 ease-out">{eventWhen(e)}{e.venue ? ` · ${e.venue}` : ""}</p>
                   <div className="mt-1"><Chip bg={cat.bg} fg={cat.fg}>{cat.label}</Chip></div>
                 </div>
               </li>

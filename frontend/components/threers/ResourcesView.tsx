@@ -69,68 +69,68 @@ export default function ResourcesView() {
         />
       )}
 
-      <div className="mb-4 flex flex-wrap items-end gap-4">
-        <label className="text-sm">
-          <span className="mb-1 block text-muted">Type</span>
-          <select className={field} value={type} onChange={(e) => setType(e.target.value)}>
-            <option value="">All types</option>
+      <div className="mb-4 flex flex-col sm:flex-row sm:items-end gap-3 sm:gap-4">
+        <label className="text-sm w-full sm:w-auto">
+          <span className="mb-1 block text-muted dark:text-slate-400">Type</span>
+          <select className={`${field} w-full sm:w-auto`} value={type} onChange={(e) => setType(e.target.value)}>
+            <option value="" className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">All types</option>
             {TYPES.map((t) => (
-              <option key={t} value={t}>{TYPE_LABEL[t]}</option>
+              <option key={t} value={t} className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">{TYPE_LABEL[t]}</option>
             ))}
           </select>
         </label>
         {isOffice && (
-          <label className="flex items-center gap-2 pb-2 text-sm">
-            <input type="checkbox" checked={history} onChange={(e) => setHistory(e.target.checked)} />
+          <label className="flex items-center gap-2 pb-2 text-sm text-slate-800 dark:text-slate-200 cursor-pointer">
+            <input type="checkbox" checked={history} onChange={(e) => setHistory(e.target.checked)} className="rounded border-line dark:border-white/20 text-[#7B4DFF] focus:ring-[#7B4DFF] bg-white dark:bg-black/30" />
             Show older and withdrawn versions
           </label>
         )}
       </div>
 
       {loading && items.length === 0 ? (
-        <p className="py-10 text-center text-muted">Loading resources...</p>
+        <p className="py-10 text-center text-muted dark:text-slate-400">Loading resources...</p>
       ) : error ? (
-        <p className="py-10 text-center font-medium text-bad">
+        <p className="py-10 text-center font-medium text-bad dark:text-rose-400">
           {error}{" "}
           <button onClick={reload} className="underline underline-offset-4">Try again</button>
         </p>
       ) : groups.length === 0 ? (
-        <p className="rounded-lg border border-line bg-white py-10 text-center text-muted">
+        <p className="rounded-lg border border-line dark:border-white/10 bg-white dark:bg-white/5 py-10 text-center text-muted dark:text-slate-400">
           {isOffice ? "Nothing has been uploaded yet. Use the form above to add the first template." : "No resources have been published yet."}
         </p>
       ) : (
         <div className="space-y-8">
           {groups.map((g) => (
             <section key={g.type} aria-labelledby={`h-${g.type}`}>
-              <h2 id={`h-${g.type}`} className="mb-3 text-lg font-semibold text-navy-900">{TYPE_LABEL[g.type]}</h2>
-              <ul className="divide-y divide-line rounded-lg border border-line bg-white">
+              <h2 id={`h-${g.type}`} className="mb-3 text-lg font-semibold text-navy-900 dark:text-white">{TYPE_LABEL[g.type]}</h2>
+              <ul className="divide-y divide-line dark:divide-white/10 rounded-lg border border-line dark:border-white/10 bg-white dark:bg-white/5">
                 {g.items.map((r) => {
                   const state = r.archived_at ? "Withdrawn" : r.is_current ? "Current" : "Older version";
                   return (
-                    <li key={r.id} className="flex flex-wrap items-start justify-between gap-3 px-4 py-4">
+                    <li key={r.id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 px-4 py-4">
                       <div className="min-w-0">
-                        <p className="font-medium text-ink">
-                          {r.title} <span className="font-normal text-muted">v{r.version}</span>
+                        <p className="font-medium text-ink dark:text-white">
+                          {r.title} <span className="font-normal text-muted dark:text-slate-400">v{r.version}</span>
                           <span
                             className={`ml-2 rounded-full px-2 py-0.5 text-xs font-semibold ${
-                              state === "Current" ? "bg-navy-50 text-ok" : "bg-bad-bg text-bad"
+                              state === "Current" ? "bg-navy-50 dark:bg-emerald-950/40 text-ok dark:text-emerald-400" : "bg-bad-bg dark:bg-rose-950/40 text-bad dark:text-rose-400"
                             }`}
                           >
                             {state}
                           </span>
                         </p>
-                        {r.category && <p className="mt-0.5 text-sm text-muted">For: {r.category.name} ({r.category.cycle})</p>}
-                        {r.description && <p className="mt-1 max-w-prose text-sm text-ink">{r.description}</p>}
-                        <p className="mt-1 text-xs text-muted">
+                        {r.category && <p className="mt-0.5 text-sm text-muted dark:text-slate-400">For: {r.category.name} ({r.category.cycle})</p>}
+                        {r.description && <p className="mt-1 max-w-prose text-sm text-ink dark:text-slate-200">{r.description}</p>}
+                        <p className="mt-1 text-xs text-muted dark:text-slate-400">
                           {r.effective_date ? `Effective ${formatDate(r.effective_date)} · ` : ""}
                           Uploaded {formatDate(r.created_at)}
                           {r.uploader ? ` by ${r.uploader.name}` : ""}
                         </p>
                       </div>
-                      <div className="flex gap-2">
-                        <a className={btn} href={apiUrl(`/api/resources/${r.id}/download`)}>Download</a>
+                      <div className="flex gap-2 w-full sm:w-auto shrink-0">
+                        <a className={`${btn} flex-1 sm:flex-initial text-center`} href={apiUrl(`/api/resources/${r.id}/download`)}>Download</a>
                         {isOffice && !r.archived_at && (
-                          <button className={btnGhost} onClick={() => archive(r)}>Withdraw</button>
+                          <button className={`${btnGhost} flex-1 sm:flex-initial text-center`} onClick={() => archive(r)}>Withdraw</button>
                         )}
                       </div>
                     </li>
@@ -178,60 +178,60 @@ function UploadForm({
   }
 
   return (
-    <details className="mb-6 rounded-lg border border-line bg-white">
-      <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-navy-800">
+    <details className="mb-6 rounded-lg border border-line dark:border-white/10 bg-white dark:bg-white/5">
+      <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-navy-800 dark:text-[#D1C4F9]">
         Upload a resource or a new version
       </summary>
-      <form onSubmit={submit} className="grid gap-4 border-t border-line p-4 sm:grid-cols-2">
+      <form onSubmit={submit} className="grid gap-4 border-t border-line dark:border-white/10 p-4 sm:grid-cols-2">
         <label className="text-sm">
-          <span className="mb-1 block font-medium">Title</span>
+          <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">Title</span>
           <input name="title" required maxLength={255} className={`${field} w-full`} placeholder="e.g. Monthly Accomplishment Report form" />
         </label>
 
         <label className="text-sm">
-          <span className="mb-1 block font-medium">Type</span>
+          <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">Type</span>
           <select name="type" className={`${field} w-full`} value={type} onChange={(e) => setType(e.target.value as (typeof TYPES)[number])}>
             {TYPES.map((t) => (
-              <option key={t} value={t}>{TYPE_LABEL[t]}</option>
+              <option key={t} value={t} className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">{TYPE_LABEL[t]}</option>
             ))}
           </select>
         </label>
 
         {type === "template" && (
           <label className="text-sm">
-            <span className="mb-1 block font-medium">Report it is used for</span>
+            <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">Report it is used for</span>
             <select name="report_category_id" required className={`${field} w-full`} defaultValue="">
-              <option value="" disabled>Choose a report...</option>
+              <option value="" disabled className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">Choose a report...</option>
               {categories.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
+                <option key={c.id} value={c.id} className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">{c.name}</option>
               ))}
             </select>
           </label>
         )}
 
         <label className="text-sm">
-          <span className="mb-1 block font-medium">Version</span>
+          <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">Version</span>
           <input name="version" required maxLength={20} className={`${field} w-full`} placeholder="e.g. 2.0" />
         </label>
 
         <label className="text-sm">
-          <span className="mb-1 block font-medium">Effective date (optional)</span>
+          <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">Effective date (optional)</span>
           <input name="effective_date" type="date" className={`${field} w-full`} />
         </label>
 
         <label className="text-sm sm:col-span-2">
-          <span className="mb-1 block font-medium">Short description (optional)</span>
+          <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">Short description (optional)</span>
           <textarea name="description" rows={2} maxLength={2000} className={`${field} w-full`} />
         </label>
 
         <label className="text-sm sm:col-span-2">
-          <span className="mb-1 block font-medium">File (PDF, Word, Excel or PowerPoint, up to 10 MB)</span>
-          <input name="file" type="file" required accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" className="block w-full text-sm" />
+          <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">File (PDF, Word, Excel or PowerPoint, up to 10 MB)</span>
+          <input name="file" type="file" required accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" className="block w-full text-sm text-slate-700 dark:text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#7B4DFF]/10 file:text-[#7B4DFF] dark:file:bg-[#7B4DFF]/20 dark:file:text-[#CDBBFF]" />
         </label>
 
         <div className="sm:col-span-2">
-          <button className={btn} disabled={busy} type="submit">{busy ? "Uploading..." : "Publish"}</button>
-          <p className="mt-2 text-xs text-muted">
+          <button className={`${btn} w-full sm:w-auto`} disabled={busy} type="submit">{busy ? "Uploading..." : "Publish"}</button>
+          <p className="mt-2 text-xs text-muted dark:text-slate-400">
             Publishing a new version of the same title replaces the current one for barangays. Older versions stay on record.
           </p>
         </div>

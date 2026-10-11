@@ -53,9 +53,9 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   });
 
   if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
+    const body = await res.json().catch(() => ({})) as { message?: string; errors?: Record<string, string[]> };
     // Laravel validation errors: show the first concrete reason ("The file must be a PDF...").
-    const firstError = body.errors ? (Object.values(body.errors)[0] as string[] | undefined)?.[0] : undefined;
+    const firstError = body.errors ? Object.values(body.errors)[0]?.[0] : undefined;
     throw new ApiError(firstError ?? body.message ?? "Request failed", res.status, body.errors);
   }
 

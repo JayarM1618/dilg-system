@@ -23,6 +23,7 @@ export function useAuth() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line
     fetchUser();
   }, [fetchUser]);
 

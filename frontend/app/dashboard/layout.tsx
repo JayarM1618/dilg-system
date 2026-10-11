@@ -36,18 +36,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="min-h-screen bg-paper">
-      <header className="border-b border-line bg-white">
+    <div className="min-h-screen bg-paper text-slate-800 dark:text-[#E9DFFF]">
+      <header className="border-b border-line dark:border-white/10 bg-white dark:bg-[#1B142F]/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3.5 sm:px-8">
           <BrandMark tone="dark" href={homeFor(user.role)} />
           <div className="flex items-center gap-4">
             <div className="hidden text-right text-sm leading-tight sm:block">
-              <p className="font-semibold">{user.name}</p>
-              <p className="text-muted">{ROLE_INFO[user.role]?.label ?? user.role}</p>
+              <p className="font-semibold text-slate-900 dark:text-white">{user.name}</p>
+              <p className="text-muted dark:text-slate-400">{ROLE_INFO[user.role]?.label ?? user.role}</p>
             </div>
             <button
               onClick={() => void logout()}
-              className="rounded-md border border-line px-3.5 py-2 text-sm font-medium text-navy-800 transition-colors hover:bg-navy-50"
+              className="rounded-md border border-line dark:border-white/10 px-3.5 py-2 text-sm font-medium text-navy-800 dark:text-slate-200 transition-colors hover:bg-navy-50 dark:hover:bg-white/10"
             >
               Sign out
             </button>

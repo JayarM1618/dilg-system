@@ -1,11 +1,11 @@
 import type { SubmissionStatus } from "@/types";
 
 const STYLES: Record<SubmissionStatus, string> = {
-  pending: "bg-slate-100 text-slate-600",
-  submitted: "bg-blue-100 text-blue-700",
-  under_review: "bg-amber-100 text-amber-700",
-  compliant: "bg-green-100 text-green-700",
-  non_compliant: "bg-red-100 text-red-700",
+  pending: "bg-slate-100 text-slate-700 dark:bg-white/10 dark:text-slate-300",
+  submitted: "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300",
+  under_review: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300",
+  compliant: "bg-green-100 text-green-700 dark:bg-emerald-500/20 dark:text-emerald-300",
+  non_compliant: "bg-red-100 text-red-700 dark:bg-rose-500/20 dark:text-rose-300",
 };
 
 const LABELS: Record<SubmissionStatus, string> = {

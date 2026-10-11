@@ -94,12 +94,17 @@ export default function BarangaySignInPage() {
   const myBarangayId = user?.barangay_id ?? null;
 
   return (
-    <div className={`${poppins.className} min-h-screen bg-[#F4EEFE] text-slate-800 sm:p-6 lg:p-8`}>
-      <div className="mx-auto flex max-w-360 overflow-hidden bg-white shadow-[0_30px_80px_-30px_rgba(91,60,200,0.35)] sm:rounded-[2rem]">
+    <div className={`${poppins.className} min-h-screen bg-[#F4EEFE] text-slate-800 dark:bg-[#130E1F] dark:text-[#E9DFFF] transition-colors duration-500 ease-out p-3 sm:p-6 lg:p-8`}>
+      <div className="mx-auto flex max-w-360 overflow-hidden bg-white shadow-[0_30px_80px_-30px_rgba(91,60,200,0.35)] dark:bg-[#1B142F] dark:shadow-[0_30px_80px_-30px_rgba(0,0,0,0.8)] rounded-2xl sm:rounded-[2rem]">
         <div className="min-w-0 flex-1">
           {/* ---------- Top bar: brand + sign in, with a collapsible icon menu ---------- */}
-          <header className="border-b border-[#EDE7FA]">
-            <div className="flex items-center gap-3 px-5 py-4 sm:px-8">
+          <header className="border-b border-[#EDE7FA] dark:border-[#2B2542]">
+            <div className="flex items-center gap-2 sm:gap-3 px-4 py-3.5 sm:px-8 sm:py-4">
+              <Link href="/" className={`grid h-8 w-8 sm:h-9 sm:w-9 shrink-0 place-items-center rounded-full bg-[#F1EBFF] text-[#7B4DFF] transition-colors hover:bg-[#E3D5FF] ${focusRing}`} aria-label="Go back to home">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+              </Link>
               <BrandMark tone="dark" />
 
               <button
@@ -109,26 +114,26 @@ export default function BarangaySignInPage() {
                 aria-controls="section-menu"
                 aria-label={menuOpen ? "Hide page sections" : "Show page sections"}
                 title={menuOpen ? "Hide sections" : "Show sections"}
-                className={`grid h-9 w-9 place-items-center rounded-full bg-[#F1EBFF] text-[#7B4DFF] transition-colors hover:bg-[#E3D5FF] ${focusRing}`}
+                className={`grid h-8 w-8 sm:h-9 sm:w-9 shrink-0 place-items-center rounded-full bg-[#F1EBFF] text-[#7B4DFF] transition-colors hover:bg-[#E3D5FF] dark:bg-[#352D52] dark:text-[#CDBBFF] transition-colors duration-500 ease-out dark:hover:bg-[#2B2542] ${focusRing}`}
               >
                 <svg
-                  width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                   strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
-                  className={`transition-transform duration-300 ${menuOpen ? "rotate-180" : ""}`}
+                  className={`transition-transform duration-500 ease-out ${menuOpen ? "rotate-180" : ""}`}
                 >
                   <path d="M6 9l6 6 6-6" />
                 </svg>
               </button>
 
-              <div className="ml-auto flex items-center gap-3">
+              <div className="ml-auto flex items-center gap-2 sm:gap-3">
                 <Link
                   href={cta.href}
-                  className={`rounded-full bg-[#7B4DFF] px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#6A3CF0] ${focusRing} ${loading ? "invisible" : ""}`}
+                  className={`rounded-full bg-[#7B4DFF] px-3.5 py-1.5 text-xs sm:px-5 sm:py-2 sm:text-sm font-semibold text-white transition-colors hover:bg-[#6A3CF0] ${focusRing} ${loading ? "invisible" : ""}`}
                 >
                   {cta.label}
                 </Link>
                 <span
-                  className="grid h-10 w-10 place-items-center rounded-full bg-[#E3D5FF] text-sm font-semibold text-[#5A18C9]"
+                  className="grid h-8 w-8 sm:h-10 sm:w-10 place-items-center rounded-full bg-[#E3D5FF] text-xs sm:text-sm font-semibold text-[#5A18C9] dark:bg-[#352D52] dark:text-[#CDBBFF] transition-colors duration-500 ease-out"
                   aria-hidden="true"
                 >
                   {user ? user.name.trim().charAt(0).toUpperCase() : <PersonIcon />}
@@ -139,7 +144,7 @@ export default function BarangaySignInPage() {
             {/* Hidden by default; slides open when the arrow is clicked. */}
             <div
               id="section-menu"
-              className={`grid transition-[grid-template-rows] duration-300 ease-out ${menuOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+              className={`grid transition-[grid-template-rows] duration-500 ease-out ${menuOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
             >
               <nav aria-label="Page sections" className="overflow-hidden" inert={!menuOpen}>
                 <ul className="flex flex-wrap items-start justify-center gap-4 px-5 pb-5 pt-1 sm:gap-6 sm:px-8">
@@ -167,56 +172,56 @@ export default function BarangaySignInPage() {
             </div>
           </header>
 
-          <main className="space-y-5 p-5 sm:p-8">
+          <main className="space-y-5 p-4 sm:p-8">
             {/* ---------- Row 1: hero + sample charts ---------- */}
             <div className="grid gap-5 lg:grid-cols-12">
-              <section className={`${card} flex flex-col bg-[#E6FBF3] lg:col-span-5`} aria-labelledby="hero-title">
-                <p className="text-sm font-medium text-[#2C5A4D]">Talaghayan &middot; Barangay Report Tracker</p>
-                <h1 id="hero-title" className="mt-3 text-balance text-3xl font-semibold leading-tight text-[#0E2B24] sm:text-4xl">
+              <section className={`${card} flex flex-col bg-[#E6FBF3]/70 dark:bg-[#1C362F]/70 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-xl shadow-[#7B4DFF]/15 dark:shadow-none lg:col-span-5 transition-all duration-500 ease-out`} aria-labelledby="hero-title">
+                <p className="text-sm font-medium text-[#2C5A4D] dark:text-[#84DEBD] transition-colors duration-500 ease-out">Talaghayan &middot; Barangay Report Tracker</p>
+                <h1 id="hero-title" className="mt-3 text-balance text-2xl font-semibold leading-tight text-[#0E2B24] dark:text-[#E8F8F3] transition-colors duration-500 ease-out sm:text-4xl">
                   Every barangay report, from filed to counted.
                 </h1>
-                <p className="mt-3 max-w-[44ch] leading-7 text-[#2C5A4D]">
+                <p className="mt-3 max-w-[44ch] text-sm sm:text-base leading-6 sm:leading-7 text-[#2C5A4D] dark:text-[#84DEBD] transition-colors duration-500 ease-out">
                   Barangays upload what is due. The office reviews it. The Talaghayan shows who is compliant, live,
                   with no more email threads or hand-updated sheets.
                 </p>
 
-                <div className="mt-auto grid grid-cols-2 gap-4 pt-7">
+                <div className="mt-auto grid grid-cols-2 gap-3 sm:gap-4 pt-6 sm:pt-7">
                   <Tile value={barangays.length} label="Barangays" />
                   <Tile value={STATUSES.length} label="Report statuses" />
                 </div>
 
-                <div className="mt-6 flex flex-wrap items-center gap-3">
-                  <a href="#barangays" className={`rounded-full bg-[#7B4DFF] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#6A3CF0] ${focusRing}`}>
+                <div className="mt-6 flex flex-col sm:flex-row sm:items-center gap-3">
+                  <a href="#barangays" className={`text-center rounded-full bg-[#7B4DFF] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#6A3CF0] ${focusRing}`}>
                     Find your barangay
                   </a>
-                  <Link href={cta.href} className={`rounded-full border-2 border-[#7B4DFF] px-6 py-2 text-sm font-semibold text-[#5A18C9] transition-colors hover:bg-[#7B4DFF] hover:text-white ${focusRing}`}>
+                  <Link href={cta.href} className={`text-center rounded-full border-2 border-[#7B4DFF] px-6 py-2 text-sm font-semibold text-[#5A18C9] dark:text-[#CDBBFF] transition-colors duration-500 ease-out transition-colors hover:bg-[#7B4DFF] hover:text-white dark:hover:text-white ${focusRing}`}>
                     {cta.label}
                   </Link>
                 </div>
               </section>
 
-              <section className={`${card} bg-[#F3EDFE] lg:col-span-4`} aria-labelledby="sample-line">
+              <section className={`${card} bg-[#F3EDFE]/70 dark:bg-[#2A233D]/70 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-xl shadow-[#7B4DFF]/15 dark:shadow-none lg:col-span-4 transition-all duration-500 ease-out`} aria-labelledby="sample-line">
                 <div className="flex items-center justify-between gap-3">
-                  <h2 id="sample-line" className="text-xl font-medium text-[#1B1235]">Compliance, live</h2>
+                  <h2 id="sample-line" className="text-xl font-medium text-[#1B1235] dark:text-[#E9DFFF] transition-colors duration-500 ease-out">Compliance, live</h2>
                   <SampleChip />
                 </div>
-                <div className="mt-3 flex gap-5 text-sm text-[#2A1F4D]">
+                <div className="mt-3 flex gap-5 text-sm text-[#2A1F4D] dark:text-[#D1C4F9] transition-colors duration-500 ease-out">
                   <Dot color="#F21DB4" label="Filed" />
                   <Dot color="#7B4DFF" label="Reviewed" />
                 </div>
                 <SampleLineChart />
               </section>
 
-              <section className={`${card} flex flex-col bg-[#FFF8E6] lg:col-span-3`} aria-labelledby="sample-ring">
+              <section className={`${card} flex flex-col bg-[#FFF8E6]/70 dark:bg-[#382C10]/70 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-xl shadow-[#7B4DFF]/15 dark:shadow-none lg:col-span-3 transition-all duration-500 ease-out`} aria-labelledby="sample-ring">
                 <div className="flex items-center justify-between gap-3">
-                  <h2 id="sample-ring" className="text-xl font-medium text-[#2A2000]">This month</h2>
+                  <h2 id="sample-ring" className="text-xl font-medium text-[#2A2000] dark:text-[#FBE5A1] transition-colors duration-500 ease-out">This month</h2>
                   <SampleChip />
                 </div>
-                <p className="mt-2 text-sm text-[#5C4600]">
+                <p className="mt-2 text-sm text-[#5C4600] dark:text-[#D6B55E] transition-colors duration-500 ease-out">
                   <b className="font-semibold text-[#F5A800]">Live tally</b> of every report
                 </p>
                 <div className="mt-4 flex items-center justify-between gap-3">
-                  <ul className="space-y-2 text-sm text-[#2A2000]">
+                  <ul className="space-y-2 text-sm text-[#2A2000] dark:text-[#FBE5A1] transition-colors duration-500 ease-out">
                     <li><Dot color="#F21DB4" label="Filed" small /></li>
                     <li><Dot color="#7B4DFF" label="Reviewed" small /></li>
                     <li><Dot color="#FFC800" label="Compliant" small /></li>
@@ -225,7 +230,7 @@ export default function BarangaySignInPage() {
                 </div>
                 <Link
                   href={cta.href}
-                  className={`mt-auto inline-flex items-center justify-center gap-2 self-start rounded-full border-2 border-[#FFC800] px-5 py-2 text-sm font-semibold text-[#8A6300] transition-colors hover:bg-[#FFC800] hover:text-[#2A2000] ${focusRing}`}
+                  className={`mt-auto inline-flex items-center justify-center gap-2 self-start rounded-full border-2 border-[#FFC800] px-5 py-2 text-sm font-semibold text-[#8A6300] dark:text-[#FBE5A1] transition-colors duration-500 ease-out transition-colors hover:bg-[#FFC800] hover:text-[#2A2000] ${focusRing}`}
                 >
                   {cta.label}
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -236,11 +241,11 @@ export default function BarangaySignInPage() {
             </div>
 
             {/* ---------- Row 2: barangay directory ---------- */}
-            <section id="barangays" className={`${card} scroll-mt-6 bg-[#F1F0FB] sm:p-8`} aria-labelledby="barangays-title">
+            <section id="barangays" className={`${card} scroll-mt-6 bg-[#F1F0FB]/70 dark:bg-[#1E192D]/70 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-xl shadow-[#7B4DFF]/15 dark:shadow-none p-4 sm:p-8 transition-all duration-500 ease-out`} aria-labelledby="barangays-title">
               <div className="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                  <h2 id="barangays-title" className="text-2xl font-semibold text-[#1B1235]">Barangays of Makati</h2>
-                  <p className="mt-1 max-w-[56ch] text-slate-600">
+                  <h2 id="barangays-title" className="text-2xl font-semibold text-[#1B1235] dark:text-[#E9DFFF] transition-colors duration-500 ease-out">Barangays of Makati</h2>
+                  <p className="mt-1 max-w-[56ch] text-slate-600 dark:text-[#A79CBE] transition-colors duration-500 ease-out">
                     {isRep
                       ? "You are signed in. Your barangay is highlighted; representatives can only open their own."
                       : user
@@ -307,8 +312,8 @@ export default function BarangaySignInPage() {
 
             {/* ---------- Row 4: journey + statuses ---------- */}
             <div className="grid gap-5 lg:grid-cols-5">
-              <section id="journey" className={`${card} scroll-mt-6 bg-[#E8FAFF] sm:p-8 lg:col-span-3`} aria-labelledby="journey-title">
-                <h2 id="journey-title" className="text-2xl font-semibold text-[#0B2A36]">A report&apos;s trip</h2>
+              <section id="journey" className={`${card} scroll-mt-6 bg-[#E8FAFF]/70 dark:bg-[#15343B]/70 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-xl shadow-[#7B4DFF]/15 dark:shadow-none sm:p-8 lg:col-span-3 transition-all duration-500 ease-out`} aria-labelledby="journey-title">
+                <h2 id="journey-title" className="text-2xl font-semibold text-[#0B2A36] dark:text-white transition-colors duration-500 ease-out">A report&apos;s trip</h2>
                 <ol className="mt-6">
                   {STEPS.map((s, i) => (
                     <li key={s.title} className="relative flex gap-4 pb-6 last:pb-0">
@@ -322,21 +327,21 @@ export default function BarangaySignInPage() {
                         {i + 1}
                       </span>
                       <div className="pt-1.5">
-                        <h3 className="font-semibold text-[#0B2A36]">{s.title}</h3>
-                        <p className="mt-0.5 max-w-[48ch] text-sm leading-6 text-slate-600">{s.body}</p>
+                        <h3 className="font-semibold text-[#0B2A36] dark:text-[#E8FAFF] transition-colors duration-500 ease-out">{s.title}</h3>
+                        <p className="mt-0.5 max-w-[48ch] text-sm leading-6 text-slate-600 dark:text-slate-300 transition-colors duration-500 ease-out">{s.body}</p>
                       </div>
                     </li>
                   ))}
                 </ol>
               </section>
 
-              <section id="statuses" className={`${card} scroll-mt-6 bg-[#F1F0FB] sm:p-8 lg:col-span-2`} aria-labelledby="statuses-title">
-                <h2 id="statuses-title" className="text-2xl font-semibold text-[#1B1235]">Five statuses, one glance</h2>
+              <section id="statuses" className={`${card} scroll-mt-6 bg-[#F1F0FB]/70 dark:bg-[#1E192D]/70 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-xl shadow-[#7B4DFF]/15 dark:shadow-none sm:p-8 lg:col-span-2 transition-all duration-500 ease-out`} aria-labelledby="statuses-title">
+                <h2 id="statuses-title" className="text-2xl font-semibold text-[#1B1235] dark:text-[#E9DFFF] transition-colors duration-500 ease-out">Five statuses, one glance</h2>
                 <ul className="mt-5 divide-y divide-[#E1DCF3]">
                   {STATUSES.map((s) => (
                     <li key={s.status} className="flex flex-col gap-1.5 py-3.5 first:pt-0 last:pb-0 sm:flex-row sm:items-start sm:gap-4">
                       <span className="shrink-0 sm:w-32"><StatusBadge status={s.status} /></span>
-                      <p className="text-sm leading-6 text-slate-600">{s.meaning}</p>
+                      <p className="text-sm leading-6 text-slate-600 dark:text-slate-300 transition-colors duration-500 ease-out">{s.meaning}</p>
                     </li>
                   ))}
                 </ul>
@@ -344,37 +349,37 @@ export default function BarangaySignInPage() {
             </div>
 
             {/* ---------- FAQ ---------- */}
-            <section id="faq" className={`${card} scroll-mt-6 bg-[#FFF8E6] sm:p-8`} aria-labelledby="faq-title">
-              <h2 id="faq-title" className="text-2xl font-semibold text-[#2A2000]">Questions</h2>
+            <section id="faq" className={`${card} scroll-mt-6 bg-[#FFF8E6]/70 dark:bg-[#382C10]/70 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-xl shadow-[#7B4DFF]/15 dark:shadow-none sm:p-8 transition-all duration-500 ease-out`} aria-labelledby="faq-title">
+              <h2 id="faq-title" className="text-2xl font-semibold text-[#2A2000] dark:text-[#FBE5A1] transition-colors duration-500 ease-out">Questions</h2>
               <div className="mt-5 space-y-3">
                 {FAQ.map((f) => (
-                  <details key={f.q} className="group rounded-2xl bg-white p-5">
-                    <summary className={`flex cursor-pointer list-none items-center justify-between gap-4 rounded font-semibold text-slate-900 ${focusRing}`}>
+                  <details key={f.q} className="group rounded-2xl bg-white/70 dark:bg-black/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] p-5">
+                    <summary className={`flex cursor-pointer list-none items-center justify-between gap-4 rounded font-semibold text-slate-900 dark:text-slate-100 transition-colors duration-500 ease-out ${focusRing}`}>
                       {f.q}
                       <span aria-hidden="true" className="text-2xl leading-none text-[#7B4DFF] transition-transform group-open:rotate-45">+</span>
                     </summary>
-                    <p className="mt-3 leading-7 text-slate-600">{f.a}</p>
+                    <p className="mt-3 leading-7 text-slate-600 dark:text-slate-300 transition-colors duration-500 ease-out">{f.a}</p>
                   </details>
                 ))}
               </div>
             </section>
 
             {/* ---------- Closing call ---------- */}
-            <section className="relative overflow-hidden rounded-3xl bg-[#7B4DFF] px-7 py-10 text-white sm:px-10">
+            <section className="relative overflow-hidden rounded-3xl bg-[#7B4DFF]/80 dark:bg-[#352D52]/70 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-xl shadow-[#7B4DFF]/15 dark:shadow-none transition-all duration-500 ease-out px-5 py-8 sm:px-10 sm:py-10 text-white">
               <div aria-hidden="true" className="absolute -right-8 -top-10 h-40 w-40 rounded-full bg-white/10" />
               <div aria-hidden="true" className="absolute -bottom-10 right-40 h-24 w-24 rounded-full bg-[#06D6A0]/40" />
               <div className="relative flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
                 <div>
-                  <h2 className="text-2xl font-semibold sm:text-3xl">Got your account details?</h2>
-                  <p className="mt-2 text-[#E9DFFF]">Pick your barangay above, or sign in with the email and password from your DILG Makati office.</p>
+                  <h2 className="text-xl sm:text-3xl font-semibold">Got your account details?</h2>
+                  <p className="mt-2 text-sm sm:text-base text-[#E9DFFF]">Pick your barangay above, or sign in with the email and password from your DILG Makati office.</p>
                 </div>
-                <Link href={cta.href} className={`shrink-0 rounded-full bg-white px-7 py-3 font-semibold text-[#5A18C9] transition-transform hover:-translate-y-0.5 ${focusRing}`}>
+                <Link href={cta.href} className={`w-full sm:w-auto text-center shrink-0 rounded-full bg-white px-7 py-3 font-semibold text-[#5A18C9] transition-transform hover:-translate-y-0.5 ${focusRing}`}>
                   {cta.label}
                 </Link>
               </div>
             </section>
 
-            <footer className="pb-2 pt-1 text-center text-sm text-slate-500">
+            <footer className="pb-2 pt-1 text-center text-sm text-slate-500 dark:text-[#7C6FA3] transition-colors duration-500 ease-out">
               &copy; {new Date().getFullYear()} Talaghayan &middot; Barangay Report Tracker
             </footer>
           </main>
@@ -402,15 +407,15 @@ function BarangayTile({
   const body = (
     <>
       <span
-        className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-sm font-semibold"
+        className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-sm font-semibold transition-transform duration-500 ease-out group-hover:scale-110"
         style={{ backgroundColor: avatar.bg, color: avatar.fg }}
         aria-hidden="true"
       >
         {initials(b.name)}
       </span>
       <span className="min-w-0 flex-1 text-left">
-        <span className="block truncate font-semibold text-slate-900">{b.name}</span>
-        <span className="block text-xs text-slate-500">{mode === "mine" ? "Your barangay" : b.code}</span>
+        <span className="block truncate font-semibold text-slate-900 dark:text-white transition-colors duration-500 ease-out">{b.name}</span>
+        <span className="block text-xs text-slate-500 dark:text-slate-400 transition-colors duration-500 ease-out">{mode === "mine" ? "Your barangay" : b.code}</span>
       </span>
       {mode === "mine" ? (
         <span className="rounded-full bg-[#7B4DFF] px-2.5 py-1 text-xs font-semibold text-white">Open</span>
@@ -422,7 +427,7 @@ function BarangayTile({
     </>
   );
 
-  const base = `flex w-full items-center gap-3 rounded-2xl bg-white p-3 pr-4 ring-1 ring-[#E8E3F7] transition ${focusRing}`;
+  const base = `group flex w-full items-center gap-3 rounded-2xl bg-white/70 dark:bg-[#1B142F]/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-md p-3 pr-4 ring-1 ring-[#E8E3F7] dark:ring-white/10 transition-all hover:-translate-y-1 hover:shadow-lg hover:bg-white dark:hover:bg-[#352D52]/80 ${focusRing}`;
 
   if (mode === "locked") {
     return (
@@ -473,7 +478,7 @@ function Dot({ color, label, small = false }: { color: string; label: string; sm
 }
 
 function SampleChip() {
-  return <span className="shrink-0 rounded-full bg-white/70 px-2.5 py-1 text-xs font-medium text-slate-600">Sample view</span>;
+  return <span className="shrink-0 rounded-full bg-white/70 dark:bg-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] px-2.5 py-1 text-xs font-medium text-slate-600">Sample view</span>;
 }
 
 /** Decorative preview of the Talaghayan chart. Not real data, and labelled as a sample. */
@@ -511,7 +516,7 @@ function SampleRings() {
     );
   };
   return (
-    <svg viewBox="0 0 120 120" className="h-28 w-28 shrink-0 -rotate-90" role="img" aria-label="Sample progress rings">
+    <svg viewBox="0 0 120 120" className="h-24 w-24 sm:h-28 sm:w-28 shrink-0 -rotate-90" role="img" aria-label="Sample progress rings">
       {ring(54, 0.92, "#F21DB4", "#FBD3EE")}
       {ring(40, 0.7, "#7B4DFF", "#E3D5FF")}
       {ring(26, 0.5, "#FFC800", "#FFF0A3")}

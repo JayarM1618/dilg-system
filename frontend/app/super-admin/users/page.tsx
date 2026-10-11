@@ -36,8 +36,8 @@ export default function UsersPage() {
 
   return (
     <>
-      <h1 className="text-3xl font-semibold text-navy-900">Users</h1>
-      <p className="mt-1 text-muted">Everyone who can sign in to the report tracker.</p>
+      <h1 className="text-2xl sm:text-3xl font-semibold text-navy-900 dark:text-white transition-colors duration-500 ease-out">Users</h1>
+      <p className="mt-1 text-sm sm:text-base text-muted dark:text-slate-400">Everyone who can sign in to the report tracker.</p>
 
       {!loading && !error && users.length > 0 && (
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -51,7 +51,7 @@ export default function UsersPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search name, email or barangay"
-              className="w-full rounded-md border border-line bg-white px-3.5 py-2 text-sm outline-none transition focus:border-navy-700 focus:ring-2 focus:ring-navy-700/25 sm:w-80"
+              className="w-full rounded-md border border-line dark:border-white/10 bg-white dark:bg-white/5 px-3.5 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none transition focus:border-[#7B4DFF] focus:ring-2 focus:ring-[#7B4DFF]/25 sm:w-80"
             />
           </div>
           <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by role">
@@ -63,8 +63,8 @@ export default function UsersPage() {
                 aria-pressed={role === f.value}
                 className={`rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${
                   role === f.value
-                    ? "border-navy-900 bg-navy-900 text-white"
-                    : "border-line bg-white text-navy-800 hover:bg-navy-50"
+                    ? "border-[#7B4DFF] bg-[#5A18C9] dark:bg-[#7B4DFF] text-white"
+                    : "border-line dark:border-white/10 bg-white dark:bg-white/5 text-navy-800 dark:text-slate-200 hover:bg-navy-50 dark:hover:bg-white/10"
                 }`}
               >
                 {f.label}
@@ -74,10 +74,10 @@ export default function UsersPage() {
         </div>
       )}
 
-      <div className="mt-6 overflow-x-auto rounded-lg border border-line bg-white">
+      <div className="mt-6 overflow-x-auto rounded-lg border border-line dark:border-white/10 bg-white dark:bg-white/5">
         <table className="w-full min-w-[640px] text-left text-sm">
           <caption className="sr-only">User accounts</caption>
-          <thead className="bg-navy-50 text-navy-800">
+          <thead className="bg-navy-50 dark:bg-white/5 text-navy-800 dark:text-[#D1C4F9]">
             <tr>
               <th scope="col" className="px-4 py-3 font-semibold">Name</th>
               <th scope="col" className="px-4 py-3 font-semibold">Email</th>
@@ -86,37 +86,37 @@ export default function UsersPage() {
               <th scope="col" className="px-4 py-3 font-semibold">Status</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-line">
+          <tbody className="divide-y divide-line dark:divide-white/10">
             {loading ? (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-muted">Loading users...</td>
+                <td colSpan={5} className="px-4 py-10 text-center text-muted dark:text-slate-400">Loading users...</td>
               </tr>
             ) : error ? (
               <tr>
                 <td colSpan={5} className="px-4 py-10 text-center">
-                  <p className="font-medium text-bad">{error}</p>
-                  <button onClick={retry} className="mt-3 text-sm font-semibold text-navy-700 underline underline-offset-4">
+                  <p className="font-medium text-bad dark:text-rose-400">{error}</p>
+                  <button onClick={retry} className="mt-3 text-sm font-semibold text-navy-700 dark:text-slate-300 underline underline-offset-4">
                     Try again
                   </button>
                 </td>
               </tr>
             ) : visible.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-muted">
+                <td colSpan={5} className="px-4 py-10 text-center text-muted dark:text-slate-400">
                   {users.length === 0 ? "No users yet." : "No users match your search."}
                 </td>
               </tr>
             ) : (
               visible.map((u) => (
                 <tr key={u.id}>
-                  <th scope="row" className="whitespace-nowrap px-4 py-3.5 text-left font-medium">{u.name}</th>
-                  <td className="px-4 py-3.5 text-muted">{u.email}</td>
-                  <td className="px-4 py-3.5">{ROLE_INFO[u.role]?.label ?? u.role}</td>
-                  <td className="px-4 py-3.5">{u.barangay?.name ?? "—"}</td>
+                  <th scope="row" className="whitespace-nowrap px-4 py-3.5 text-left font-medium text-navy-900 dark:text-white">{u.name}</th>
+                  <td className="px-4 py-3.5 text-muted dark:text-slate-400">{u.email}</td>
+                  <td className="px-4 py-3.5 text-slate-800 dark:text-slate-200">{ROLE_INFO[u.role]?.label ?? u.role}</td>
+                  <td className="px-4 py-3.5 text-slate-800 dark:text-slate-200">{u.barangay?.name ?? "—"}</td>
                   <td className="px-4 py-3.5">
                     <span
                       className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                        u.is_active ? "bg-emerald-50 text-ok" : "bg-bad-bg text-bad"
+                        u.is_active ? "bg-emerald-50 dark:bg-emerald-500/20 text-ok dark:text-emerald-300" : "bg-bad-bg dark:bg-rose-500/20 text-bad dark:text-rose-300"
                       }`}
                     >
                       {u.is_active ? "Active" : "Deactivated"}
@@ -130,7 +130,7 @@ export default function UsersPage() {
       </div>
 
       {!loading && !error && users.length > 0 && (
-        <p className="mt-3 text-sm text-muted">
+        <p className="mt-3 text-sm text-muted dark:text-slate-400">
           Showing {visible.length} of {users.length} {users.length === 1 ? "user" : "users"}.
         </p>
       )}

@@ -47,16 +47,16 @@ export default function BarangayDashboard() {
 
   return (
     <div>
-      <div className="flex flex-wrap items-end justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold text-navy-900">{user?.barangay?.name ?? "Your barangay"}</h1>
-          <p className="mt-1 text-muted">Your report submissions and where each one stands.</p>
+          <h1 className="text-2xl sm:text-3xl font-semibold text-navy-900 dark:text-white transition-colors duration-500 ease-out">{user?.barangay?.name ?? "Your barangay"}</h1>
+          <p className="mt-1 text-sm sm:text-base text-muted dark:text-slate-400">Your report submissions and where each one stands.</p>
         </div>
         <button
           type="button"
           onClick={() => downloadCsv(submissions, user?.barangay?.name ?? "barangay")}
           disabled={total === 0}
-          className="inline-flex items-center gap-2 rounded-full border-2 border-[#7B2FF7] px-5 py-2 text-sm font-semibold text-[#5A18C9] transition-colors hover:bg-[#7B2FF7] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7B2FF7] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-[#5A18C9]"
+          className="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-full border-2 border-[#7B2FF7] px-5 py-2 text-sm font-semibold text-[#5A18C9] dark:text-[#CDBBFF] transition-colors hover:bg-[#7B2FF7] hover:text-white dark:hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7B2FF7] disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-[#5A18C9]"
         >
           <DownloadIcon />
           Download report
@@ -64,9 +64,9 @@ export default function BarangayDashboard() {
       </div>
 
       {error ? (
-        <div className="mt-8 rounded-3xl bg-[#FFF0F4] p-8 text-center" role="alert">
-          <p className="font-medium text-bad">{error}</p>
-          <button onClick={retry} className="mt-3 text-sm font-semibold text-navy-700 underline underline-offset-4">
+        <div className="mt-8 rounded-3xl bg-[#FFF0F4] dark:bg-rose-950/30 dark:border dark:border-rose-900/50 p-8 text-center" role="alert">
+          <p className="font-medium text-bad dark:text-rose-400">{error}</p>
+          <button onClick={retry} className="mt-3 text-sm font-semibold text-navy-700 dark:text-slate-300 underline underline-offset-4">
             Try again
           </button>
         </div>
@@ -75,10 +75,12 @@ export default function BarangayDashboard() {
       ) : (
         <>
           {/* Row 1: overall, trend, breakdown */}
-          <div className="mt-6 grid gap-5 lg:grid-cols-3">
+          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             <OverallCard total={total} done={counts.compliant} pct={compliantPct} toFile={counts.pending} overdue={overdue} />
             <TrendCard submissions={submissions} />
-            <BreakdownCard counts={counts} total={total} pct={compliantPct} />
+            <div className="sm:col-span-2 lg:col-span-1">
+              <BreakdownCard counts={counts} total={total} pct={compliantPct} />
+            </div>
           </div>
 
           {/* Row 2: recent table, per-report breakdown */}
@@ -100,17 +102,17 @@ function OverallCard({
   total, done, pct, toFile, overdue,
 }: { total: number; done: number; pct: number; toFile: number; overdue: number }) {
   return (
-    <section className="flex min-w-0 flex-col rounded-3xl bg-[#E6FBF3] p-6" aria-labelledby="overall-title">
-      <h2 id="overall-title" className="text-xl font-medium text-navy-900">Overall information</h2>
+    <section className="flex min-w-0 flex-col rounded-3xl bg-[#E6FBF3] dark:bg-[#12382C]/60 dark:border dark:border-[#06D6A0]/20 p-6 backdrop-blur-xl transition-all duration-500 ease-out" aria-labelledby="overall-title">
+      <h2 id="overall-title" className="text-xl font-medium text-navy-900 dark:text-[#E8FAFF]">Overall information</h2>
 
-      <div className="mt-5 flex items-center gap-3 text-[#2C5A4D]">
-        <span className="grid h-9 w-9 place-items-center rounded-full bg-[#BDF3DE]" aria-hidden="true">
+      <div className="mt-5 flex items-center gap-3 text-[#2C5A4D] dark:text-[#A3EED6]">
+        <span className="grid h-9 w-9 place-items-center rounded-full bg-[#BDF3DE] dark:bg-[#1C5243]" aria-hidden="true">
           <CheckIcon />
         </span>
         <span>{done} of {total} reports compliant</span>
       </div>
       <div
-        className="mt-3 h-2.5 overflow-hidden rounded-full bg-[#BDF3DE]"
+        className="mt-3 h-2.5 overflow-hidden rounded-full bg-[#BDF3DE] dark:bg-[#1C5243]"
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={100}
@@ -125,7 +127,7 @@ function OverallCard({
         <Tile value={toFile} label="To file" />
       </div>
       {overdue > 0 && (
-        <p className="mt-4 text-sm font-semibold text-[#B0123F]">
+        <p className="mt-4 text-sm font-semibold text-[#B0123F] dark:text-rose-400">
           {overdue} {overdue === 1 ? "report is" : "reports are"} past the due date.
         </p>
       )}
@@ -135,7 +137,7 @@ function OverallCard({
 
 function Tile({ value, label }: { value: number; label: string }) {
   return (
-    <div className="rounded-2xl bg-[#06D6A0] px-4 py-5 text-center text-[#04281F]">
+    <div className="rounded-2xl bg-[#06D6A0] dark:bg-[#06D6A0]/90 px-4 py-5 text-center text-[#04281F] shadow-sm">
       <p className="font-display text-4xl font-semibold tabular-nums">{value}</p>
       <p className="mt-1 text-sm font-medium">{label}</p>
     </div>
@@ -179,15 +181,15 @@ function TrendCard({ submissions }: { submissions: Submission[] }) {
   const active = hover !== null ? points[hover] : undefined;
 
   return (
-    <section className="min-w-0 rounded-3xl bg-[#F3EDFE] p-6" aria-labelledby="trend-title">
-      <h2 id="trend-title" className="text-xl font-medium text-navy-900">Reports by month</h2>
-      <div className="mt-3 flex gap-5 text-sm text-navy-800">
+    <section className="min-w-0 rounded-3xl bg-[#F3EDFE] dark:bg-[#2A233D]/70 dark:border dark:border-white/10 p-6 backdrop-blur-xl transition-all duration-500 ease-out" aria-labelledby="trend-title">
+      <h2 id="trend-title" className="text-xl font-medium text-navy-900 dark:text-[#E9DFFF]">Reports by month</h2>
+      <div className="mt-3 flex gap-5 text-sm text-navy-800 dark:text-[#D1C4F9]">
         <LegendDot color="#7B2FF7" label="Due" />
         <LegendDot color="#F21DB4" label="Filed" />
       </div>
 
       {points.length === 0 ? (
-        <p className="py-16 text-center text-muted">Nothing to chart yet. Reports appear here once your office opens a period.</p>
+        <p className="py-16 text-center text-muted dark:text-slate-400">Nothing to chart yet. Reports appear here once your office opens a period.</p>
       ) : (
         <svg
           viewBox={`0 0 ${W} ${H}`}
@@ -198,8 +200,8 @@ function TrendCard({ submissions }: { submissions: Submission[] }) {
         >
           {[0, 0.25, 0.5, 0.75, 1].map((f) => (
             <g key={f}>
-              <line x1={L} x2={W - R} y1={y(max * f)} y2={y(max * f)} stroke="#DDD0F8" strokeWidth="1" />
-              <text x={L - 8} y={y(max * f) + 4} textAnchor="end" fontSize="10" fill="#6B5F8F">{Math.round(max * f)}</text>
+              <line x1={L} x2={W - R} y1={y(max * f)} y2={y(max * f)} className="stroke-[#DDD0F8] dark:stroke-[#463B63]" strokeWidth="1" />
+              <text x={L - 8} y={y(max * f) + 4} textAnchor="end" fontSize="10" className="fill-[#6B5F8F] dark:fill-[#AFA2D6]">{Math.round(max * f)}</text>
             </g>
           ))}
 
@@ -217,7 +219,7 @@ function TrendCard({ submissions }: { submissions: Submission[] }) {
           )}
 
           {points.map((p, i) => (
-            <text key={p.month} x={x(i)} y={H - 8} textAnchor="middle" fontSize="10" fill="#6B5F8F">{p.label}</text>
+            <text key={p.month} x={x(i)} y={H - 8} textAnchor="middle" fontSize="10" className="fill-[#6B5F8F] dark:fill-[#AFA2D6]">{p.label}</text>
           ))}
 
           {hover !== null && active && (
@@ -257,22 +259,22 @@ function BreakdownCard({ counts, total, pct }: { counts: Record<GroupKey, number
   let offset = 0;
 
   return (
-    <section className="min-w-0 rounded-3xl bg-[#FFF8E6] p-6" aria-labelledby="breakdown-title">
-      <h2 id="breakdown-title" className="text-xl font-medium text-navy-900">Where your reports stand</h2>
-      <p className="mt-1 text-sm text-[#7A5B00]">{pct}% compliant so far</p>
+    <section className="min-w-0 rounded-3xl bg-[#FFF8E6] dark:bg-[#382C10]/70 dark:border dark:border-[#FFD60A]/20 p-6 backdrop-blur-xl transition-all duration-500 ease-out" aria-labelledby="breakdown-title">
+      <h2 id="breakdown-title" className="text-xl font-medium text-navy-900 dark:text-[#FBE5A1]">Where your reports stand</h2>
+      <p className="mt-1 text-sm text-[#7A5B00] dark:text-[#E2C775]">{pct}% compliant so far</p>
 
-      <div className="mt-5 flex items-center gap-5">
-        <ul className="min-w-0 flex-1 space-y-2.5 text-sm text-navy-900">
+      <div className="mt-5 flex items-center justify-between gap-4">
+        <ul className="min-w-0 flex-1 space-y-2 text-xs sm:text-sm text-navy-900 dark:text-[#FBE5A1]">
           {GROUPS.map((g) => (
             <li key={g.key} className="flex items-center justify-between gap-2">
               <LegendDot color={g.color} label={g.label} />
-              <span className="font-semibold tabular-nums">{counts[g.key]}</span>
+              <span className="font-semibold tabular-nums text-navy-900 dark:text-white">{counts[g.key]}</span>
             </li>
           ))}
         </ul>
 
-        <svg viewBox="0 0 160 160" className="h-36 w-36 shrink-0 -rotate-90" role="img" aria-label={`${pct}% of reports are compliant`}>
-          <circle cx="80" cy="80" r={R} fill="none" stroke="#F3E8C4" strokeWidth="16" />
+        <svg viewBox="0 0 160 160" className="h-28 w-28 sm:h-36 sm:w-36 shrink-0 -rotate-90" role="img" aria-label={`${pct}% of reports are compliant`}>
+          <circle cx="80" cy="80" r={R} fill="none" className="stroke-[#F3E8C4] dark:stroke-[#544318]" strokeWidth="16" />
           {total > 0 &&
             GROUPS.map((g) => {
               const len = (counts[g.key] / total) * C;
@@ -291,7 +293,7 @@ function BreakdownCard({ counts, total, pct }: { counts: Record<GroupKey, number
               offset += len;
               return el;
             })}
-          <text x="80" y="80" transform="rotate(90 80 80)" textAnchor="middle" dominantBaseline="central" fontSize="26" fontWeight="600" fill="#2A2000">
+          <text x="80" y="80" transform="rotate(90 80 80)" textAnchor="middle" dominantBaseline="central" fontSize="26" fontWeight="600" className="fill-[#2A2000] dark:fill-[#FBE5A1]">
             {pct}%
           </text>
         </svg>
@@ -304,12 +306,12 @@ function BreakdownCard({ counts, total, pct }: { counts: Record<GroupKey, number
 
 function RecentCard({ rows, total }: { rows: Submission[]; total: number }) {
   return (
-    <section className="min-w-0 rounded-3xl bg-[#F3EDFE] p-6 lg:col-span-3" aria-labelledby="recent-title">
+    <section className="min-w-0 rounded-3xl bg-[#F3EDFE] dark:bg-[#2A233D]/70 dark:border dark:border-white/10 p-6 lg:col-span-3 backdrop-blur-xl transition-all duration-500 ease-out" aria-labelledby="recent-title">
       <div className="flex items-center justify-between gap-3">
-        <h2 id="recent-title" className="text-xl font-medium text-navy-900">Latest reports</h2>
+        <h2 id="recent-title" className="text-xl font-medium text-navy-900 dark:text-[#E9DFFF]">Latest reports</h2>
         <Link
           href="/user/repository"
-          className="text-sm font-semibold text-[#5A18C9] underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7B2FF7]"
+          className="text-sm font-semibold text-[#5A18C9] dark:text-[#CDBBFF] underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7B2FF7]"
         >
           Open repository
         </Link>
@@ -318,36 +320,36 @@ function RecentCard({ rows, total }: { rows: Submission[]; total: number }) {
       <div className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[480px] text-left text-sm">
           <caption className="sr-only">Your most recent report submissions</caption>
-          <thead className="text-navy-800">
-            <tr className="border-b border-[#DDD0F8]">
+          <thead className="text-navy-800 dark:text-[#D1C4F9]">
+            <tr className="border-b border-[#DDD0F8] dark:border-[#463B63]">
               <th scope="col" className="py-2.5 pr-3 font-semibold">Report</th>
               <th scope="col" className="px-3 py-2.5 font-semibold">Period</th>
               <th scope="col" className="px-3 py-2.5 font-semibold">Due date</th>
               <th scope="col" className="py-2.5 pl-3 font-semibold">Status</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#E6DCFA]">
+          <tbody className="divide-y divide-[#E6DCFA] dark:divide-[#3A3252]">
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={4} className="py-10 text-center text-muted">
+                <td colSpan={4} className="py-10 text-center text-muted dark:text-slate-400">
                   No reports assigned yet. Your DILG Makati office will add report periods here.
                 </td>
               </tr>
             ) : (
               rows.map((s) => (
                 <tr key={s.id}>
-                  <td className="py-3 pr-3 font-medium text-navy-900">{s.category?.name ?? "Report"}</td>
-                  <td className="px-3 py-3 tabular-nums">{s.period_label}</td>
-                  <td className="px-3 py-3 tabular-nums">
+                  <td className="py-3 pr-3 font-medium text-navy-900 dark:text-white">{s.category?.name ?? "Report"}</td>
+                  <td className="px-3 py-3 tabular-nums text-slate-700 dark:text-slate-300">{s.period_label}</td>
+                  <td className="px-3 py-3 tabular-nums text-slate-700 dark:text-slate-300">
                     {formatDate(s.due_date)}
                     {s.is_overdue && (
-                      <span className="ml-2 text-xs font-semibold text-bad">Overdue</span>
+                      <span className="ml-2 text-xs font-semibold text-bad dark:text-rose-400">Overdue</span>
                     )}
                   </td>
                   <td className="py-3 pl-3">
                     <StatusBadge status={s.status} />
                     {s.status === "non_compliant" && s.review_remarks && (
-                      <p className="mt-1.5 max-w-[30ch] text-xs text-muted">{s.review_remarks}</p>
+                      <p className="mt-1.5 max-w-[30ch] text-xs text-muted dark:text-slate-400">{s.review_remarks}</p>
                     )}
                   </td>
                 </tr>
@@ -356,7 +358,7 @@ function RecentCard({ rows, total }: { rows: Submission[]; total: number }) {
           </tbody>
         </table>
       </div>
-      {total > rows.length && <p className="mt-3 text-xs text-muted">Showing {rows.length} of {total} reports.</p>}
+      {total > rows.length && <p className="mt-3 text-xs text-muted dark:text-slate-400">Showing {rows.length} of {total} reports.</p>}
     </section>
   );
 }
@@ -378,24 +380,24 @@ function CategoryCard({ submissions }: { submissions: Submission[] }) {
   const widest = Math.max(1, ...rows.map((r) => r.sum));
 
   return (
-    <section className="min-w-0 rounded-3xl bg-[#E8FAFF] p-6 lg:col-span-2" aria-labelledby="cat-title">
-      <h2 id="cat-title" className="text-xl font-medium text-navy-900">Progress by report</h2>
-      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-navy-800">
+    <section className="min-w-0 rounded-3xl bg-[#E8FAFF] dark:bg-[#12303D]/70 dark:border dark:border-[#38bdf8]/20 p-6 lg:col-span-2 backdrop-blur-xl transition-all duration-500 ease-out" aria-labelledby="cat-title">
+      <h2 id="cat-title" className="text-xl font-medium text-navy-900 dark:text-[#E8FAFF]">Progress by report</h2>
+      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-navy-800 dark:text-[#BAE6FD]">
         {GROUPS.map((g) => <LegendDot key={g.key} color={g.color} label={g.label} />)}
       </div>
 
       {rows.length === 0 ? (
-        <p className="py-12 text-center text-muted">No reports to compare yet.</p>
+        <p className="py-12 text-center text-muted dark:text-slate-400">No reports to compare yet.</p>
       ) : (
         <ul className="mt-5 space-y-4">
           {rows.map((r) => (
             <li key={r.name}>
               <div className="flex items-baseline justify-between gap-3 text-sm">
-                <span className="truncate font-medium text-navy-900" title={r.name}>{r.name}</span>
-                <span className="shrink-0 tabular-nums text-muted">{r.c.compliant}/{r.sum}</span>
+                <span className="truncate font-medium text-navy-900 dark:text-white" title={r.name}>{r.name}</span>
+                <span className="shrink-0 tabular-nums text-muted dark:text-slate-400">{r.c.compliant}/{r.sum}</span>
               </div>
               <div
-                className="mt-1.5 flex h-3 gap-0.5 overflow-hidden rounded-full"
+                className="mt-1.5 flex h-3 gap-0.5 overflow-hidden rounded-full bg-slate-200 dark:bg-black/30"
                 style={{ width: `${(r.sum / widest) * 100}%`, minWidth: "2.5rem" }}
                 role="img"
                 aria-label={GROUPS.map((g) => `${r.c[g.key]} ${g.label.toLowerCase()}`).join(", ")}
@@ -431,13 +433,13 @@ function DashboardSkeleton() {
   return (
     <div className="mt-6 animate-pulse motion-reduce:animate-none" role="status" aria-label="Loading your dashboard">
       <div className="grid gap-5 lg:grid-cols-3">
-        <div className="h-72 rounded-3xl bg-[#E6FBF3]" />
-        <div className="h-72 rounded-3xl bg-[#F3EDFE]" />
-        <div className="h-72 rounded-3xl bg-[#FFF8E6]" />
+        <div className="h-72 rounded-3xl bg-[#E6FBF3] dark:bg-[#12382C]/50" />
+        <div className="h-72 rounded-3xl bg-[#F3EDFE] dark:bg-[#2A233D]/50" />
+        <div className="h-72 rounded-3xl bg-[#FFF8E6] dark:bg-[#382C10]/50" />
       </div>
       <div className="mt-5 grid gap-5 lg:grid-cols-5">
-        <div className="h-72 rounded-3xl bg-[#F3EDFE] lg:col-span-3" />
-        <div className="h-72 rounded-3xl bg-[#E8FAFF] lg:col-span-2" />
+        <div className="h-72 rounded-3xl bg-[#F3EDFE] dark:bg-[#2A233D]/50 lg:col-span-3" />
+        <div className="h-72 rounded-3xl bg-[#E8FAFF] dark:bg-[#12303D]/50 lg:col-span-2" />
       </div>
     </div>
   );

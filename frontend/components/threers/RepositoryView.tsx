@@ -63,10 +63,10 @@ function BarangayRepository() {
 
   return (
     <>
-      <div className="overflow-x-auto rounded-lg border border-line bg-white">
+      <div className="overflow-x-auto rounded-lg border border-line dark:border-white/10 bg-white dark:bg-white/5">
         <table className="w-full min-w-[680px] text-left text-sm">
           <caption className="sr-only">Reports your barangay has filed</caption>
-          <thead className="bg-navy-50 text-navy-800">
+          <thead className="bg-navy-50 dark:bg-white/5 text-navy-800 dark:text-[#D1C4F9]">
             <tr>
               <th scope="col" className="px-4 py-3 font-semibold">Report</th>
               <th scope="col" className="px-4 py-3 font-semibold">Period</th>
@@ -75,7 +75,7 @@ function BarangayRepository() {
               <th scope="col" className="px-4 py-3 font-semibold">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-line">
+          <tbody className="divide-y divide-line dark:divide-white/10">
             {loading && rows.length === 0 ? (
               <EmptyRow cols={5}>Loading...</EmptyRow>
             ) : error ? (
@@ -89,21 +89,21 @@ function BarangayRepository() {
               rows.map((s) => (
                 <Fragment key={s.id}>
                   <tr>
-                    <td className="px-4 py-3.5 font-medium">{s.category?.name ?? "Report"}</td>
-                    <td className="px-4 py-3.5 tabular-nums">{s.period_label}</td>
+                    <td className="px-4 py-3.5 font-medium text-navy-900 dark:text-white">{s.category?.name ?? "Report"}</td>
+                    <td className="px-4 py-3.5 tabular-nums text-slate-700 dark:text-slate-300">{s.period_label}</td>
                     <td className="px-4 py-3.5">
                       <StatusBadge status={s.status} />
                       {s.status === "non_compliant" && s.review_remarks && (
-                        <p className="mt-1.5 max-w-[36ch] text-xs text-muted">{s.review_remarks}</p>
+                        <p className="mt-1.5 max-w-[36ch] text-xs text-muted dark:text-slate-400">{s.review_remarks}</p>
                       )}
                     </td>
                     <td className="px-4 py-3.5">
                       {s.latest_file && (
                         <>
-                          <span className="block max-w-[26ch] truncate" title={s.latest_file.original_filename}>
+                          <span className="block max-w-[26ch] truncate text-slate-800 dark:text-slate-200" title={s.latest_file.original_filename}>
                             {s.latest_file.original_filename}
                           </span>
-                          <span className="text-xs text-muted">
+                          <span className="text-xs text-muted dark:text-slate-400">
                             v{s.latest_file.version} &middot; {formatBytes(s.latest_file.size_bytes)} &middot; {formatDateTime(s.latest_file.created_at)}
                           </span>
                         </>
@@ -120,7 +120,7 @@ function BarangayRepository() {
                   </tr>
                   {open === s.id && (
                     <tr>
-                      <td colSpan={5} className="bg-navy-50/50 px-4 py-3">
+                      <td colSpan={5} className="bg-navy-50/50 dark:bg-white/5 px-4 py-3">
                         <VersionHistory submissionId={s.id} />
                       </td>
                     </tr>
@@ -196,13 +196,14 @@ export function UploadButton({
 export function VersionHistory({ submissionId }: { submissionId: number }) {
   const { data, loading, error } = useFetch<SubmissionFileVersion[]>(`/api/submissions/${submissionId}/files`);
 
-  if (loading) return <p className="text-sm text-muted">Loading history...</p>;
-  if (error) return <p className="text-sm font-medium text-bad">{error}</p>;
-  if (!data || data.length === 0) return <p className="text-sm text-muted">No uploads yet.</p>;
+  if (loading) return <p className="text-sm text-muted dark:text-slate-400">Loading history...</p>;
+  if (error) return <p className="text-sm font-medium text-bad dark:text-rose-400">{error}</p>;
+  if (!data || data.length === 0) return <p className="text-sm text-muted dark:text-slate-400">No uploads yet.</p>;
 
   return (
-    <table className="w-full text-left text-xs">
-      <thead className="text-navy-800">
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[540px] text-left text-xs">
+      <thead className="text-navy-800 dark:text-[#D1C4F9]">
         <tr>
           <th className="py-1 pr-4 font-semibold">Version</th>
           <th className="py-1 pr-4 font-semibold">File</th>
@@ -213,17 +214,17 @@ export function VersionHistory({ submissionId }: { submissionId: number }) {
           <th className="py-1 font-semibold"><span className="sr-only">Download</span></th>
         </tr>
       </thead>
-      <tbody className="divide-y divide-line">
+      <tbody className="divide-y divide-line dark:divide-white/10">
         {data.map((f) => (
           <tr key={f.id}>
-            <td className="py-1.5 pr-4 tabular-nums">v{f.version}</td>
-            <td className="py-1.5 pr-4">{f.original_filename}</td>
-            <td className="py-1.5 pr-4">{formatDateTime(f.created_at)}</td>
-            <td className="py-1.5 pr-4">{f.uploader?.name ?? "-"}</td>
-            <td className="py-1.5 pr-4 tabular-nums">{formatBytes(f.size_bytes)}</td>
-            <td className="py-1.5 pr-4 font-mono" title={f.sha256}>{f.sha256.slice(0, 12)}...</td>
+            <td className="py-1.5 pr-4 tabular-nums text-slate-800 dark:text-slate-200">v{f.version}</td>
+            <td className="py-1.5 pr-4 text-slate-800 dark:text-slate-200">{f.original_filename}</td>
+            <td className="py-1.5 pr-4 text-slate-700 dark:text-slate-300">{formatDateTime(f.created_at)}</td>
+            <td className="py-1.5 pr-4 text-slate-700 dark:text-slate-300">{f.uploader?.name ?? "-"}</td>
+            <td className="py-1.5 pr-4 tabular-nums text-slate-700 dark:text-slate-300">{formatBytes(f.size_bytes)}</td>
+            <td className="py-1.5 pr-4 font-mono text-slate-600 dark:text-slate-400" title={f.sha256}>{f.sha256.slice(0, 12)}...</td>
             <td className="py-1.5">
-              <a className="font-semibold text-navy-700 underline underline-offset-4" href={apiUrl(`/api/submissions/${submissionId}/files/${f.id}/download`)}>
+              <a className="font-semibold text-navy-700 dark:text-[#CDBBFF] underline underline-offset-4" href={apiUrl(`/api/submissions/${submissionId}/files/${f.id}/download`)}>
                 Download
               </a>
             </td>
@@ -231,6 +232,7 @@ export function VersionHistory({ submissionId }: { submissionId: number }) {
         ))}
       </tbody>
     </table>
+    </div>
   );
 }
 
@@ -280,12 +282,12 @@ function OfficeRepository() {
         </Notice>
       )}
 
-      <div className="mb-4 flex flex-wrap items-end gap-3">
-        <form onSubmit={onSearch} className="flex gap-2">
-          <label className="text-sm">
+      <div className="mb-4 flex flex-col sm:flex-row sm:items-end flex-wrap gap-3">
+        <form onSubmit={onSearch} className="flex gap-2 w-full sm:w-auto">
+          <label className="text-sm flex-1 sm:flex-initial">
             <span className="sr-only">Search barangay</span>
             <input
-              className={field}
+              className={`${field} w-full sm:w-auto`}
               placeholder="Search barangay..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
@@ -294,43 +296,45 @@ function OfficeRepository() {
           <button className={btnGhost} type="submit">Search</button>
         </form>
 
-        <label className="text-sm">
-          <span className="mb-1 block text-muted">Period</span>
-          <select className={field} value={period} onChange={applyFilter(setPeriod)}>
-            <option value="">All periods</option>
-            {periods.data?.data.map((p) => (
-              <option key={p.period_label} value={p.period_label}>{p.period_label}</option>
-            ))}
-          </select>
-        </label>
+        <div className="flex flex-wrap items-end gap-3 w-full sm:w-auto">
+          <label className="text-sm flex-1 min-w-[130px] sm:flex-initial sm:min-w-0">
+            <span className="mb-1 block text-muted dark:text-slate-400">Period</span>
+            <select className={`${field} w-full sm:w-auto`} value={period} onChange={applyFilter(setPeriod)}>
+              <option value="" className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">All periods</option>
+              {periods.data?.data.map((p) => (
+                <option key={p.period_label} value={p.period_label} className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">{p.period_label}</option>
+              ))}
+            </select>
+          </label>
 
-        <label className="text-sm">
-          <span className="mb-1 block text-muted">Report</span>
-          <select className={field} value={category} onChange={applyFilter(setCategory)}>
-            <option value="">All reports</option>
-            {categories.data?.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
-        </label>
+          <label className="text-sm flex-1 min-w-[130px] sm:flex-initial sm:min-w-0">
+            <span className="mb-1 block text-muted dark:text-slate-400">Report</span>
+            <select className={`${field} w-full sm:w-auto`} value={category} onChange={applyFilter(setCategory)}>
+              <option value="" className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">All reports</option>
+              {categories.data?.map((c) => (
+                <option key={c.id} value={c.id} className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">{c.name}</option>
+              ))}
+            </select>
+          </label>
 
-        <label className="text-sm">
-          <span className="mb-1 block text-muted">Status</span>
-          <select className={field} value={status} onChange={applyFilter(setStatus)}>
-            <option value="">All statuses</option>
-            <option value="pending">Not filed</option>
-            <option value="submitted">Submitted</option>
-            <option value="under_review">Under review</option>
-            <option value="compliant">Compliant</option>
-            <option value="non_compliant">Needs fixing</option>
-          </select>
-        </label>
+          <label className="text-sm flex-1 min-w-[130px] sm:flex-initial sm:min-w-0">
+            <span className="mb-1 block text-muted dark:text-slate-400">Status</span>
+            <select className={`${field} w-full sm:w-auto`} value={status} onChange={applyFilter(setStatus)}>
+              <option value="" className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">All statuses</option>
+              <option value="pending" className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">Not filed</option>
+              <option value="submitted" className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">Submitted</option>
+              <option value="under_review" className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">Under review</option>
+              <option value="compliant" className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">Compliant</option>
+              <option value="non_compliant" className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">Needs fixing</option>
+            </select>
+          </label>
+        </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-line bg-white">
+      <div className="overflow-x-auto rounded-lg border border-line dark:border-white/10 bg-white dark:bg-white/5">
         <table className="w-full min-w-[900px] text-left text-sm">
           <caption className="sr-only">All barangay reports</caption>
-          <thead className="bg-navy-50 text-navy-800">
+          <thead className="bg-navy-50 dark:bg-white/5 text-navy-800 dark:text-[#D1C4F9]">
             <tr>
               <th scope="col" className="px-4 py-3 font-semibold">Barangay</th>
               <th scope="col" className="px-4 py-3 font-semibold">Report</th>
@@ -341,12 +345,12 @@ function OfficeRepository() {
               <th scope="col" className="px-4 py-3 font-semibold">Review</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-line">
+          <tbody className="divide-y divide-line dark:divide-white/10">
             {loading && rows.length === 0 ? (
               <EmptyRow cols={7}>Loading reports...</EmptyRow>
             ) : error ? (
               <EmptyRow cols={7}>
-                <span className="font-medium text-bad">{error}</span>{" "}
+                <span className="font-medium text-bad dark:text-rose-400">{error}</span>{" "}
                 <button onClick={reload} className="underline underline-offset-4">Try again</button>
               </EmptyRow>
             ) : rows.length === 0 ? (
@@ -355,34 +359,34 @@ function OfficeRepository() {
               rows.map((s) => (
                 <Fragment key={s.id}>
                   <tr>
-                    <td className="px-4 py-3.5 font-medium">{s.barangay?.name ?? "-"}</td>
-                    <td className="px-4 py-3.5">{s.category?.name ?? "Report"}</td>
-                    <td className="px-4 py-3.5 tabular-nums">{s.period_label}</td>
-                    <td className="px-4 py-3.5 tabular-nums">
+                    <td className="px-4 py-3.5 font-medium text-navy-900 dark:text-white">{s.barangay?.name ?? "-"}</td>
+                    <td className="px-4 py-3.5 text-slate-800 dark:text-slate-200">{s.category?.name ?? "Report"}</td>
+                    <td className="px-4 py-3.5 tabular-nums text-slate-700 dark:text-slate-300">{s.period_label}</td>
+                    <td className="px-4 py-3.5 tabular-nums text-slate-700 dark:text-slate-300">
                       {formatDate(s.due_date)}
                       {s.is_overdue && (
-                        <span className="ml-2 text-xs font-semibold text-bad">Overdue</span>
+                        <span className="ml-2 text-xs font-semibold text-bad dark:text-rose-400">Overdue</span>
                       )}
                     </td>
                     <td className="px-4 py-3.5">
                       <StatusBadge status={s.status} />
                       {s.status === "non_compliant" && s.review_remarks && (
-                        <p className="mt-1.5 max-w-[30ch] text-xs text-muted">{s.review_remarks}</p>
+                        <p className="mt-1.5 max-w-[30ch] text-xs text-muted dark:text-slate-400">{s.review_remarks}</p>
                       )}
                     </td>
                     <td className="px-4 py-3.5">
                       {s.latest_file ? (
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-xs text-muted">v{s.latest_file.version}</span>
-                          <a className="font-semibold text-navy-700 underline underline-offset-4" href={apiUrl(`/api/submissions/${s.id}/download`)}>
+                          <span className="text-xs text-muted dark:text-slate-400">v{s.latest_file.version}</span>
+                          <a className="font-semibold text-navy-700 dark:text-[#CDBBFF] underline underline-offset-4" href={apiUrl(`/api/submissions/${s.id}/download`)}>
                             Download
                           </a>
-                          <button className="text-xs text-navy-700 underline underline-offset-4" onClick={() => setOpen(open === s.id ? null : s.id)}>
+                          <button className="text-xs text-navy-700 dark:text-[#CDBBFF] underline underline-offset-4" onClick={() => setOpen(open === s.id ? null : s.id)}>
                             {open === s.id ? "Hide history" : "History"}
                           </button>
                         </div>
                       ) : (
-                        <span className="text-muted">No file</span>
+                        <span className="text-muted dark:text-slate-400">No file</span>
                       )}
                     </td>
                     <td className="px-4 py-3.5">
@@ -391,7 +395,7 @@ function OfficeRepository() {
                   </tr>
                   {open === s.id && (
                     <tr>
-                      <td colSpan={7} className="bg-navy-50/50 px-4 py-3">
+                      <td colSpan={7} className="bg-navy-50/50 dark:bg-white/5 px-4 py-3">
                         <VersionHistory submissionId={s.id} />
                       </td>
                     </tr>
@@ -421,7 +425,7 @@ function ReviewControls({
   const [fixing, setFixing] = useState(false);
   const [remarks, setRemarks] = useState("");
 
-  if (submission.status === "pending") return <span className="text-xs text-muted">Waiting for barangay</span>;
+  if (submission.status === "pending") return <span className="text-xs text-muted dark:text-slate-400">Waiting for barangay</span>;
 
   async function send(status: "compliant" | "non_compliant" | "under_review", review_remarks?: string) {
     setBusy(true);
@@ -441,7 +445,7 @@ function ReviewControls({
   if (fixing) {
     return (
       <div className="flex min-w-[220px] flex-col gap-2">
-        <label className="text-xs text-muted" htmlFor={`rm-${submission.id}`}>What needs fixing? (required)</label>
+        <label className="text-xs text-muted dark:text-slate-400" htmlFor={`rm-${submission.id}`}>What needs fixing? (required)</label>
         <textarea
           id={`rm-${submission.id}`}
           className={field}
@@ -478,7 +482,7 @@ function ReviewControls({
 export function EmptyRow({ cols, children }: { cols: number; children: React.ReactNode }) {
   return (
     <tr>
-      <td colSpan={cols} className="px-4 py-10 text-center text-muted">{children}</td>
+      <td colSpan={cols} className="px-4 py-10 text-center text-muted dark:text-slate-400">{children}</td>
     </tr>
   );
 }

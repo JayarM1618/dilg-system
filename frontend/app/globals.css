@@ -1,20 +1,31 @@
 @import "@fontsource/metropolis/400.css";
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
 @theme inline {
   --font-sans: "Metropolis", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Metropolis", ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
-  --color-brand: #0039A6;        /* Deep Blue */
-  --color-brand-dark: #002B7F;   /* hover */
-  --color-brand-soft: #E8EEFB;   /* light tint */
-  --color-brand-tint: #F3F6FD;   /* very light panels */
-  --color-accent: #FFD700;       /* Golden Yellow, CTA */
-  --color-accent-dark: #E6C200;  /* hover */
-  --color-leaf: #008047;         /* Philippine Green */
-  --color-ink: #0B1F4D;          /* dark navy text */
-  --color-page: #F4F4F4;         /* page background */
+  --color-brand: #0039A6;
+  /* Deep Blue */
+  --color-brand-dark: #002B7F;
+  /* hover */
+  --color-brand-soft: #E8EEFB;
+  /* light tint */
+  --color-brand-tint: #F3F6FD;
+  /* very light panels */
+  --color-accent: #FFD700;
+  /* Golden Yellow, CTA */
+  --color-accent-dark: #E6C200;
+  /* hover */
+  --color-leaf: #008047;
+  /* Philippine Green */
+  --color-ink: #0B1F4D;
+  /* dark navy text */
+  --color-page: #F4F4F4;
+  /* page background */
 
   --color-navy-50: #eef3fb;
   --color-navy-100: #d5e0f3;
@@ -41,8 +52,41 @@
   color-scheme: light;
 }
 
+.dark {
+  color-scheme: dark;
+  --color-paper: #120d20;
+  --color-ink: #f1ecfc;
+  --color-muted: #a69bbd;
+  --color-line: #352d4b;
+  --color-navy-50: #231b36;
+  --color-navy-100: #2f2549;
+  --color-navy-700: #d5caf2;
+  --color-navy-800: #ece5ff;
+  --color-navy-900: #f8f6ff;
+}
+
 body {
-  background: var(--color-paper);
-  color: var(--color-ink);
   font-family: var(--font-sans);
+}
+
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+
+  33% {
+    transform: translate(50px, -50px) scale(1.1);
+  }
+
+  66% {
+    transform: translate(-40px, 30px) scale(0.9);
+  }
+
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+.animate-blob {
+  animation: blob 25s infinite alternate ease-in-out;
 }
