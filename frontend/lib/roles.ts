@@ -51,11 +51,12 @@ export const ROLE_INFO: Record<Role, RoleInfo> = {
   super_admin: {
     label: "Super admin",
     tag: "Super admin",
-    description: "Everything an admin can do, plus barangays, templates and user accounts.",
+    description: "Everything an admin can do, plus monitoring of every transaction and issuing the barangay accounts.",
     home: "/super-admin",
     nav: [
       { href: "/super-admin", label: "Talaghayan" },
-      { href: "/super-admin/users", label: "Users" },
+      { href: "/super-admin/monitoring", label: "Monitoring" },
+      { href: "/super-admin/users", label: "Accounts" },
     ],
   },
 };

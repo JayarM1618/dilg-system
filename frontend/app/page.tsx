@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Poppins } from "next/font/google";
 import BrandMark from "@/components/BrandMark";
 import { useAuth } from "@/hooks/useAuth";
-import { ROLE_INFO, homeFor } from "@/lib/roles";
+import { homeFor } from "@/lib/roles";
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
 
@@ -39,7 +39,7 @@ export default function ChooserPage() {
               <ProfileTile
                 href={homeFor(user.role)}
                 title={user.name}
-                subtitle={`Continue as ${ROLE_INFO[user.role].label}`}
+                subtitle="Continue"
                 avatar={<span className="text-3xl font-medium">{user.name.trim().charAt(0).toUpperCase()}</span>}
                 avatarClass="bg-[#06D6A0] text-[#04382B] group-hover:bg-[#04382B] group-hover:text-white"
                 hoverBg="hover:bg-[#06D6A0]/20 dark:hover:bg-[#06D6A0]/30"
@@ -51,7 +51,7 @@ export default function ChooserPage() {
             <ProfileTile
               href="/barangays"
               title="Barangay"
-              subtitle="Representative sign-in"
+              subtitle="Sign in"
               avatar={<BuildingIcon />}
               avatarClass="bg-[#E3D5FF] text-[#5A18C9] group-hover:bg-[#5A18C9] group-hover:text-white"
               hoverBg="hover:bg-[#5A18C9]/15 dark:hover:bg-[#5A18C9]/30"
@@ -62,7 +62,7 @@ export default function ChooserPage() {
             <ProfileTile
               href="/dilg"
               title="DILG Office"
-              subtitle="Admin & supervisor sign-in"
+              subtitle="Sign in"
               avatar={<ShieldIcon />}
               avatarClass="bg-[#FFF0A3] text-[#7A5B00] group-hover:bg-[#FFB703] group-hover:text-white"
               hoverBg="hover:bg-[#FFB703]/15 dark:hover:bg-[#FFB703]/30"

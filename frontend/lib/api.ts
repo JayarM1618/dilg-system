@@ -26,6 +26,7 @@ function getCookie(name: string): string | undefined {
 
 interface RequestOptions extends RequestInit {
   isFormData?: boolean;
+  silent401?: boolean;
 }
 
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
@@ -53,10 +54,14 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   });
 
   if (!res.ok) {
-    const body = await res.json().catch(() => ({})) as { message?: string; errors?: Record<string, string[]> };
+    if (res.status === 401 && options.silent401) {
+      return null as T;
+    }
+    const body = await res.json().catch(() => ({})) as { message?: string; errors?: Record<string, string[] | string> };
     // Laravel validation errors: show the first concrete reason ("The file must be a PDF...").
-    const firstError = body.errors ? Object.values(body.errors)[0]?.[0] : undefined;
-    throw new ApiError(firstError ?? body.message ?? "Request failed", res.status, body.errors);
+    const firstVal = body.errors ? Object.values(body.errors)[0] : undefined;
+    const firstError = Array.isArray(firstVal) ? firstVal[0] : typeof firstVal === "string" ? firstVal : undefined;
+    throw new ApiError(firstError ?? body.message ?? "Request failed", res.status, body.errors as Record<string, string[]> | undefined);
   }
 
   if (res.status === 204) return undefined as T;
@@ -65,14 +70,14 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 }
 
 export const api = {
-  get: <T>(path: string) => request<T>(path),
-  post: <T>(path: string, data?: unknown) =>
-    request<T>(path, { method: "POST", body: data ? JSON.stringify(data) : undefined }),
-  postForm: <T>(path: string, formData: FormData) =>
-    request<T>(path, { method: "POST", body: formData, isFormData: true }),
-  patch: <T>(path: string, data?: unknown) =>
-    request<T>(path, { method: "PATCH", body: data ? JSON.stringify(data) : undefined }),
-  delete: <T>(path: string) => request<T>(path, { method: "DELETE" }),
+  get: <T>(path: string, options?: RequestOptions) => request<T>(path, { ...options, method: "GET" }),
+  post: <T>(path: string, data?: unknown, options?: RequestOptions) =>
+    request<T>(path, { ...options, method: "POST", body: data ? JSON.stringify(data) : undefined }),
+  postForm: <T>(path: string, formData: FormData, options?: RequestOptions) =>
+    request<T>(path, { ...options, method: "POST", body: formData, isFormData: true }),
+  patch: <T>(path: string, data?: unknown, options?: RequestOptions) =>
+    request<T>(path, { ...options, method: "PATCH", body: data ? JSON.stringify(data) : undefined }),
+  delete: <T>(path: string, options?: RequestOptions) => request<T>(path, { ...options, method: "DELETE" }),
 };
 
 /** Absolute URL of a Laravel endpoint (for download links and other plain <a href>s). */

@@ -24,30 +24,30 @@ class DatabaseSeeder extends Seeder
 
         // 1) Barangays of Makati (Embo barangays, Pitogo and Post Proper removed on request)
         DB::table('barangays')->insert(array_map(fn ($r) => $r + ['is_active' => true, 'created_at' => $now, 'updated_at' => $now], [
-            ['id' => 1, 'name' => 'Bangkal', 'code' => 'BGY-001', 'contact_person' => 'Punong Barangay of Bangkal', 'contact_number' => '0917-000-0001', 'contact_email' => 'bangkal@barangay.test'],
-            ['id' => 2, 'name' => 'Bel-Air', 'code' => 'BGY-002', 'contact_person' => 'Punong Barangay of Bel-Air', 'contact_number' => '0917-000-0002', 'contact_email' => 'bel-air@barangay.test'],
-            ['id' => 3, 'name' => 'Carmona', 'code' => 'BGY-003', 'contact_person' => 'Punong Barangay of Carmona', 'contact_number' => '0917-000-0003', 'contact_email' => 'carmona@barangay.test'],
-            ['id' => 6, 'name' => 'Dasmariñas', 'code' => 'BGY-006', 'contact_person' => 'Punong Barangay of Dasmariñas', 'contact_number' => '0917-000-0006', 'contact_email' => 'dasmarinas@barangay.test'],
-            ['id' => 8, 'name' => 'Forbes Park', 'code' => 'BGY-008', 'contact_person' => 'Punong Barangay of Forbes Park', 'contact_number' => '0917-000-0008', 'contact_email' => 'forbes.park@barangay.test'],
-            ['id' => 9, 'name' => 'Guadalupe Nuevo', 'code' => 'BGY-009', 'contact_person' => 'Punong Barangay of Guadalupe Nuevo', 'contact_number' => '0917-000-0009', 'contact_email' => 'guadalupe.nuevo@barangay.test'],
-            ['id' => 10, 'name' => 'Guadalupe Viejo', 'code' => 'BGY-010', 'contact_person' => 'Punong Barangay of Guadalupe Viejo', 'contact_number' => '0917-000-0010', 'contact_email' => 'guadalupe.viejo@barangay.test'],
-            ['id' => 11, 'name' => 'Kasilawan', 'code' => 'BGY-011', 'contact_person' => 'Punong Barangay of Kasilawan', 'contact_number' => '0917-000-0011', 'contact_email' => 'kasilawan@barangay.test'],
-            ['id' => 12, 'name' => 'La Paz', 'code' => 'BGY-012', 'contact_person' => 'Punong Barangay of La Paz', 'contact_number' => '0917-000-0012', 'contact_email' => 'la.paz@barangay.test'],
-            ['id' => 13, 'name' => 'Magallanes', 'code' => 'BGY-013', 'contact_person' => 'Punong Barangay of Magallanes', 'contact_number' => '0917-000-0013', 'contact_email' => 'magallanes@barangay.test'],
-            ['id' => 14, 'name' => 'Olympia', 'code' => 'BGY-014', 'contact_person' => 'Punong Barangay of Olympia', 'contact_number' => '0917-000-0014', 'contact_email' => 'olympia@barangay.test'],
-            ['id' => 15, 'name' => 'Palanan', 'code' => 'BGY-015', 'contact_person' => 'Punong Barangay of Palanan', 'contact_number' => '0917-000-0015', 'contact_email' => 'palanan@barangay.test'],
-            ['id' => 17, 'name' => 'Pinagkaisahan', 'code' => 'BGY-017', 'contact_person' => 'Punong Barangay of Pinagkaisahan', 'contact_number' => '0917-000-0017', 'contact_email' => 'pinagkaisahan@barangay.test'],
-            ['id' => 18, 'name' => 'Pio del Pilar', 'code' => 'BGY-018', 'contact_person' => 'Punong Barangay of Pio del Pilar', 'contact_number' => '0917-000-0018', 'contact_email' => 'pio.del.pilar@barangay.test'],
-            ['id' => 20, 'name' => 'Poblacion', 'code' => 'BGY-020', 'contact_person' => 'Punong Barangay of Poblacion', 'contact_number' => '0917-000-0020', 'contact_email' => 'poblacion@barangay.test'],
-            ['id' => 23, 'name' => 'Rizal', 'code' => 'BGY-023', 'contact_person' => 'Punong Barangay of Rizal', 'contact_number' => '0917-000-0023', 'contact_email' => 'rizal@barangay.test'],
-            ['id' => 24, 'name' => 'San Antonio', 'code' => 'BGY-024', 'contact_person' => 'Punong Barangay of San Antonio', 'contact_number' => '0917-000-0024', 'contact_email' => 'san.antonio@barangay.test'],
-            ['id' => 25, 'name' => 'San Isidro', 'code' => 'BGY-025', 'contact_person' => 'Punong Barangay of San Isidro', 'contact_number' => '0917-000-0025', 'contact_email' => 'san.isidro@barangay.test'],
-            ['id' => 26, 'name' => 'San Lorenzo', 'code' => 'BGY-026', 'contact_person' => 'Punong Barangay of San Lorenzo', 'contact_number' => '0917-000-0026', 'contact_email' => 'san.lorenzo@barangay.test'],
-            ['id' => 27, 'name' => 'Santa Cruz', 'code' => 'BGY-027', 'contact_person' => 'Punong Barangay of Santa Cruz', 'contact_number' => '0917-000-0027', 'contact_email' => 'santa.cruz@barangay.test'],
-            ['id' => 28, 'name' => 'Singkamas', 'code' => 'BGY-028', 'contact_person' => 'Punong Barangay of Singkamas', 'contact_number' => '0917-000-0028', 'contact_email' => 'singkamas@barangay.test'],
-            ['id' => 30, 'name' => 'Tejeros', 'code' => 'BGY-030', 'contact_person' => 'Punong Barangay of Tejeros', 'contact_number' => '0917-000-0030', 'contact_email' => 'tejeros@barangay.test'],
-            ['id' => 31, 'name' => 'Urdaneta', 'code' => 'BGY-031', 'contact_person' => 'Punong Barangay of Urdaneta', 'contact_number' => '0917-000-0031', 'contact_email' => 'urdaneta@barangay.test'],
-            ['id' => 32, 'name' => 'Valenzuela', 'code' => 'BGY-032', 'contact_person' => 'Punong Barangay of Valenzuela', 'contact_number' => '0917-000-0032', 'contact_email' => 'valenzuela@barangay.test'],
+            ['id' => 1, 'name' => 'Bangkal', 'code' => 'BGY-001'],
+            ['id' => 2, 'name' => 'Bel-Air', 'code' => 'BGY-002'],
+            ['id' => 3, 'name' => 'Carmona', 'code' => 'BGY-003'],
+            ['id' => 6, 'name' => 'Dasmariñas', 'code' => 'BGY-006'],
+            ['id' => 8, 'name' => 'Forbes Park', 'code' => 'BGY-008'],
+            ['id' => 9, 'name' => 'Guadalupe Nuevo', 'code' => 'BGY-009'],
+            ['id' => 10, 'name' => 'Guadalupe Viejo', 'code' => 'BGY-010'],
+            ['id' => 11, 'name' => 'Kasilawan', 'code' => 'BGY-011'],
+            ['id' => 12, 'name' => 'La Paz', 'code' => 'BGY-012'],
+            ['id' => 13, 'name' => 'Magallanes', 'code' => 'BGY-013'],
+            ['id' => 14, 'name' => 'Olympia', 'code' => 'BGY-014'],
+            ['id' => 15, 'name' => 'Palanan', 'code' => 'BGY-015'],
+            ['id' => 17, 'name' => 'Pinagkaisahan', 'code' => 'BGY-017'],
+            ['id' => 18, 'name' => 'Pio del Pilar', 'code' => 'BGY-018'],
+            ['id' => 20, 'name' => 'Poblacion', 'code' => 'BGY-020'],
+            ['id' => 23, 'name' => 'Rizal', 'code' => 'BGY-023'],
+            ['id' => 24, 'name' => 'San Antonio', 'code' => 'BGY-024'],
+            ['id' => 25, 'name' => 'San Isidro', 'code' => 'BGY-025'],
+            ['id' => 26, 'name' => 'San Lorenzo', 'code' => 'BGY-026'],
+            ['id' => 27, 'name' => 'Santa Cruz', 'code' => 'BGY-027'],
+            ['id' => 28, 'name' => 'Singkamas', 'code' => 'BGY-028'],
+            ['id' => 30, 'name' => 'Tejeros', 'code' => 'BGY-030'],
+            ['id' => 31, 'name' => 'Urdaneta', 'code' => 'BGY-031'],
+            ['id' => 32, 'name' => 'Valenzuela', 'code' => 'BGY-032'],
         ]));
 
         // 2) Report categories
@@ -71,12 +71,15 @@ class DatabaseSeeder extends Seeder
             $user = new User($u + ['password' => 'password123', 'is_active' => true]);
             $user->id = $u['id'];
             $user->email_verified_at = $now;
+            $user->invited_at = $now;
+            $user->activated_at = $now; // demo accounts are already activated
             $user->save();
         }
 
         if (filter_var(env('SEED_SAMPLE_DATA', true), FILTER_VALIDATE_BOOLEAN)) {
             $this->seedSampleData($now);
             $this->call(BarangayContentSeeder::class);
+            $this->call(MonitoringDemoSeeder::class);
         }
     }
 

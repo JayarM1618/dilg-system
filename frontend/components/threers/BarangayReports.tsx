@@ -7,6 +7,7 @@ import { apiSend, apiUrl } from "@/lib/http";
 import { formatDate } from "@/lib/format";
 import StatusBadge from "@/components/StatusBadge";
 import ThreeRsTabs from "./ThreeRsTabs";
+import SubmitReport from "./SubmitReport";
 import { EmptyRow, UploadButton, type Flash } from "./RepositoryView";
 import { Notice, PageTitle, Pager, btn, field, formatDateTime } from "./ui";
 import type { CategoryWithTemplate, Incident, Paged, RepoSubmission } from "./types";
@@ -44,6 +45,14 @@ export default function BarangayReports() {
           {flash.text}
         </Notice>
       )}
+
+      <SubmitReport
+        onFlash={setFlash}
+        onDone={() => {
+          reload();
+          summary.reload();
+        }}
+      />
 
       {all.length > 0 && (
         <dl className="mb-6 grid grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-4 border-y border-line dark:border-white/10 py-5 sm:grid-cols-4">
@@ -97,7 +106,7 @@ export default function BarangayReports() {
                 <button onClick={reload} className="underline underline-offset-4">Try again</button>
               </EmptyRow>
             ) : rows.length === 0 ? (
-              <EmptyRow cols={5}>No reports here yet. Your DILG Makati office will open report periods.</EmptyRow>
+              <EmptyRow cols={5}>No reports here yet. Use &ldquo;Submit a report&rdquo; above to file your first one.</EmptyRow>
             ) : (
               rows.map((s) => {
                 const canUpload = ["pending", "submitted", "non_compliant"].includes(s.status);

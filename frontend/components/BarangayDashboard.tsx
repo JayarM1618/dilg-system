@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useApi } from "@/hooks/useApi";
 import { formatDate } from "@/lib/format";
+import { apiUrl } from "@/lib/http";
 import type { Paginated, Submission } from "@/types";
 import StatusBadge from "@/components/StatusBadge";
 
@@ -52,6 +53,13 @@ export default function BarangayDashboard() {
           <h1 className="text-2xl sm:text-3xl font-semibold text-navy-900 dark:text-white transition-colors duration-500 ease-out">{user?.barangay?.name ?? "Your barangay"}</h1>
           <p className="mt-1 text-sm sm:text-base text-muted dark:text-slate-400">Your report submissions and where each one stands.</p>
         </div>
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+        <Link
+          href="/user/reports"
+          className="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-full bg-[#7B4DFF] px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#5A18C9]"
+        >
+          Submit a report
+        </Link>
         <button
           type="button"
           onClick={() => downloadCsv(submissions, user?.barangay?.name ?? "barangay")}
@@ -61,6 +69,7 @@ export default function BarangayDashboard() {
           <DownloadIcon />
           Download report
         </button>
+        </div>
       </div>
 
       {error ? (
@@ -82,6 +91,9 @@ export default function BarangayDashboard() {
               <BreakdownCard counts={counts} total={total} pct={compliantPct} />
             </div>
           </div>
+
+          {/* New from DILG: forms, guidelines and advisories the barangay can download */}
+          <DilgFeedCard />
 
           {/* Row 2: recent table, per-report breakdown */}
           <div className="mt-5 grid gap-5 lg:grid-cols-5">
@@ -130,6 +142,54 @@ function OverallCard({
         <p className="mt-4 text-sm font-semibold text-[#B0123F] dark:text-rose-400">
           {overdue} {overdue === 1 ? "report is" : "reports are"} past the due date.
         </p>
+      )}
+    </section>
+  );
+}
+
+const RESOURCE_LABEL: Record<string, string> = {
+  template: "Form",
+  guideline: "Guideline",
+  sop: "Procedure",
+  security_advisory: "Advisory",
+  other: "Other",
+};
+
+/** Latest forms, guidelines and advisories DILG Makati published. Laravel only returns the live versions. */
+function DilgFeedCard() {
+  const { data } = useApi<{ data: { id: number; title: string; type: string; version: string; description: string | null; created_at: string; category?: { name: string } | null }[] }>("/api/resources/library");
+  const items = [...(data?.data ?? [])].sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 5);
+
+  return (
+    <section className="mt-5 min-w-0 rounded-3xl bg-[#E8FAFF] dark:bg-[#12303D]/70 dark:border dark:border-[#38bdf8]/20 p-6" aria-labelledby="dilg-feed-title">
+      <div className="flex items-baseline justify-between gap-3">
+        <h2 id="dilg-feed-title" className="text-xl font-medium text-navy-900 dark:text-[#E8FAFF]">Latest from DILG Makati</h2>
+        <Link href="/user/resources" className="text-sm font-semibold text-[#5A18C9] dark:text-[#CDBBFF] underline underline-offset-4">All resources</Link>
+      </div>
+      {items.length === 0 ? (
+        <p className="mt-4 text-sm text-muted dark:text-slate-400">DILG has not published any forms or guidelines yet.</p>
+      ) : (
+        <ul className="mt-4 divide-y divide-[#CDEFF8] dark:divide-white/10">
+          {items.map((r) => (
+            <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+              <div className="min-w-0">
+                <p className="font-medium text-navy-900 dark:text-white">
+                  {r.title} <span className="font-normal text-muted dark:text-slate-400">v{r.version}</span>
+                </p>
+                <p className="text-xs text-muted dark:text-slate-400">
+                  {RESOURCE_LABEL[r.type] ?? r.type}
+                  {r.category ? ` for ${r.category.name}` : ""} &middot; {formatDate(r.created_at)}
+                </p>
+              </div>
+              <a
+                href={apiUrl(`/api/resources/${r.id}/download`)}
+                className="rounded-full border-2 border-[#7B2FF7] px-4 py-1.5 text-sm font-semibold text-[#5A18C9] dark:text-[#CDBBFF] hover:bg-[#7B2FF7] hover:text-white transition-colors"
+              >
+                Download
+              </a>
+            </li>
+          ))}
+        </ul>
       )}
     </section>
   );

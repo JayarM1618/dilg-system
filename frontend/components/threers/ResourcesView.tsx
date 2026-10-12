@@ -178,9 +178,9 @@ function UploadForm({
   }
 
   return (
-    <details className="mb-6 rounded-lg border border-line dark:border-white/10 bg-white dark:bg-white/5">
+    <details open className="mb-6 rounded-lg border border-line dark:border-white/10 bg-white dark:bg-white/5">
       <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-navy-800 dark:text-[#D1C4F9]">
-        Upload a resource or a new version
+        Publish a form, guideline or advisory for the barangays
       </summary>
       <form onSubmit={submit} className="grid gap-4 border-t border-line dark:border-white/10 p-4 sm:grid-cols-2">
         <label className="text-sm">

@@ -18,12 +18,20 @@ class User extends Authenticatable
         'role',
         'barangay_id',
         'is_active',
+        'invited_at',
+        'activated_at',
+        'activation_token',
+        'activation_expires_at',
+        'created_by',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
+        'activation_token',
     ];
+
+    protected $appends = ['status'];
 
     protected function casts(): array
     {
@@ -31,6 +39,9 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'invited_at' => 'datetime',
+            'activated_at' => 'datetime',
+            'activation_expires_at' => 'datetime',
         ];
     }
 
@@ -68,5 +79,21 @@ class User extends Authenticatable
     public function hasOfficeOversight(): bool
     {
         return in_array($this->role, ['super_admin', 'office_supervisor']);
+    }
+
+    /** Issued by DILG but the owner has not set a password yet. */
+    public function isPending(): bool
+    {
+        return $this->activated_at === null;
+    }
+
+    /** pending | active | deactivated - what the Accounts page shows. */
+    public function getStatusAttribute(): string
+    {
+        if (!$this->is_active) {
+            return 'deactivated';
+        }
+
+        return $this->isPending() ? 'pending' : 'active';
     }
 }

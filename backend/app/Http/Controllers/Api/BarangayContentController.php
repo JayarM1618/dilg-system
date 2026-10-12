@@ -62,7 +62,7 @@ class BarangayContentController extends Controller
             'created_by' => $request->user()->id,
         ]);
 
-        ActivityLog::record('barangay.announcement.created', $announcement, ['barangay_id' => $barangay->id]);
+        ActivityLog::record('barangay.announcement.created', $announcement, ['barangay_id' => $barangay->id, 'title' => $announcement->title]);
 
         return response()->json($announcement, 201);
     }
@@ -78,7 +78,7 @@ class BarangayContentController extends Controller
         ]);
 
         $announcement->update($data);
-        ActivityLog::record('barangay.announcement.updated', $announcement, ['barangay_id' => $announcement->barangay_id]);
+        ActivityLog::record('barangay.announcement.updated', $announcement, ['barangay_id' => $announcement->barangay_id, 'title' => $announcement->title]);
 
         return $announcement;
     }
@@ -87,7 +87,7 @@ class BarangayContentController extends Controller
     {
         $this->authorizeFor($request, $announcement->barangay_id);
 
-        ActivityLog::record('barangay.announcement.deleted', $announcement, ['barangay_id' => $announcement->barangay_id]);
+        ActivityLog::record('barangay.announcement.deleted', $announcement, ['barangay_id' => $announcement->barangay_id, 'title' => $announcement->title]);
         $announcement->delete();
 
         return response()->noContent();
@@ -119,7 +119,7 @@ class BarangayContentController extends Controller
         $data = $request->validate($this->programRules(true));
 
         $program = $barangay->programs()->create($data + ['created_by' => $request->user()->id]);
-        ActivityLog::record('barangay.program.created', $program, ['barangay_id' => $barangay->id, 'kind' => $program->kind]);
+        ActivityLog::record('barangay.program.created', $program, ['barangay_id' => $barangay->id, 'kind' => $program->kind, 'title' => $program->title]);
 
         return response()->json($program, 201);
     }
@@ -129,7 +129,7 @@ class BarangayContentController extends Controller
         $this->authorizeFor($request, $program->barangay_id);
 
         $program->update($request->validate($this->programRules(false)));
-        ActivityLog::record('barangay.program.updated', $program, ['barangay_id' => $program->barangay_id]);
+        ActivityLog::record('barangay.program.updated', $program, ['barangay_id' => $program->barangay_id, 'title' => $program->title]);
 
         return $program;
     }
@@ -138,7 +138,7 @@ class BarangayContentController extends Controller
     {
         $this->authorizeFor($request, $program->barangay_id);
 
-        ActivityLog::record('barangay.program.deleted', $program, ['barangay_id' => $program->barangay_id]);
+        ActivityLog::record('barangay.program.deleted', $program, ['barangay_id' => $program->barangay_id, 'title' => $program->title]);
         $program->delete();
 
         return response()->noContent();

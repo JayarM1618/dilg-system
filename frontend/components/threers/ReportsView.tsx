@@ -7,6 +7,7 @@ import { apiUrl } from "@/lib/http";
 import { formatDate } from "@/lib/format";
 import BarangayReports from "./BarangayReports";
 import ThreeRsTabs from "./ThreeRsTabs";
+import ReportSetup from "./ReportSetup";
 import { PageTitle, Pager, btn, btnGhost, field, formatDateTime } from "./ui";
 import type { AuditEntry, ComplianceReport, Paged, Period, SecuritySummary } from "./types";
 
@@ -32,6 +33,13 @@ export default function ReportsView() {
     <>
       <PageTitle title="Reports" subtitle="Compliance and security reporting for DILG Makati and its barangays." />
       <ThreeRsTabs />
+
+      <ReportSetup
+        onChanged={() => {
+          periods.reload();
+          report.reload();
+        }}
+      />
 
       <div className="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <label className="text-sm w-full sm:w-auto">

@@ -18,6 +18,9 @@ export interface User {
   barangay_id: number | null;
   barangay?: Barangay | null;
   is_active: boolean;
+  status?: "pending" | "active" | "deactivated";
+  invited_at?: string | null;
+  activated_at?: string | null;
 }
 
 export type ReportCycle = "weekly" | "monthly" | "quarterly" | "semestral" | "annual";
@@ -38,6 +41,8 @@ export type SubmissionStatus =
 
 export interface Submission {
   id: number;
+  /** Computed by Laravel: past due and not yet filed. */
+  is_overdue?: boolean;
   barangay_id: number;
   report_category_id: number;
   period_label: string;
@@ -50,8 +55,6 @@ export interface Submission {
   submitted_at: string | null;
   reviewed_at: string | null;
   review_remarks: string | null;
-  /** Computed by Laravel (pending and past its due date). */
-  is_overdue?: boolean;
   barangay?: Barangay;
   category?: ReportCategory;
 }

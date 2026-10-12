@@ -23,6 +23,13 @@ class AuthController extends Controller
 
         $user = User::where('email', $credentials['email'])->first();
 
+        // DILG issued this account but its owner has not activated it yet.
+        if ($user && $user->isPending()) {
+            throw ValidationException::withMessages([
+                'email' => ['This account is not activated yet. Open the activation link the DILG office sent to your email.'],
+            ]);
+        }
+
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['These credentials do not match our records.'],
@@ -60,6 +67,12 @@ class AuthController extends Controller
         ]);
     }
 
+    /** Which optional sign-in methods this server has set up (the login page hides unused buttons). */
+    public function providers()
+    {
+        return response()->json(['google' => \App\Http\Controllers\GoogleAuthController::enabled()]);
+    }
+
     public function logout(Request $request)
     {
         ActivityLog::record('user.logout', $request->user());
@@ -73,8 +86,10 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
+        $user = $request->user();
+
         return response()->json([
-            'user' => $request->user()->load('barangay'),
+            'user' => $user ? $user->load('barangay') : null,
         ]);
     }
 }

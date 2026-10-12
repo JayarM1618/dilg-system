@@ -34,9 +34,6 @@ class BarangayController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'unique:barangays,name'],
             'code' => ['required', 'string', 'unique:barangays,code'],
-            'contact_person' => ['nullable', 'string'],
-            'contact_number' => ['nullable', 'string'],
-            'contact_email' => ['nullable', 'email'],
         ]);
 
         return response()->json(Barangay::create($data), 201);
@@ -46,9 +43,6 @@ class BarangayController extends Controller
     {
         $data = $request->validate([
             'name' => ['sometimes', 'string', 'unique:barangays,name,' . $barangay->id],
-            'contact_person' => ['nullable', 'string'],
-            'contact_number' => ['nullable', 'string'],
-            'contact_email' => ['nullable', 'email'],
             'is_active' => ['sometimes', 'boolean'],
         ]);
 

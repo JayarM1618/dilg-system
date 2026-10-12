@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
+use App\Models\ReportCategory;
 use App\Models\Submission;
 use App\Models\SubmissionFile;
+use App\Support\PeriodOpener;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -72,6 +75,70 @@ class SubmissionController extends Controller
     }
 
     /**
+     * What a barangay representative can file right now: every report type with its current
+     * (and previous) period, its due date, where it stands and the current DILG form to download.
+     * This feeds the "Submit a report" form, so a barangay never has to wait for DILG to open a period.
+     */
+    public function options(Request $request)
+    {
+        $user = $request->user();
+        abort_unless($user->isBarangayRep() && $user->barangay_id, 403, 'Only barangay representatives file reports.');
+
+        $existing = Submission::where('barangay_id', $user->barangay_id)->get()
+            ->keyBy(fn ($s) => $s->report_category_id . '|' . $s->period_label);
+
+        $data = ReportCategory::with('latestResource')->orderBy('name')->get()
+            ->map(function (ReportCategory $c) use ($existing) {
+                return [
+                    'id' => $c->id,
+                    'name' => $c->name,
+                    'cycle' => $c->cycle,
+                    'description' => $c->description,
+                    'template' => $c->latestResource ? ['id' => $c->latestResource->id, 'version' => $c->latestResource->version] : null,
+                    'periods' => collect(PeriodOpener::fileablePeriods($c))->map(function ($p) use ($c, $existing) {
+                        $row = $existing->get($c->id . '|' . $p['label']);
+
+                        return [
+                            'period_label' => $p['label'],
+                            'due_date' => $row?->due_date?->toDateString() ?? $p['due']->toDateString(),
+                            'is_current' => $p['current'],
+                            'status' => $row?->status ?? 'pending',
+                            // same rule as SubmissionPolicy::update: locked once under review or compliant
+                            'can_upload' => !$row || in_array($row->status, ['pending', 'submitted', 'non_compliant']),
+                        ];
+                    })->values(),
+                ];
+            })->values();
+
+        return response()->json(['data' => $data]);
+    }
+
+    /** Office: open a reporting period for every active barangay (optionally one report type). */
+    public function openPeriods(Request $request)
+    {
+        abort_unless($request->user()->hasOfficeOversight(), 403);
+
+        $data = $request->validate([
+            'report_category_id' => ['nullable', 'exists:report_categories,id'],
+            'date' => ['nullable', 'date'],
+        ]);
+
+        $created = PeriodOpener::open(
+            isset($data['date']) ? CarbonImmutable::parse($data['date']) : null,
+            $data['report_category_id'] ?? null,
+        );
+
+        ActivityLog::record('report.period_opened', null, ['created' => $created, 'report_category_id' => $data['report_category_id'] ?? null]);
+
+        return response()->json([
+            'created' => $created,
+            'message' => $created > 0
+                ? "Opened {$created} report slot(s) for the barangays."
+                : 'Those periods were already open. Nothing new was added.',
+        ]);
+    }
+
+    /**
      * Barangay rep uploads a report. The period and due date come from the row the office
      * already opened - never from the browser - and each upload is stored as a new version.
      */
@@ -93,8 +160,29 @@ class SubmissionController extends Controller
             'period_label' => $data['period_label'],
         ])->first();
 
+        // Not opened by the office yet? The barangay may still file for the current or previous
+        // period of that report: the server works out the dates, never the browser.
         if (!$submission) {
-            return response()->json(['message' => 'That reporting period is not open for your barangay.'], 422);
+            $category = ReportCategory::findOrFail($data['report_category_id']);
+            $period = collect(PeriodOpener::fileablePeriods($category))->firstWhere('label', $data['period_label']);
+
+            if (!$period) {
+                return response()->json(['message' => 'That reporting period is not open for your barangay.'], 422);
+            }
+
+            $submission = Submission::firstOrCreate(
+                [
+                    'barangay_id' => $user->barangay_id,
+                    'report_category_id' => $category->id,
+                    'period_label' => $period['label'],
+                ],
+                [
+                    'period_start' => $period['start']->toDateString(),
+                    'period_end' => $period['end']->toDateString(),
+                    'due_date' => $period['due']->toDateString(),
+                    'status' => 'pending',
+                ]
+            );
         }
 
         // Locked once it is under review or compliant.
@@ -119,8 +207,6 @@ class SubmissionController extends Controller
 
             // A new upload goes back to the office queue and clears the old review.
             $locked->update([
-                'file_path' => $path,
-                'original_filename' => $upload->getClientOriginalName(),
                 'status' => 'submitted',
                 'submitted_by' => $user->id,
                 'submitted_at' => now(),

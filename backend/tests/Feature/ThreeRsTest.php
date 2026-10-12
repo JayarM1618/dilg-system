@@ -138,8 +138,8 @@ class ThreeRsTest extends TestCase
     public function test_barangay_cannot_upload_into_another_barangays_row_or_wrong_file_types(): void
     {
         $this->openPeriod($this->bgyB);
-        // repA has no open row of their own: nothing to upload into
-        $this->upload($this->repA)->assertStatus(422);
+        // repA has no open row of their own and 2020-01 is far outside the fileable periods
+        $this->upload($this->repA, ['period_label' => '2020-01'])->assertStatus(422);
 
         $this->openPeriod($this->bgyA);
         $this->upload($this->repA, ['file' => UploadedFile::fake()->createWithContent('evil.php', '<?php echo 1;')])

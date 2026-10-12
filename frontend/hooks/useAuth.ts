@@ -13,8 +13,8 @@ export function useAuth() {
 
   const fetchUser = useCallback(async () => {
     try {
-      const { user } = await api.get<{ user: User }>("/api/me");
-      setUser(user);
+      const data = await api.get<{ user: User }>("/api/me", { silent401: true });
+      setUser(data?.user ?? null);
     } catch {
       setUser(null);
     } finally {
@@ -23,8 +23,7 @@ export function useAuth() {
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line
-    fetchUser();
+    void fetchUser();
   }, [fetchUser]);
 
   const login = useCallback(
@@ -45,10 +44,17 @@ export function useAuth() {
   );
 
   const logout = useCallback(async () => {
-    await api.post("/api/logout");
-    setUser(null);
-    router.push("/login");
-  }, [router]);
+    try {
+      if (user) {
+        await api.post("/api/logout");
+      }
+    } catch {
+      // Even if session is already expired or unreachable, clean up local state
+    } finally {
+      setUser(null);
+      router.push("/login");
+    }
+  }, [user, router]);
 
   return { user, loading, login, logout, refetch: fetchUser, ApiError };
 }

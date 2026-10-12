@@ -1,10 +1,13 @@
 <?php
 
+use App\Http\Controllers\Api\ActivationController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BarangayContentController;
 use App\Http\Controllers\Api\BarangayController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\MonitoringController;
 use App\Http\Controllers\Api\PublicController;
+use App\Http\Controllers\Api\ReportCategoryController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\ResourceController;
 use App\Http\Controllers\Api\SecurityIncidentController;
@@ -20,11 +23,19 @@ Route::get('/public/overview', [PublicController::class, 'overview']);
 Route::get('/public/barangays/{id}', [PublicController::class, 'barangay'])->whereNumber('id');
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/auth/providers', [AuthController::class, 'providers']);
+
+// Account activation (DILG-issued accounts): open the emailed link, choose a password.
+Route::middleware('throttle:20,1')->group(function () {
+    Route::get('/activate/{token}', [ActivationController::class, 'show']);
+    Route::post('/activate', [ActivationController::class, 'activate']);
+});
+
+Route::get('/me', [AuthController::class, 'me']);
 
 // --- Authenticated (any active role) ---
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/me', [AuthController::class, 'me']);
 
     // What citizens see about a barangay. A rep manages only their own barangay;
     // the controller enforces that (office staff may manage any).
@@ -43,6 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Submissions ("Repository" of the 3 Rs) - scoping handled inside the controller/policy
     Route::get('/submissions', [SubmissionController::class, 'index']);
+    Route::get('/submissions/options', [SubmissionController::class, 'options']); // what a barangay can file now
     Route::get('/submissions/{submission}', [SubmissionController::class, 'show']);
     Route::post('/submissions', [SubmissionController::class, 'store']);
     Route::get('/submissions/{submission}/download', [SubmissionController::class, 'download']);
@@ -58,6 +70,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:super_admin,office_supervisor')->group(function () {
         Route::get('/barangays', [BarangayController::class, 'index']);
         Route::patch('/submissions/{submission}/review', [SubmissionController::class, 'review']);
+        Route::post('/submissions/open-periods', [SubmissionController::class, 'openPeriods']);
+        Route::post('/report-categories', [ReportCategoryController::class, 'store']);
         Route::patch('/security-incidents/{securityIncident}/status', [SecurityIncidentController::class, 'updateStatus']);
 
         // "Reporting" of the 3 Rs - the automated Talaghayan dashboard
@@ -83,7 +97,14 @@ Route::middleware('auth:sanctum')->group(function () {
         // Audit trail
         Route::get('/reports/audit-logs', [ReportController::class, 'auditLogs']);
 
-        // User accounts (read-only list for the dashboard's Users page)
+        // Accounts: DILG issues every account; owners only activate it.
         Route::get('/users', [UserController::class, 'index']);
+        Route::post('/users', [UserController::class, 'store']);
+        Route::patch('/users/{user}', [UserController::class, 'update']);
+        Route::post('/users/{user}/invite', [UserController::class, 'invite']);
+
+        // Monitoring: everything the DILG admins and barangay representatives do
+        Route::get('/monitoring/summary', [MonitoringController::class, 'summary']);
+        Route::get('/monitoring/activity', [MonitoringController::class, 'activity']);
     });
 });

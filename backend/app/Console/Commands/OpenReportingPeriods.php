@@ -2,11 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\ActivityLog;
-use App\Models\Barangay;
-use App\Models\ReportCategory;
-use App\Models\Submission;
-use App\Support\ReportingPeriod;
+use App\Support\PeriodOpener;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Command;
 
@@ -25,36 +21,9 @@ class OpenReportingPeriods extends Command
 
     public function handle(): int
     {
-        $date = $this->option('date')
-            ? CarbonImmutable::parse($this->option('date'))
-            : CarbonImmutable::now();
+        $date = $this->option('date') ? CarbonImmutable::parse($this->option('date')) : null;
 
-        $barangays = Barangay::where('is_active', true)->get(['id']);
-        $created = 0;
-
-        foreach (ReportCategory::all() as $category) {
-            $period = ReportingPeriod::forCycle($category->cycle, $date);
-
-            foreach ($barangays as $barangay) {
-                $row = Submission::firstOrCreate(
-                    [
-                        'barangay_id' => $barangay->id,
-                        'report_category_id' => $category->id,
-                        'period_label' => $period['label'],
-                    ],
-                    [
-                        'period_start' => $period['start']->toDateString(),
-                        'period_end' => $period['end']->toDateString(),
-                        'due_date' => $period['due']->toDateString(),
-                        'status' => 'pending',
-                    ]
-                );
-
-                if ($row->wasRecentlyCreated) {
-                    $created++;
-                }
-            }
-        }
+        $created = PeriodOpener::open($date);
 
         $this->info("Opened {$created} new pending submission(s).");
 

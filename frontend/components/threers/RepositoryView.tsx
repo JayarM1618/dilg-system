@@ -7,6 +7,7 @@ import { apiSend, apiUrl } from "@/lib/http";
 import { formatDate } from "@/lib/format";
 import StatusBadge from "@/components/StatusBadge";
 import ThreeRsTabs from "./ThreeRsTabs";
+import SubmitReport from "./SubmitReport";
 import {
   Notice,
   PageTitle,
@@ -59,10 +60,18 @@ function BarangayRepository() {
   const [page, setPage] = useState(1);
   const { data, loading, error, reload } = useFetch<Paged<RepoSubmission>>(`/api/submissions?has_file=1&page=${page}`);
   const [open, setOpen] = useState<number | null>(null);
+  const [flash, setFlash] = useState<Flash>(null);
   const rows = data?.data ?? [];
 
   return (
     <>
+      {flash && (
+        <Notice kind={flash.kind} onClose={() => setFlash(null)}>
+          {flash.text}
+        </Notice>
+      )}
+      <SubmitReport onFlash={setFlash} onDone={reload} />
+      <h2 className="mb-3 text-lg font-semibold text-navy-900 dark:text-white">Filed reports</h2>
       <div className="overflow-x-auto rounded-lg border border-line dark:border-white/10 bg-white dark:bg-white/5">
         <table className="w-full min-w-[680px] text-left text-sm">
           <caption className="sr-only">Reports your barangay has filed</caption>
@@ -84,7 +93,7 @@ function BarangayRepository() {
                 <button onClick={reload} className="underline underline-offset-4">Try again</button>
               </EmptyRow>
             ) : rows.length === 0 ? (
-              <EmptyRow cols={5}>Nothing filed yet. Submit your reports in the Reports tab and they will be kept here.</EmptyRow>
+              <EmptyRow cols={5}>Nothing filed yet. Use &ldquo;Submit a report&rdquo; above and your file will be kept here.</EmptyRow>
             ) : (
               rows.map((s) => (
                 <Fragment key={s.id}>

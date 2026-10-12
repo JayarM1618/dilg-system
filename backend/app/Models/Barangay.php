@@ -9,9 +9,6 @@ class Barangay extends Model
     protected $fillable = [
         'name',
         'code',
-        'contact_person',
-        'contact_number',
-        'contact_email',
         'about',
         'hall_address',
         'hotline',

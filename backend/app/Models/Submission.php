@@ -13,8 +13,6 @@ class Submission extends Model
         'period_start',
         'period_end',
         'due_date',
-        'file_path',
-        'original_filename',
         'status',
         'submitted_by',
         'submitted_at',

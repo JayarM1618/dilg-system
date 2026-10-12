@@ -31,10 +31,10 @@ class ActivityLog extends Model
     }
 
     /** Convenience helper: ActivityLog::record('submission.uploaded', $submission); */
-    public static function record(string $action, ?Model $subject = null, array $meta = []): self
+    public static function record(string $action, ?Model $subject = null, array $meta = [], ?int $userId = null): self
     {
         return static::create([
-            'user_id' => auth()->id(),
+            'user_id' => $userId ?? auth()->id(),
             'action' => $action,
             'subject_type' => $subject ? get_class($subject) : null,
             'subject_id' => $subject?->id,
