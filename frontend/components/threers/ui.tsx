@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
 
 export const btn =
-  "rounded-md bg-navy-800 dark:bg-[#7B4DFF] px-3 py-1.5 text-sm font-semibold text-white hover:bg-navy-900 dark:hover:bg-[#6A3CF0] transition-colors disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-xl bg-[#7B4DFF] px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-[#6A3CF0] transition-colors disabled:cursor-not-allowed disabled:opacity-50 select-none";
 export const btnGhost =
-  "rounded-md border border-line dark:border-white/10 bg-white dark:bg-white/10 px-3 py-1.5 text-sm font-semibold text-navy-800 dark:text-slate-100 hover:bg-navy-50 dark:hover:bg-white/20 transition-colors disabled:cursor-not-allowed disabled:opacity-50";
-export const field = "rounded-md border border-line dark:border-white/10 bg-white dark:bg-[#2B2542] px-3 py-2 text-sm text-ink dark:text-slate-100 transition-colors";
+  "inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-white/20 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors disabled:cursor-not-allowed disabled:opacity-50 select-none";
+export const field =
+  "rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#1F1733] px-3.5 py-2 text-xs sm:text-sm text-slate-900 dark:text-white transition focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20";
 
 export function formatBytes(n: number): string {
   if (n < 1024) return `${n} B`;
@@ -20,9 +21,19 @@ export function formatDateTime(iso: string | null | undefined): string {
 
 export function PageTitle({ title, subtitle }: { title: string; subtitle: string }) {
   return (
-    <header className="mb-6">
-      <h1 className="text-3xl font-semibold text-navy-900 dark:text-white transition-colors duration-500 ease-out">{title}</h1>
-      <p className="mt-1 text-muted dark:text-slate-400">{subtitle}</p>
+    <header className="mb-6 flex flex-wrap items-end justify-between gap-4 border-b border-slate-200 dark:border-white/10 pb-5">
+      <div>
+        <div className="inline-flex items-center gap-2 rounded-full bg-[#E6FBF3] dark:bg-[#0E352B] px-3 py-0.5 text-xs font-bold text-[#0B6B52] dark:text-[#84DEBD]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#06D6A0]" />
+          Barangay Operations Portal
+        </div>
+        <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+          {title}
+        </h1>
+        <p className="mt-1 text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-2xl">
+          {subtitle}
+        </p>
+      </div>
     </header>
   );
 }

@@ -62,6 +62,9 @@ class PeriodOpener
         $current = ReportingPeriod::forCycle($category->cycle, $now);
         $previous = ReportingPeriod::forCycle($category->cycle, $current['start']->subDay());
 
-        return [$current + ['current' => true], $previous + ['current' => false]];
+        return [
+            $current + ['current' => true, 'due_date' => $current['due']->toDateString()],
+            $previous + ['current' => false, 'due_date' => $previous['due']->toDateString()],
+        ];
     }
 }

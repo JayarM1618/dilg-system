@@ -19,8 +19,8 @@ export default function ReportsView() {
   const qs = period ? `?period_label=${encodeURIComponent(period)}` : "";
 
   const periods = useFetch<{ data: Period[] }>(isOffice ? "/api/reports/periods" : null);
-  const report = useFetch<ComplianceReport>(isOffice ? `/api/reports/compliance${qs}` : null);
-  const security = useFetch<SecuritySummary>(isOffice ? "/api/reports/security" : null);
+  const report = useFetch<ComplianceReport>(isOffice ? `/api/reports/compliance${qs}` : null, { pollInterval: 8000 });
+  const security = useFetch<SecuritySummary>(isOffice ? "/api/reports/security" : null, { pollInterval: 12000 });
 
   if (!user) return null;
 
@@ -31,15 +31,17 @@ export default function ReportsView() {
 
   return (
     <>
-      <PageTitle title="Reports" subtitle="Compliance and security reporting for DILG Makati and its barangays." />
+      <PageTitle title="Reports" subtitle="Real-time compliance and security reporting for DILG Makati and its barangays." />
       <ThreeRsTabs />
 
-      <ReportSetup
-        onChanged={() => {
-          periods.reload();
-          report.reload();
-        }}
-      />
+      {user.role === "office_supervisor" && (
+        <ReportSetup
+          onChanged={() => {
+            periods.reload();
+            report.reload();
+          }}
+        />
+      )}
 
       <div className="mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <label className="text-sm w-full sm:w-auto">

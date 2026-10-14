@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api, ApiError } from "@/lib/api";
 import { homeFor } from "@/lib/roles";
+import { saveAccount } from "@/lib/accountStorage";
 import type { User } from "@/types";
 
 export function useAuth() {
@@ -14,7 +15,12 @@ export function useAuth() {
   const fetchUser = useCallback(async () => {
     try {
       const data = await api.get<{ user: User }>("/api/me", { silent401: true });
-      setUser(data?.user ?? null);
+      if (data?.user) {
+        saveAccount(data.user);
+        setUser(data.user);
+      } else {
+        setUser(null);
+      }
     } catch {
       setUser(null);
     } finally {
@@ -34,6 +40,7 @@ export function useAuth() {
         password,
         ...(barangayId ? { barangay_id: barangayId } : {}),
       });
+      saveAccount(user);
       setUser(user);
 
       router.push(homeFor(user.role));

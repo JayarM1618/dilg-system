@@ -57,6 +57,9 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
     if (res.status === 401 && options.silent401) {
       return null as T;
     }
+    if (path === "/api/logout" && (res.status === 401 || res.status === 419)) {
+      return undefined as T;
+    }
     const body = await res.json().catch(() => ({})) as { message?: string; errors?: Record<string, string[] | string> };
     // Laravel validation errors: show the first concrete reason ("The file must be a PDF...").
     const firstVal = body.errors ? Object.values(body.errors)[0] : undefined;

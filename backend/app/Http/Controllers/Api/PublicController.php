@@ -7,14 +7,76 @@ use App\Models\Barangay;
 use App\Models\BarangayAnnouncement;
 use App\Models\BarangayProgram;
 use App\Models\ReportCategory;
+use App\Models\Submission;
+use Illuminate\Http\Request;
 
 /**
- * Read-only data for the "Citizens View" (no login needed).
- * Only information a barangay chooses to publish is exposed: profile, announcements,
- * programs and events. No submissions, files, users, contact persons/emails or compliance results.
+ * Read-only data for the "Citizens View" (no login needed) and real-time public telemetry.
  */
 class PublicController extends Controller
 {
+    /** Real-time compliance and telemetry analytics for citywide or per-barangay views. */
+    public function analytics(Request $request)
+    {
+        $barangayId = $request->query('barangay_id');
+        $barangaysCount = Barangay::where('is_active', true)->count();
+
+        $query = Submission::query();
+        if ($barangayId) {
+            $query->where('barangay_id', $barangayId);
+        }
+
+        $all = (clone $query)->get();
+        $total = $all->count();
+        $compliant = $all->where('status', 'compliant')->count();
+        $underReview = $all->whereIn('status', ['submitted', 'under_review'])->count();
+        $pending = $all->where('status', 'pending')->count();
+        $nonCompliant = $all->where('status', 'non_compliant')->count();
+        $overdue = $all->filter(fn ($s) => $s->is_overdue || ($s->status === 'pending' && $s->due_date && $s->due_date->isPast()))->count();
+
+        // Monthly compliance trend for the last 7 months
+        $months = [];
+        $start = now()->subMonths(6)->startOfMonth();
+        for ($i = 0; $i < 7; $i++) {
+            $mDate = (clone $start)->addMonths($i);
+            $mKey = $mDate->format('Y-m');
+            $mLabel = $mDate->format('M');
+
+            $mSubmissions = $all->filter(function ($s) use ($mKey) {
+                $period = substr((string)$s->period_label, 0, 7);
+                if ($period === $mKey) return true;
+                $dueDate = $s->due_date ? $s->due_date->format('Y-m') : null;
+                return $dueDate === $mKey;
+            });
+
+            $mDue = $mSubmissions->count();
+            $mFiled = $mSubmissions->whereIn('status', ['submitted', 'under_review', 'compliant'])->count();
+            $mCompliant = $mSubmissions->where('status', 'compliant')->count();
+            $rate = $mDue > 0 ? round(($mCompliant / $mDue) * 100, 1) : ($mFiled > 0 ? 100 : 0);
+
+            $months[] = [
+                'month' => $mKey,
+                'label' => $mLabel,
+                'due' => $mDue,
+                'filed' => $mFiled,
+                'compliant' => $mCompliant,
+                'rate' => $rate,
+            ];
+        }
+
+        return response()->json([
+            'total' => $total,
+            'compliant' => $compliant,
+            'under_review' => $underReview,
+            'pending' => $pending,
+            'non_compliant' => $nonCompliant,
+            'overdue' => $overdue,
+            'compliance_rate' => $total > 0 ? round(($compliant / $total) * 100, 1) : 100,
+            'total_barangays' => $barangaysCount,
+            'monthly_trend' => $months,
+            'updated_at' => now()->toIso8601String(),
+        ]);
+    }
     /** Landing page of the Citizens View. */
     public function overview()
     {

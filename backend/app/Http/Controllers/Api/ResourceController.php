@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\ReportCategory;
 use App\Models\Resource;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -30,7 +31,7 @@ class ResourceController extends Controller
     {
         $query = Resource::with(['category:id,name,cycle', 'uploader:id,name']);
 
-        if ($request->boolean('history') && $request->user()->hasOfficeOversight()) {
+        if ($request->boolean('history') && $request->user()?->hasOfficeOversight()) {
             // everything
         } else {
             $query->available();
@@ -94,6 +95,17 @@ class ResourceController extends Controller
         });
 
         ActivityLog::record('resource.uploaded', $resource, ['version' => $resource->version, 'type' => $resource->type]);
+
+        // ── Notify all barangay reps about a new resource ──
+        $typeLabel = ucfirst(str_replace('_', ' ', $resource->type));
+        NotificationService::notifyBarangay(
+            null, // all barangays
+            'resource.new',
+            "New {$typeLabel}: {$resource->title}",
+            "Version {$resource->version} is now available in the Resources library.",
+            '/user/resources',
+            $request->user(),
+        );
 
         return response()->json($resource->load(['category:id,name,cycle', 'uploader:id,name']), 201);
     }

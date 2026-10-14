@@ -11,6 +11,10 @@ import { homeFor } from "@/lib/roles";
 import { useBarangays } from "@/hooks/useBarangays";
 import { normalizeName, type PublicBarangay } from "@/lib/barangays";
 import type { SubmissionStatus } from "@/types";
+import NotificationBell from "@/components/NotificationBell";
+import RealtimeComplianceChart from "@/components/RealtimeComplianceChart";
+import RealtimePeriodTally from "@/components/RealtimePeriodTally";
+import { useRealtimeAnalytics } from "@/hooks/useRealtimeAnalytics";
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
 
@@ -67,6 +71,7 @@ export default function BarangaySignInPage() {
   const [query, setQuery] = useState("");
   const [picked, setPicked] = useState<PublicBarangay | null>(null);
   const { barangays, loading: barangaysLoading, error: barangaysError, retry: retryBarangays } = useBarangays();
+  const realtime = useRealtimeAnalytics({ pollInterval: 8000 });
 
   const cta = user ? { href: homeFor(user.role), label: "Go to dashboard" } : { href: "/login", label: "Sign in" };
 
@@ -94,153 +99,176 @@ export default function BarangaySignInPage() {
   const myBarangayId = user?.barangay_id ?? null;
 
   return (
-    <div className={`${poppins.className} min-h-screen bg-[#F4EEFE] text-slate-800 dark:bg-[#130E1F] dark:text-[#E9DFFF] transition-colors duration-500 ease-out p-3 sm:p-6 lg:p-8`}>
-      <div className="mx-auto flex max-w-360 overflow-hidden bg-white shadow-[0_30px_80px_-30px_rgba(91,60,200,0.35)] dark:bg-[#1B142F] dark:shadow-[0_30px_80px_-30px_rgba(0,0,0,0.8)] rounded-2xl sm:rounded-[2rem]">
-        <div className="min-w-0 flex-1">
-          {/* ---------- Top bar: brand + sign in, with a collapsible icon menu ---------- */}
-          <header className="border-b border-[#EDE7FA] dark:border-[#2B2542]">
-            <div className="flex items-center gap-2 sm:gap-3 px-4 py-3.5 sm:px-8 sm:py-4">
-              <Link href="/" className={`grid h-8 w-8 sm:h-9 sm:w-9 shrink-0 place-items-center rounded-full bg-[#F1EBFF] text-[#7B4DFF] transition-colors hover:bg-[#E3D5FF] ${focusRing}`} aria-label="Go back to home">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M19 12H5M12 19l-7-7 7-7"/>
-                </svg>
-              </Link>
-              <BrandMark tone="dark" />
+    <div className={`${poppins.className} min-h-screen w-full bg-white dark:bg-[#110C1B] text-slate-800 dark:text-[#E9DFFF] transition-colors duration-500 ease-out flex flex-col`}>
+      {/* Subtle atmospheric glow blobs */}
+      <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -left-40 top-0 h-[40rem] w-[40rem] rounded-full bg-[#E6FBF3]/50 blur-3xl dark:bg-[#06D6A0]/10" />
+        <div className="absolute right-0 top-40 h-[40rem] w-[40rem] rounded-full bg-[#F3EDFE]/50 blur-3xl dark:bg-[#7B4DFF]/15" />
+        <div className="absolute bottom-0 left-1/3 h-[36rem] w-[36rem] rounded-full bg-[#FFF8E6]/50 blur-3xl dark:bg-[#F5A800]/10" />
+      </div>
 
-              <button
-                type="button"
-                onClick={() => setMenuOpen((o) => !o)}
-                aria-expanded={menuOpen}
-                aria-controls="section-menu"
-                aria-label={menuOpen ? "Hide page sections" : "Show page sections"}
-                title={menuOpen ? "Hide sections" : "Show sections"}
-                className={`grid h-8 w-8 sm:h-9 sm:w-9 shrink-0 place-items-center rounded-full bg-[#F1EBFF] text-[#7B4DFF] transition-colors hover:bg-[#E3D5FF] dark:bg-[#352D52] dark:text-[#CDBBFF] transition-colors duration-500 ease-out dark:hover:bg-[#2B2542] ${focusRing}`}
-              >
-                <svg
-                  width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
-                  className={`transition-transform duration-500 ease-out ${menuOpen ? "rotate-180" : ""}`}
+      {/* ---------- Top bar: brand + sign in, with a collapsible icon menu ---------- */}
+      <header className="relative z-20 w-full border-b border-[#EDE7FA] dark:border-[#251E38] bg-white/80 dark:bg-[#181126]/85 backdrop-blur-2xl">
+        <div className="w-full flex items-center gap-2 sm:gap-3 px-4 sm:px-8 lg:px-12 py-3.5 sm:py-4">
+          <Link href="/" className={`grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#F1EBFF] text-[#7B4DFF] hover:bg-[#E3D5FF] dark:bg-[#352D52] dark:text-[#CDBBFF] ${focusRing}`} aria-label="Go back to home">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+          </Link>
+          <BrandMark tone="dark" />
+
+          <button
+            type="button"
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-expanded={menuOpen}
+            aria-controls="section-menu"
+            aria-label={menuOpen ? "Hide page sections" : "Show page sections"}
+            title={menuOpen ? "Hide sections" : "Show sections"}
+            className={`grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#F1EBFF] text-[#7B4DFF] transition-colors hover:bg-[#E3D5FF] dark:bg-[#352D52] dark:text-[#CDBBFF] transition-colors duration-500 ease-out dark:hover:bg-[#2B2542] ${focusRing}`}
+          >
+            <svg
+              width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+              className={`transition-transform duration-500 ease-out ${menuOpen ? "rotate-180" : ""}`}
+            >
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
+
+          <div className="ml-auto flex items-center gap-2 sm:gap-3">
+            {user && <NotificationBell />}
+            <Link
+              href={cta.href}
+              className={`rounded-full bg-[#7B4DFF] px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-md shadow-[#7B4DFF]/25 transition-all hover:bg-[#6A3CF0] ${focusRing} ${loading ? "invisible" : ""}`}
+            >
+              {cta.label}
+            </Link>
+            <span
+              className="grid h-9 w-9 sm:h-10 sm:w-10 place-items-center rounded-full bg-[#E3D5FF] text-xs sm:text-sm font-bold text-[#5A18C9] dark:bg-[#352D52] dark:text-[#CDBBFF] transition-colors duration-500 shadow-sm"
+              aria-hidden="true"
+            >
+              {user ? user.name.trim().charAt(0).toUpperCase() : <PersonIcon />}
+            </span>
+          </div>
+        </div>
+
+        {/* Hidden by default; slides open when the arrow is clicked. */}
+        <div
+          id="section-menu"
+          className={`grid transition-[grid-template-rows] duration-500 ease-out ${menuOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+        >
+          <nav aria-label="Page sections" className="overflow-hidden" inert={!menuOpen}>
+            <ul className="flex flex-wrap items-start justify-center gap-4 px-5 pb-5 pt-1 sm:gap-6 sm:px-8">
+              {SECTIONS.map((s) => (
+                <li key={s.id}>
+                  <a
+                    href={`#${s.id}`}
+                    aria-current={section === s.id ? "true" : undefined}
+                    className={`group flex w-20 flex-col items-center gap-1.5 rounded-2xl ${focusRing}`}
+                  >
+                    <span
+                      className={`grid h-12 w-12 place-items-center rounded-2xl transition-colors ${section === s.id ? "bg-[#7B4DFF] text-white" : "bg-[#EADFFE] text-[#7B4DFF] group-hover:bg-[#DCCBFD]"
+                        }`}
+                    >
+                      <RailIcon name={s.icon} />
+                    </span>
+                    <span className={`text-center text-xs font-medium leading-tight ${section === s.id ? "text-[#5A18C9]" : "text-slate-600"}`}>
+                      {s.label}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      </header>
+
+      <main className="relative z-10 w-full flex-1 px-4 sm:px-8 lg:px-12 py-6 sm:py-8 space-y-6 sm:space-y-8">
+        {/* Full-width Landscape Hero Banner */}
+        <section
+          className={`${card} relative overflow-hidden bg-gradient-to-br from-[#E6FBF3]/90 via-[#F3EDFE]/80 to-[#E8FAFF]/90 dark:from-[#132A24]/90 dark:via-[#1F1833]/80 dark:to-[#122A30]/90 backdrop-blur-2xl border border-white/60 dark:border-white/10 shadow-2xl shadow-[#7B4DFF]/10 dark:shadow-black/40 p-6 sm:p-10 transition-all duration-500`}
+          aria-labelledby="hero-title"
+        >
+          <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-[#7B4DFF]/15 blur-3xl dark:bg-[#7B4DFF]/10" />
+
+          <div className="relative grid gap-8 lg:grid-cols-12 lg:items-center">
+            {/* Left: Info */}
+            <div className="lg:col-span-7 flex flex-col justify-center">
+              <div className="inline-flex items-center gap-2 self-start rounded-full bg-white/80 dark:bg-black/30 px-3.5 py-1 text-xs font-semibold text-[#0E5440] dark:text-[#84DEBD] ring-1 ring-[#06D6A0]/30 shadow-sm backdrop-blur-md">
+                <span className="h-2 w-2 rounded-full bg-[#06D6A0]" />
+                Talaghayan &middot; Barangay Report Tracker
+              </div>
+
+              <h1 id="hero-title" className="mt-4 text-balance text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#0E2B24] dark:text-[#E8F8F3] transition-colors duration-500 leading-tight">
+                Every barangay report, from filed to counted.
+              </h1>
+
+              <p className="mt-4 max-w-2xl text-sm sm:text-base leading-relaxed text-[#2C5A4D] dark:text-[#A8E2CF] transition-colors duration-500">
+                Barangays upload what is due. The office reviews it. The Talaghayan shows who is compliant, live,
+                with no more email threads or hand-updated sheets.
+              </p>
+
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <a
+                  href="#barangays"
+                  className={`inline-flex items-center gap-2 rounded-full bg-[#7B4DFF] px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-[#6A3CF0] transition-colors ${focusRing}`}
                 >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-              </button>
-
-              <div className="ml-auto flex items-center gap-2 sm:gap-3">
+                  Find your barangay &rarr;
+                </a>
                 <Link
                   href={cta.href}
-                  className={`rounded-full bg-[#7B4DFF] px-3.5 py-1.5 text-xs sm:px-5 sm:py-2 sm:text-sm font-semibold text-white transition-colors hover:bg-[#6A3CF0] ${focusRing} ${loading ? "invisible" : ""}`}
+                  className={`inline-flex items-center gap-2 rounded-full border-2 border-[#7B4DFF] px-5 py-2.5 text-sm font-semibold text-[#5A18C9] dark:text-[#CDBBFF] hover:bg-[#7B4DFF] hover:text-white dark:hover:text-white transition-all duration-200 ${focusRing}`}
                 >
                   {cta.label}
                 </Link>
-                <span
-                  className="grid h-8 w-8 sm:h-10 sm:w-10 place-items-center rounded-full bg-[#E3D5FF] text-xs sm:text-sm font-semibold text-[#5A18C9] dark:bg-[#352D52] dark:text-[#CDBBFF] transition-colors duration-500 ease-out"
-                  aria-hidden="true"
-                >
-                  {user ? user.name.trim().charAt(0).toUpperCase() : <PersonIcon />}
-                </span>
               </div>
             </div>
 
-            {/* Hidden by default; slides open when the arrow is clicked. */}
-            <div
-              id="section-menu"
-              className={`grid transition-[grid-template-rows] duration-500 ease-out ${menuOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
-            >
-              <nav aria-label="Page sections" className="overflow-hidden" inert={!menuOpen}>
-                <ul className="flex flex-wrap items-start justify-center gap-4 px-5 pb-5 pt-1 sm:gap-6 sm:px-8">
-                  {SECTIONS.map((s) => (
-                    <li key={s.id}>
-                      <a
-                        href={`#${s.id}`}
-                        aria-current={section === s.id ? "true" : undefined}
-                        className={`group flex w-20 flex-col items-center gap-1.5 rounded-2xl ${focusRing}`}
-                      >
-                        <span
-                          className={`grid h-12 w-12 place-items-center rounded-2xl transition-colors ${section === s.id ? "bg-[#7B4DFF] text-white" : "bg-[#EADFFE] text-[#7B4DFF] group-hover:bg-[#DCCBFD]"
-                            }`}
-                        >
-                          <RailIcon name={s.icon} />
-                        </span>
-                        <span className={`text-center text-xs font-medium leading-tight ${section === s.id ? "text-[#5A18C9]" : "text-slate-600"}`}>
-                          {s.label}
-                        </span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
+            {/* Right: Landscape Stats */}
+            <div className="lg:col-span-5 grid grid-cols-2 gap-3 sm:gap-4">
+              <div className="flex flex-col justify-between rounded-2xl bg-white/80 dark:bg-black/30 p-5 ring-1 ring-white/60 dark:ring-white/10 shadow-sm backdrop-blur-md">
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Barangays</p>
+                <p className="mt-2 text-3xl sm:text-4xl font-extrabold tabular-nums text-slate-900 dark:text-white">{barangays.length}</p>
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Makati City portal</p>
+              </div>
+              <div className="flex flex-col justify-between rounded-2xl bg-white/80 dark:bg-black/30 p-5 ring-1 ring-white/60 dark:ring-white/10 shadow-sm backdrop-blur-md">
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Report Statuses</p>
+                <p className="mt-2 text-3xl sm:text-4xl font-extrabold tabular-nums text-slate-900 dark:text-white">{STATUSES.length}</p>
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Standardized lifecycle</p>
+              </div>
             </div>
-          </header>
+          </div>
+        </section>
 
-          <main className="space-y-5 p-4 sm:p-8">
-            {/* ---------- Row 1: hero + sample charts ---------- */}
-            <div className="grid gap-5 lg:grid-cols-12">
-              <section className={`${card} flex flex-col bg-[#E6FBF3]/70 dark:bg-[#1C362F]/70 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-xl shadow-[#7B4DFF]/15 dark:shadow-none lg:col-span-5 transition-all duration-500 ease-out`} aria-labelledby="hero-title">
-                <p className="text-sm font-medium text-[#2C5A4D] dark:text-[#84DEBD] transition-colors duration-500 ease-out">Talaghayan &middot; Barangay Report Tracker</p>
-                <h1 id="hero-title" className="mt-3 text-balance text-2xl font-semibold leading-tight text-[#0E2B24] dark:text-[#E8F8F3] transition-colors duration-500 ease-out sm:text-4xl">
-                  Every barangay report, from filed to counted.
-                </h1>
-                <p className="mt-3 max-w-[44ch] text-sm sm:text-base leading-6 sm:leading-7 text-[#2C5A4D] dark:text-[#84DEBD] transition-colors duration-500 ease-out">
-                  Barangays upload what is due. The office reviews it. The Talaghayan shows who is compliant, live,
-                  with no more email threads or hand-updated sheets.
-                </p>
+        {/* Row 2: Live Real-Time Analytics in 2 Balanced Columns */}
+        <div className="grid gap-6 lg:grid-cols-12">
+          <section className={`${card} bg-white dark:bg-[#181126] border border-slate-200 dark:border-white/10 shadow-sm lg:col-span-7`} aria-labelledby="sample-line">
+            <RealtimeComplianceChart
+              trend={realtime.data?.monthly_trend ?? []}
+              title="Citywide Compliance Trajectory"
+              subtitle="Continuous evaluation across monthly submission periods"
+              badgeLabel="Makati Citywide"
+              loading={realtime.loading}
+            />
+          </section>
 
-                <div className="mt-auto grid grid-cols-2 gap-3 sm:gap-4 pt-6 sm:pt-7">
-                  <Tile value={barangays.length} label="Barangays" />
-                  <Tile value={STATUSES.length} label="Report statuses" />
-                </div>
+          <section className={`${card} flex flex-col justify-between bg-white dark:bg-[#181126] border border-slate-200 dark:border-white/10 shadow-sm lg:col-span-5`} aria-labelledby="sample-ring">
+            <RealtimePeriodTally
+              total={realtime.data?.total ?? 0}
+              compliant={realtime.data?.compliant ?? 0}
+              underReview={realtime.data?.under_review ?? 0}
+              pending={realtime.data?.pending ?? 0}
+              nonCompliant={realtime.data?.non_compliant ?? 0}
+              complianceRate={realtime.data?.compliance_rate ?? 100}
+              title="This month"
+              subtitle="Live tally of every report across all 24 barangays"
+              actionHref={cta.href}
+              actionLabel="View Dashboard"
+            />
+          </section>
+        </div>
 
-                <div className="mt-6 flex flex-col sm:flex-row sm:items-center gap-3">
-                  <a href="#barangays" className={`text-center rounded-full bg-[#7B4DFF] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#6A3CF0] ${focusRing}`}>
-                    Find your barangay
-                  </a>
-                  <Link href={cta.href} className={`text-center rounded-full border-2 border-[#7B4DFF] px-6 py-2 text-sm font-semibold text-[#5A18C9] dark:text-[#CDBBFF] transition-colors duration-500 ease-out transition-colors hover:bg-[#7B4DFF] hover:text-white dark:hover:text-white ${focusRing}`}>
-                    {cta.label}
-                  </Link>
-                </div>
-              </section>
-
-              <section className={`${card} bg-[#F3EDFE]/70 dark:bg-[#2A233D]/70 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-xl shadow-[#7B4DFF]/15 dark:shadow-none lg:col-span-4 transition-all duration-500 ease-out`} aria-labelledby="sample-line">
-                <div className="flex items-center justify-between gap-3">
-                  <h2 id="sample-line" className="text-xl font-medium text-[#1B1235] dark:text-[#E9DFFF] transition-colors duration-500 ease-out">Compliance, live</h2>
-                  <SampleChip />
-                </div>
-                <div className="mt-3 flex gap-5 text-sm text-[#2A1F4D] dark:text-[#D1C4F9] transition-colors duration-500 ease-out">
-                  <Dot color="#F21DB4" label="Filed" />
-                  <Dot color="#7B4DFF" label="Reviewed" />
-                </div>
-                <SampleLineChart />
-              </section>
-
-              <section className={`${card} flex flex-col bg-[#FFF8E6]/70 dark:bg-[#382C10]/70 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-xl shadow-[#7B4DFF]/15 dark:shadow-none lg:col-span-3 transition-all duration-500 ease-out`} aria-labelledby="sample-ring">
-                <div className="flex items-center justify-between gap-3">
-                  <h2 id="sample-ring" className="text-xl font-medium text-[#2A2000] dark:text-[#FBE5A1] transition-colors duration-500 ease-out">This month</h2>
-                  <SampleChip />
-                </div>
-                <p className="mt-2 text-sm text-[#5C4600] dark:text-[#D6B55E] transition-colors duration-500 ease-out">
-                  <b className="font-semibold text-[#F5A800]">Live tally</b> of every report
-                </p>
-                <div className="mt-4 flex items-center justify-between gap-3">
-                  <ul className="space-y-2 text-sm text-[#2A2000] dark:text-[#FBE5A1] transition-colors duration-500 ease-out">
-                    <li><Dot color="#F21DB4" label="Filed" small /></li>
-                    <li><Dot color="#7B4DFF" label="Reviewed" small /></li>
-                    <li><Dot color="#FFC800" label="Compliant" small /></li>
-                  </ul>
-                  <SampleRings />
-                </div>
-                <Link
-                  href={cta.href}
-                  className={`mt-auto inline-flex items-center justify-center gap-2 self-start rounded-full border-2 border-[#FFC800] px-5 py-2 text-sm font-semibold text-[#8A6300] dark:text-[#FBE5A1] transition-colors duration-500 ease-out transition-colors hover:bg-[#FFC800] hover:text-[#2A2000] ${focusRing}`}
-                >
-                  {cta.label}
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M5 12h14M13 6l6 6-6 6" />
-                  </svg>
-                </Link>
-              </section>
-            </div>
-
-            {/* ---------- Row 2: barangay directory ---------- */}
+        {/* ---------- Row 2: barangay directory ---------- */}
             <section id="barangays" className={`${card} scroll-mt-6 bg-[#F1F0FB]/70 dark:bg-[#1E192D]/70 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-xl shadow-[#7B4DFF]/15 dark:shadow-none p-4 sm:p-8 transition-all duration-500 ease-out`} aria-labelledby="barangays-title">
               <div className="flex flex-wrap items-end justify-between gap-4">
                 <div>
@@ -365,26 +393,22 @@ export default function BarangaySignInPage() {
             </section>
 
             {/* ---------- Closing call ---------- */}
-            <section className="relative overflow-hidden rounded-3xl bg-[#7B4DFF]/80 dark:bg-[#352D52]/70 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-xl shadow-[#7B4DFF]/15 dark:shadow-none transition-all duration-500 ease-out px-5 py-8 sm:px-10 sm:py-10 text-white">
-              <div aria-hidden="true" className="absolute -right-8 -top-10 h-40 w-40 rounded-full bg-white/10" />
-              <div aria-hidden="true" className="absolute -bottom-10 right-40 h-24 w-24 rounded-full bg-[#06D6A0]/40" />
+            <section className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#7B4DFF] to-[#5A18C9] px-6 py-8 sm:px-10 sm:py-10 text-white shadow-md">
               <div className="relative flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
                 <div>
-                  <h2 className="text-xl sm:text-3xl font-semibold">Got your account details?</h2>
-                  <p className="mt-2 text-sm sm:text-base text-[#E9DFFF]">Pick your barangay above, or sign in with the email and password from your DILG Makati office.</p>
+                  <h2 className="text-2xl font-bold">Authorized Barangay Access</h2>
+                  <p className="mt-1 text-xs sm:text-sm text-[#E9DFFF]">Pick your barangay from the directory above or sign in with assigned credentials from the DILG Makati office.</p>
                 </div>
-                <Link href={cta.href} className={`w-full sm:w-auto text-center shrink-0 rounded-full bg-white px-7 py-3 font-semibold text-[#5A18C9] transition-transform hover:-translate-y-0.5 ${focusRing}`}>
-                  {cta.label}
+                <Link href={cta.href} className={`w-full sm:w-auto text-center shrink-0 rounded-full bg-white px-7 py-3 text-sm font-bold text-[#5A18C9] hover:bg-slate-50 transition-colors ${focusRing}`}>
+                  {cta.label} &rarr;
                 </Link>
               </div>
             </section>
 
-            <footer className="pb-2 pt-1 text-center text-sm text-slate-500 dark:text-[#7C6FA3] transition-colors duration-500 ease-out">
-              &copy; {new Date().getFullYear()} Talaghayan &middot; Barangay Report Tracker
+            <footer className="py-4 text-center text-xs text-slate-500 dark:text-[#7C6FA3]">
+              &copy; {new Date().getFullYear()} Republic of the Philippines &middot; Department of the Interior and Local Government &middot; Makati City Field Office
             </footer>
           </main>
-        </div>
-      </div>
 
       {picked && <BarangayLoginDialog key={picked.id} barangay={picked} onClose={() => setPicked(null)} />}
     </div>
@@ -407,18 +431,18 @@ function BarangayTile({
   const body = (
     <>
       <span
-        className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-sm font-semibold transition-transform duration-500 ease-out group-hover:scale-110"
+        className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-sm font-bold shadow-sm"
         style={{ backgroundColor: avatar.bg, color: avatar.fg }}
         aria-hidden="true"
       >
         {initials(b.name)}
       </span>
       <span className="min-w-0 flex-1 text-left">
-        <span className="block truncate font-semibold text-slate-900 dark:text-white transition-colors duration-500 ease-out">{b.name}</span>
-        <span className="block text-xs text-slate-500 dark:text-slate-400 transition-colors duration-500 ease-out">{mode === "mine" ? "Your barangay" : b.code}</span>
+        <span className="block truncate font-bold text-sm text-slate-900 dark:text-white">{b.name}</span>
+        <span className="block text-xs text-slate-500 dark:text-slate-400 mt-0.5">{mode === "mine" ? "Your assigned barangay" : `Code: ${b.code}`}</span>
       </span>
       {mode === "mine" ? (
-        <span className="rounded-full bg-[#7B4DFF] px-2.5 py-1 text-xs font-semibold text-white">Open</span>
+        <span className="rounded-full bg-[#7B4DFF] px-2.5 py-1 text-xs font-bold text-white">Active</span>
       ) : mode === "locked" ? null : (
         <svg className="shrink-0 text-[#7B4DFF]" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M9 6l6 6-6 6" />
@@ -427,7 +451,7 @@ function BarangayTile({
     </>
   );
 
-  const base = `group flex w-full items-center gap-3 rounded-2xl bg-white/70 dark:bg-[#1B142F]/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-md p-3 pr-4 ring-1 ring-[#E8E3F7] dark:ring-white/10 transition-all hover:-translate-y-1 hover:shadow-lg hover:bg-white dark:hover:bg-[#352D52]/80 ${focusRing}`;
+  const base = `group flex w-full items-center gap-3 rounded-2xl bg-white dark:bg-[#181126] border border-slate-200 dark:border-white/10 p-3.5 pr-4 shadow-sm hover:border-[#7B4DFF] dark:hover:border-[#7B4DFF] transition-colors ${focusRing}`;
 
   if (mode === "locked") {
     return (
@@ -438,13 +462,13 @@ function BarangayTile({
   }
   if (mode === "mine" || mode === "go") {
     return (
-      <Link href={href} className={`${base} hover:ring-2 hover:ring-[#7B4DFF] ${mode === "mine" ? "ring-2 ring-[#7B4DFF]" : ""}`}>
+      <Link href={href} className={`${base} ${mode === "mine" ? "border-[#7B4DFF] ring-2 ring-[#7B4DFF]/20" : ""}`}>
         {body}
       </Link>
     );
   }
   return (
-    <button type="button" onClick={onPick} aria-haspopup="dialog" aria-label={`Sign in to Barangay ${b.name}`} className={`${base} hover:ring-2 hover:ring-[#7B4DFF]`}>
+    <button type="button" onClick={onPick} aria-haspopup="dialog" aria-label={`Sign in to Barangay ${b.name}`} className={base}>
       {body}
     </button>
   );

@@ -144,6 +144,15 @@ export default function AccountsPage() {
         </button>
       </div>
 
+      <section className="mt-5 grid gap-3 md:grid-cols-3" aria-label="What each role can do">
+        {(["barangay_rep", "office_supervisor", "super_admin"] as Role[]).map((r) => (
+          <div key={r} className="rounded-2xl bg-white p-4 ring-1 ring-[#E3DEF5] dark:bg-[#1B1430] dark:ring-white/10">
+            <p className="text-sm font-bold text-[#1B1235] dark:text-white">{ROLE_INFO[r].label}</p>
+            <p className="mt-1 text-xs leading-relaxed text-slate-600 dark:text-slate-300">{ROLE_INFO[r].description}</p>
+          </div>
+        ))}
+      </section>
+
       {!loading && barangays.length > 0 && withoutAccount > 0 && (
         <p className="mt-4 rounded-2xl bg-[#FFF8E6] px-4 py-3 text-sm text-[#7A5B00] dark:bg-amber-400/10 dark:text-amber-200">
           {withoutAccount} of {barangays.length} barangays do not have an active representative account yet.
@@ -186,7 +195,7 @@ export default function AccountsPage() {
             Account type
             <select value={role} onChange={(e) => setRole(e.target.value as Role)} className={field}>
               <option value="barangay_rep">{ROLE_INFO.barangay_rep.label}</option>
-              <option value="office_supervisor">{ROLE_INFO.office_supervisor.label} (Admin)</option>
+              <option value="office_supervisor">{ROLE_INFO.office_supervisor.label}</option>
               <option value="super_admin">{ROLE_INFO.super_admin.label}</option>
             </select>
           </label>

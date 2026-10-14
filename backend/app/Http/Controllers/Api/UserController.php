@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AccountActivation;
 use App\Models\ActivityLog;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -67,6 +69,22 @@ class UserController extends Controller
             'email' => $user->email,
         ]);
 
+        // ── Notify other admins about the new account ──
+        $roleLabel = match ($user->role) {
+            'barangay_rep' => 'Barangay Representative',
+            'office_supervisor' => 'Office Supervisor',
+            'super_admin' => 'Super Admin',
+            default => $user->role,
+        };
+        NotificationService::notifyOffice(
+            'account.created',
+            "New account created: {$user->name}",
+            "A {$roleLabel} account was created for {$user->email}.",
+            '/super-admin/accounts',
+            $request->user(),
+            false, // skip email — the admin who did it is right there
+        );
+
         return response()->json([
             'user' => $user->load('barangay:id,name,code'),
             'activation_link' => $link,
@@ -96,6 +114,18 @@ class UserController extends Controller
 
         if (array_key_exists('is_active', $data)) {
             ActivityLog::record($data['is_active'] ? 'account.reactivated' : 'account.deactivated', $user, ['email' => $user->email]);
+
+            // ── Notify the affected user about activation status change ──
+            if ($data['is_active']) {
+                NotificationService::send(
+                    $user,
+                    'account.reactivated',
+                    'Your account has been reactivated',
+                    'Your Talaghayan account is now active again. You can sign in.',
+                    '/',
+                    $request->user(),
+                );
+            }
         } else {
             ActivityLog::record('account.updated', $user, ['email' => $user->email]);
         }
@@ -146,20 +176,17 @@ class UserController extends Controller
         return rtrim(config('app.frontend_url', env('FRONTEND_URL', 'http://localhost:3000')), '/') . '/activate?token=' . $plain;
     }
 
-    /** Best effort: with MAIL_MAILER=log the message lands in storage/logs/laravel.log. */
+    /** Best effort: uses the AccountActivation mailable for styled emails. */
     private function sendInvite(User $user, string $link): bool
     {
-        $where = $user->barangay ? "Barangay {$user->barangay->name}" : 'the DILG Makati office';
-        $body = "Hello {$user->name},\n\n"
-            . "The DILG Makati office created your Talaghayan account for {$where}.\n"
-            . "Open this link to activate it and choose your password (valid for " . self::LINK_VALID_DAYS . " days):\n\n"
-            . "{$link}\n\n"
-            . "Your sign-in email is {$user->email}. If you did not expect this message, ignore it.\n";
+        if (config('mail.default') === 'log') {
+            return false;
+        }
 
         try {
-            Mail::raw($body, fn ($m) => $m->to($user->email)->subject('Activate your Talaghayan account'));
+            Mail::to($user->email)->send(new AccountActivation($user, $link));
 
-            return config('mail.default') !== 'log';
+            return true;
         } catch (\Throwable $e) {
             Log::warning('Invite email failed: ' . $e->getMessage());
 

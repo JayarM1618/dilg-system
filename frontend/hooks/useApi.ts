@@ -1,46 +1,89 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api, ApiError } from "@/lib/api";
+
+interface UseApiOptions {
+  pollInterval?: number; // ms interval to poll for real-time live data
+}
 
 interface UseApiResult<T> {
   data: T | null;
   loading: boolean;
   error: string | null;
   retry: () => void;
+  lastUpdated: Date;
 }
 
-/** GETs `path` on mount (and whenever it changes). Call `retry()` to refetch after an error. */
-export function useApi<T>(path: string): UseApiResult<T> {
+/**
+ * GETs `path` on mount (and whenever it changes).
+ * Pass `{ pollInterval: 8000 }` for real-time live telemetry auto-refresh.
+ * Call `retry()` to refetch after an error.
+ */
+export function useApi<T>(path: string, options: UseApiOptions = {}): UseApiResult<T> {
+  const { pollInterval } = options;
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const isInitialRef = useRef(true);
 
-  useEffect(() => {
-    let cancelled = false;
+  const fetchData = useCallback(
+    async (isBackground = false) => {
+      if (typeof document !== "undefined" && document.visibilityState === "hidden") {
+        return;
+      }
 
-    api
-      .get<T>(path)
-      .then((res) => {
-        if (cancelled) return;
+      if (!isBackground) {
+        setLoading(true);
+      }
+
+      try {
+        const res = await api.get<T>(path);
         setData(res);
         setError(null);
-      })
-      .catch((err: unknown) => {
-        if (cancelled) return;
-        setError(
-          err instanceof ApiError ? err.message : "Could not reach the server. Please try again.",
-        );
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+        setLastUpdated(new Date());
+      } catch (err: unknown) {
+        if (!isBackground) {
+          setError(
+            err instanceof ApiError ? err.message : "Could not reach the server. Please try again.",
+          );
+        }
+      } finally {
+        if (!isBackground) {
+          setLoading(false);
+        }
+      }
+    },
+    [path],
+  );
+
+  useEffect(() => {
+    fetchData(false);
+  }, [fetchData, attempt]);
+
+  // Real-time polling when pollInterval is specified
+  useEffect(() => {
+    if (!pollInterval || pollInterval <= 0) return;
+
+    const interval = setInterval(() => {
+      fetchData(true);
+    }, pollInterval);
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        fetchData(true);
+      }
+    };
+
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
-      cancelled = true;
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
-  }, [path, attempt]);
+  }, [fetchData, pollInterval]);
 
   const retry = useCallback(() => {
     setLoading(true);
@@ -48,5 +91,5 @@ export function useApi<T>(path: string): UseApiResult<T> {
     setAttempt((n) => n + 1);
   }, []);
 
-  return { data, loading, error, retry };
+  return { data, loading, error, retry, lastUpdated };
 }

@@ -7,6 +7,7 @@ use App\Models\ActivityLog;
 use App\Models\ReportCategory;
 use App\Models\Submission;
 use App\Models\SubmissionFile;
+use App\Services\NotificationService;
 use App\Support\PeriodOpener;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
@@ -75,9 +76,7 @@ class SubmissionController extends Controller
     }
 
     /**
-     * What a barangay representative can file right now: every report type with its current
-     * (and previous) period, its due date, where it stands and the current DILG form to download.
-     * This feeds the "Submit a report" form, so a barangay never has to wait for DILG to open a period.
+     * What categories and periods a barangay can currently file for.
      */
     public function options(Request $request)
     {
@@ -100,20 +99,20 @@ class SubmissionController extends Controller
 
                         return [
                             'period_label' => $p['label'],
-                            'due_date' => $row?->due_date?->toDateString() ?? $p['due']->toDateString(),
-                            'is_current' => $p['current'],
+                            'due_date' => $p['due_date'] ?? (isset($p['due']) ? (is_string($p['due']) ? $p['due'] : $p['due']->toDateString()) : null),
                             'status' => $row?->status ?? 'pending',
-                            // same rule as SubmissionPolicy::update: locked once under review or compliant
-                            'can_upload' => !$row || in_array($row->status, ['pending', 'submitted', 'non_compliant']),
+                            'can_upload' => !$row || in_array($row->status, ['pending', 'non_compliant']),
                         ];
                     })->values(),
                 ];
-            })->values();
+            });
 
         return response()->json(['data' => $data]);
     }
 
-    /** Office: open a reporting period for every active barangay (optionally one report type). */
+    /**
+     * Office opens reporting periods for barangays (creates blank submission rows).
+     */
     public function openPeriods(Request $request)
     {
         abort_unless($request->user()->hasOfficeOversight(), 403);
@@ -129,6 +128,22 @@ class SubmissionController extends Controller
         );
 
         ActivityLog::record('report.period_opened', null, ['created' => $created, 'report_category_id' => $data['report_category_id'] ?? null]);
+
+        // ── Notify all barangay reps that new reporting periods are open ──
+        if ($created > 0) {
+            $categoryName = isset($data['report_category_id'])
+                ? ReportCategory::find($data['report_category_id'])?->name ?? 'reports'
+                : 'reports';
+
+            NotificationService::notifyBarangay(
+                null, // all barangays
+                'submission.period_opened',
+                'New reporting period opened',
+                "{$created} new report slot(s) for {$categoryName} are now open. Please submit on time.",
+                '/user/reports',
+                $request->user(),
+            );
+        }
 
         return response()->json([
             'created' => $created,
@@ -160,29 +175,8 @@ class SubmissionController extends Controller
             'period_label' => $data['period_label'],
         ])->first();
 
-        // Not opened by the office yet? The barangay may still file for the current or previous
-        // period of that report: the server works out the dates, never the browser.
         if (!$submission) {
-            $category = ReportCategory::findOrFail($data['report_category_id']);
-            $period = collect(PeriodOpener::fileablePeriods($category))->firstWhere('label', $data['period_label']);
-
-            if (!$period) {
-                return response()->json(['message' => 'That reporting period is not open for your barangay.'], 422);
-            }
-
-            $submission = Submission::firstOrCreate(
-                [
-                    'barangay_id' => $user->barangay_id,
-                    'report_category_id' => $category->id,
-                    'period_label' => $period['label'],
-                ],
-                [
-                    'period_start' => $period['start']->toDateString(),
-                    'period_end' => $period['end']->toDateString(),
-                    'due_date' => $period['due']->toDateString(),
-                    'status' => 'pending',
-                ]
-            );
+            return response()->json(['message' => 'That reporting period is not open for your barangay.'], 422);
         }
 
         // Locked once it is under review or compliant.
@@ -207,6 +201,8 @@ class SubmissionController extends Controller
 
             // A new upload goes back to the office queue and clears the old review.
             $locked->update([
+                'file_path' => $path,
+                'original_filename' => $upload->getClientOriginalName(),
                 'status' => 'submitted',
                 'submitted_by' => $user->id,
                 'submitted_at' => now(),
@@ -219,6 +215,18 @@ class SubmissionController extends Controller
         });
 
         ActivityLog::record('submission.uploaded', $submission, ['version' => $file->version, 'sha256' => $sha256]);
+
+        // ── Notify office that a barangay submitted a report ──
+        $barangay = $user->barangay;
+        $bName = $barangay ? $barangay->name : 'A barangay';
+        $catName = $submission->category?->name ?? 'Report';
+        NotificationService::notifyOffice(
+            'submission.uploaded',
+            "New report from Brgy. {$bName}",
+            "{$catName} ({$submission->period_label}) has been submitted for review.",
+            '/admin/reports',
+            $user,
+        );
 
         return response()->json($submission->fresh()->load(['category', 'latestFile']), 201);
     }
@@ -244,6 +252,22 @@ class SubmissionController extends Controller
         ]);
 
         ActivityLog::record('submission.reviewed', $submission, ['status' => $data['status']]);
+
+        // ── Notify the barangay rep about the review result ──
+        $label = match ($data['status']) {
+            'compliant' => 'Compliant',
+            'non_compliant' => 'Non-Compliant',
+            default => 'Under Review',
+        };
+        $catName = $submission->category?->name ?? 'Report';
+        NotificationService::notifyBarangay(
+            $submission->barangay_id,
+            'submission.reviewed',
+            "Report marked: {$label}",
+            "Your {$catName} ({$submission->period_label}) was reviewed" . ($data['status'] === 'non_compliant' ? '. Please check the remarks and resubmit.' : '.'),
+            '/user/reports',
+            $request->user(),
+        );
 
         return $submission;
     }

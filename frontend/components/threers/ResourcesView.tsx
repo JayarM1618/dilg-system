@@ -48,7 +48,11 @@ export default function ResourcesView() {
     <>
       <PageTitle
         title="Resources"
-        subtitle="The official templates, guidelines and procedures. This is the only place to get the current version."
+        subtitle={
+          user?.role === "super_admin"
+            ? "Resource lifecycle oversight: monitor official guidelines, forms, and templates issued by DILG Makati."
+            : "The official templates, guidelines and procedures. This is the only place to get the current version."
+        }
       />
       <ThreeRsTabs />
 
@@ -58,7 +62,7 @@ export default function ResourcesView() {
         </Notice>
       )}
 
-      {isOffice && (
+      {user?.role === "office_supervisor" && (
         <UploadForm
           categories={categories.data ?? []}
           onDone={(text) => {
@@ -88,47 +92,71 @@ export default function ResourcesView() {
       </div>
 
       {loading && items.length === 0 ? (
-        <p className="py-10 text-center text-muted dark:text-slate-400">Loading resources...</p>
+        <p className="py-10 text-center text-slate-500 dark:text-slate-400">Loading resources...</p>
       ) : error ? (
-        <p className="py-10 text-center font-medium text-bad dark:text-rose-400">
+        <p className="py-10 text-center font-medium text-rose-500 dark:text-rose-400">
           {error}{" "}
           <button onClick={reload} className="underline underline-offset-4">Try again</button>
         </p>
       ) : groups.length === 0 ? (
-        <p className="rounded-lg border border-line dark:border-white/10 bg-white dark:bg-white/5 py-10 text-center text-muted dark:text-slate-400">
+        <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] py-12 text-center text-slate-500 dark:text-slate-400">
           {isOffice ? "Nothing has been uploaded yet. Use the form above to add the first template." : "No resources have been published yet."}
-        </p>
+        </div>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-6">
           {groups.map((g) => (
-            <section key={g.type} aria-labelledby={`h-${g.type}`}>
-              <h2 id={`h-${g.type}`} className="mb-3 text-lg font-semibold text-navy-900 dark:text-white">{TYPE_LABEL[g.type]}</h2>
-              <ul className="divide-y divide-line dark:divide-white/10 rounded-lg border border-line dark:border-white/10 bg-white dark:bg-white/5">
+            <section key={g.type} aria-labelledby={`h-${g.type}`} className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] shadow-sm overflow-hidden">
+              <div className="border-b border-slate-100 dark:border-white/10 px-6 py-4 flex items-center justify-between">
+                <h2 id={`h-${g.type}`} className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-[#7B4DFF]" />
+                  {TYPE_LABEL[g.type]}
+                </h2>
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/10 px-2.5 py-0.5 rounded-full">
+                  {g.items.length} {g.items.length === 1 ? "document" : "documents"}
+                </span>
+              </div>
+              <ul className="divide-y divide-slate-100 dark:divide-white/10">
                 {g.items.map((r) => {
-                  const state = r.archived_at ? "Withdrawn" : r.is_current ? "Current" : "Older version";
+                  const state = r.archived_at ? "Withdrawn" : r.is_current ? "Current Active" : "Superseded Version";
                   return (
-                    <li key={r.id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 px-4 py-4">
+                    <li key={r.id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 px-6 py-4 hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
                       <div className="min-w-0">
-                        <p className="font-medium text-ink dark:text-white">
-                          {r.title} <span className="font-normal text-muted dark:text-slate-400">v{r.version}</span>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="font-bold text-sm text-slate-900 dark:text-white">
+                            {r.title}
+                          </p>
+                          <span className="text-xs font-mono font-semibold text-slate-500 dark:text-slate-400">v{r.version}</span>
                           <span
-                            className={`ml-2 rounded-full px-2 py-0.5 text-xs font-semibold ${
-                              state === "Current" ? "bg-navy-50 dark:bg-emerald-950/40 text-ok dark:text-emerald-400" : "bg-bad-bg dark:bg-rose-950/40 text-bad dark:text-rose-400"
+                            className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                              r.is_current && !r.archived_at
+                                ? "bg-[#E6FBF3] text-[#0B6B52] dark:bg-[#0E352B] dark:text-[#84DEBD]"
+                                : "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-400"
                             }`}
                           >
                             {state}
                           </span>
-                        </p>
-                        {r.category && <p className="mt-0.5 text-sm text-muted dark:text-slate-400">For: {r.category.name} ({r.category.cycle})</p>}
-                        {r.description && <p className="mt-1 max-w-prose text-sm text-ink dark:text-slate-200">{r.description}</p>}
-                        <p className="mt-1 text-xs text-muted dark:text-slate-400">
-                          {r.effective_date ? `Effective ${formatDate(r.effective_date)} · ` : ""}
-                          Uploaded {formatDate(r.created_at)}
+                        </div>
+                        {r.category && (
+                          <p className="mt-1 text-xs font-medium text-[#7B4DFF] dark:text-[#CDBBFF]">
+                            Mandatory for: {r.category.name} ({r.category.cycle})
+                          </p>
+                        )}
+                        {r.description && <p className="mt-1 max-w-prose text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{r.description}</p>}
+                        <p className="mt-1.5 text-[11px] text-slate-400 dark:text-slate-500">
+                          {r.effective_date ? `Effective ${formatDate(r.effective_date)} &bull; ` : ""}
+                          Published {formatDate(r.created_at)}
                           {r.uploader ? ` by ${r.uploader.name}` : ""}
                         </p>
                       </div>
-                      <div className="flex gap-2 w-full sm:w-auto shrink-0">
-                        <a className={`${btn} flex-1 sm:flex-initial text-center`} href={apiUrl(`/api/resources/${r.id}/download`)}>Download</a>
+                      <div className="flex gap-2 w-full sm:w-auto shrink-0 pt-1">
+                        <a className={`${btn} flex-1 sm:flex-initial text-center`} href={apiUrl(`/api/resources/${r.id}/download`)}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" y1="15" x2="12" y2="3" />
+                          </svg>
+                          Download Form
+                        </a>
                         {isOffice && !r.archived_at && (
                           <button className={`${btnGhost} flex-1 sm:flex-initial text-center`} onClick={() => archive(r)}>Withdraw</button>
                         )}

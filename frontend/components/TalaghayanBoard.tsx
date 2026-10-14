@@ -3,6 +3,7 @@
 import { useApi } from "@/hooks/useApi";
 import type { TalaghayanRow } from "@/types";
 import StatusBadge from "@/components/StatusBadge";
+import ThreeRsTabs from "@/components/threers/ThreeRsTabs";
 
 interface Summary {
   total_barangays: number;
@@ -13,8 +14,8 @@ interface Summary {
 }
 
 export default function TalaghayanBoard() {
-  const grid = useApi<{ data: TalaghayanRow[] }>("/api/dashboard/talaghayan");
-  const totals = useApi<Summary>("/api/dashboard/summary");
+  const grid = useApi<{ data: TalaghayanRow[] }>("/api/dashboard/talaghayan", { pollInterval: 8000 });
+  const totals = useApi<Summary>("/api/dashboard/summary", { pollInterval: 8000 });
 
   const rows = grid.data?.data ?? [];
   const summary = totals.data;
@@ -30,13 +31,21 @@ export default function TalaghayanBoard() {
     <div className="space-y-6 sm:space-y-8">
       {/* ── Page Header ── */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-semibold text-[#1B1235] dark:text-white transition-colors duration-500 ease-out">
-          Talaghayan
-        </h1>
+        <div className="flex items-center gap-2.5">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-[#1B1235] dark:text-white transition-colors duration-500 ease-out">
+            Talaghayan
+          </h1>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            Live Board &bull; Real-Time Sync
+          </span>
+        </div>
         <p className="mt-1 text-sm sm:text-base text-slate-500 dark:text-[#C9BCEB] transition-colors duration-500 ease-out">
-          Report compliance for every active barangay.
+          Report compliance for every active barangay in real time.
         </p>
       </div>
+
+      <ThreeRsTabs />
 
       {/* ── Overview Panel ── */}
       {summary && (

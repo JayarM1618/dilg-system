@@ -20,6 +20,11 @@ return [
     // Templates, guidelines, SOPs (Resources)
     'resource_mimes' => 'pdf,doc,docx,xls,xlsx,ppt,pptx',
 
+    // Files DILG sends out, and the files barangays send back (Requirements)
+    'requirement_mimes' => 'pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,zip',
+
+    'requirement_kinds' => ['file', 'report', 'complaint', 'memo', 'other'],
+
     'resource_types' => ['template', 'guideline', 'sop', 'security_advisory', 'other'],
 
     'max_upload_kb' => 10240,

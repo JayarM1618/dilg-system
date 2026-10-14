@@ -3,7 +3,8 @@ USE `dilg_makati_portal`;
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
-DROP TABLE IF EXISTS `barangay_programs`, `barangay_announcements`, `activity_logs`, `security_incidents`, `submission_files`, `submissions`, `resources`,
+DROP TABLE IF EXISTS `requirement_responses`, `requirement_assignments`, `requirement_files`, `requirements`,
+  `barangay_programs`, `barangay_announcements`, `activity_logs`, `security_incidents`, `submission_files`, `submissions`, `resources`,
   `report_categories`, `sessions`, `users`, `barangays`, `cache`, `cache_locks`,
   -- tables from the old schema that the system no longer uses (so re-importing cleans them away)
   `personal_access_tokens`, `password_reset_tokens`, `jobs`, `job_batches`, `failed_jobs`,
@@ -245,6 +246,82 @@ CREATE TABLE `barangay_programs` (
   CONSTRAINT `barangay_programs_created_by_foreign` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Requirements: DILG sends files/complaints/memos to barangays; barangays comply back.
+CREATE TABLE `requirements` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `kind` varchar(20) NOT NULL DEFAULT 'file',
+  `description` text,
+  `due_date` date DEFAULT NULL,
+  `requires_response` tinyint(1) NOT NULL DEFAULT 1,
+  `audience` varchar(10) NOT NULL DEFAULT 'all',
+  `status` varchar(10) NOT NULL DEFAULT 'open',
+  `created_by` bigint unsigned NOT NULL,
+  `closed_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `requirements_status_due_date_index` (`status`,`due_date`),
+  KEY `requirements_created_by_foreign` (`created_by`),
+  CONSTRAINT `requirements_created_by_foreign` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `requirement_files` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `requirement_id` bigint unsigned NOT NULL,
+  `path` varchar(255) NOT NULL,
+  `original_filename` varchar(255) NOT NULL,
+  `mime_type` varchar(255) DEFAULT NULL,
+  `size_bytes` bigint unsigned NOT NULL DEFAULT 0,
+  `sha256` varchar(64) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `requirement_files_requirement_id_foreign` (`requirement_id`),
+  CONSTRAINT `requirement_files_requirement_id_foreign` FOREIGN KEY (`requirement_id`) REFERENCES `requirements` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `requirement_assignments` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `requirement_id` bigint unsigned NOT NULL,
+  `barangay_id` bigint unsigned NOT NULL,
+  `status` varchar(12) NOT NULL DEFAULT 'pending',
+  `received_at` timestamp NULL DEFAULT NULL,
+  `submitted_at` timestamp NULL DEFAULT NULL,
+  `reviewed_by` bigint unsigned DEFAULT NULL,
+  `reviewed_at` timestamp NULL DEFAULT NULL,
+  `review_notes` text,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `requirement_assignments_requirement_id_barangay_id_unique` (`requirement_id`,`barangay_id`),
+  KEY `requirement_assignments_barangay_id_status_index` (`barangay_id`,`status`),
+  KEY `requirement_assignments_reviewed_by_foreign` (`reviewed_by`),
+  CONSTRAINT `requirement_assignments_requirement_id_foreign` FOREIGN KEY (`requirement_id`) REFERENCES `requirements` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `requirement_assignments_barangay_id_foreign` FOREIGN KEY (`barangay_id`) REFERENCES `barangays` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `requirement_assignments_reviewed_by_foreign` FOREIGN KEY (`reviewed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `requirement_responses` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `assignment_id` bigint unsigned NOT NULL,
+  `version` int unsigned NOT NULL DEFAULT 1,
+  `note` text,
+  `path` varchar(255) DEFAULT NULL,
+  `original_filename` varchar(255) DEFAULT NULL,
+  `mime_type` varchar(255) DEFAULT NULL,
+  `size_bytes` bigint unsigned NOT NULL DEFAULT 0,
+  `sha256` varchar(64) DEFAULT NULL,
+  `uploaded_by` bigint unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `requirement_responses_assignment_id_foreign` (`assignment_id`),
+  KEY `requirement_responses_uploaded_by_foreign` (`uploaded_by`),
+  CONSTRAINT `requirement_responses_assignment_id_foreign` FOREIGN KEY (`assignment_id`) REFERENCES `requirement_assignments` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `requirement_responses_uploaded_by_foreign` FOREIGN KEY (`uploaded_by`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- Tell Laravel these migrations already ran, so `php artisan migrate` will not try to re-create the tables.
@@ -263,7 +340,8 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
   (12, '2026_10_07_000001_remove_non_makati_barangays', 1),
   (13, '2026_10_08_000001_create_barangay_public_info', 1),
   (14, '2026_10_11_000001_add_activation_to_users_table', 1),
-  (15, '2026_10_12_000001_remove_unused_tables_and_columns', 1);
+  (15, '2026_10_12_000001_remove_unused_tables_and_columns', 1),
+  (16, '2026_10_13_000001_create_requirements_tables', 1);
 
 -- ---------------------------------------------------------------------
 -- 2) REFERENCE DATA + USER ACCOUNTS
@@ -310,7 +388,8 @@ INSERT INTO `users` (`id`, `name`, `email`, `role`, `barangay_id`, `is_active`, 
   (3, 'Bangkal Barangay Representative', 'rep.bangkal@barangay.test', 'barangay_rep', 1, 1, '2026-09-30 09:00:00', '2026-09-30 09:00:00', '2026-09-30 09:00:00', '$2y$12$k65lFAfAwNhrHo3MUyW6R.JsI6u0s25IXzyOXy9/swLbKRwUUs4Re', '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
   (4, 'Poblacion Barangay Representative', 'rep.poblacion@barangay.test', 'barangay_rep', 20, 1, '2026-09-30 09:00:00', '2026-09-30 09:00:00', '2026-09-30 09:00:00', '$2y$12$k65lFAfAwNhrHo3MUyW6R.JsI6u0s25IXzyOXy9/swLbKRwUUs4Re', '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
   (5, 'Rizal Barangay Representative', 'rep.rizal@barangay.test', 'barangay_rep', 23, 1, '2026-09-30 09:00:00', '2026-09-30 09:00:00', '2026-09-30 09:00:00', '$2y$12$k65lFAfAwNhrHo3MUyW6R.JsI6u0s25IXzyOXy9/swLbKRwUUs4Re', '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
-  (7, 'San Antonio Barangay Representative', 'rep.san.antonio@barangay.test', 'barangay_rep', 24, 1, '2026-09-30 09:00:00', '2026-09-30 09:00:00', '2026-09-30 09:00:00', '$2y$12$k65lFAfAwNhrHo3MUyW6R.JsI6u0s25IXzyOXy9/swLbKRwUUs4Re', '2026-09-30 09:00:00', '2026-09-30 09:00:00');
+  (7, 'San Antonio Barangay Representative', 'rep.san.antonio@barangay.test', 'barangay_rep', 24, 1, '2026-09-30 09:00:00', '2026-09-30 09:00:00', '2026-09-30 09:00:00', '$2y$12$k65lFAfAwNhrHo3MUyW6R.JsI6u0s25IXzyOXy9/swLbKRwUUs4Re', '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
+  (9, 'Ron Suarez', 'orangeezz50805@gmail.com', 'office_supervisor', NULL, 1, '2026-10-12 17:00:19', '2026-10-12 17:01:41', '2026-10-12 17:01:41', '$2y$12$p/itb1ADoHvMDaImEs9lSOw9d7mb8FSGsDFrgj.fggfHQN6.avEES', '2026-10-12 17:00:12', '2026-10-14 18:37:05');
 
 -- ---------------------------------------------------------------------
 -- 3) OPTIONAL SAMPLE DATA (so the Talaghayan dashboard is not empty)
@@ -458,3 +537,134 @@ INSERT INTO `activity_logs` (`user_id`, `action`, `subject_type`, `subject_id`, 
   (7, 'user.login', NULL, NULL, '[]', '127.0.0.1', '2026-10-09 04:00:00', '2026-10-09 04:00:00'),
   (7, 'barangay.program.created', NULL, NULL, '{"barangay_id": 24, "kind": "program", "title": "Skills Training Center"}', '127.0.0.1', '2026-10-09 04:10:00', '2026-10-09 04:10:00'),
   (5, 'security_incident.reported', NULL, NULL, '{"severity": "low"}', '127.0.0.1', '2026-10-10 01:00:00', '2026-10-10 01:00:00');
+
+-- ---------------------------------------------------------------------
+--  Demo requirements data (DILG supervisor → barangays compliance flow)
+--  Delete these rows any time.
+-- ---------------------------------------------------------------------
+INSERT INTO `requirements` (`id`, `title`, `kind`, `description`, `due_date`, `requires_response`, `audience`, `status`, `created_by`, `closed_at`, `created_at`, `updated_at`) VALUES
+  (1, 'Monthly Accomplishment Report Template – October 2026', 'file', 'Please download the updated template and submit your filled-out report before the deadline.', '2026-10-31', 1, 'all', 'open', 2, NULL, '2026-10-01 08:00:00', '2026-10-01 08:00:00'),
+  (2, 'Barangay Budget Utilisation Q3 2026', 'report', 'Submit your Q3 budget utilisation report with supporting receipts.', '2026-10-20', 1, 'all', 'open', 2, NULL, '2026-10-03 09:00:00', '2026-10-03 09:00:00'),
+  (3, 'DILG Memorandum Circular No. 2026-45', 'memo', 'For acknowledgement only. Please confirm receipt.', NULL, 0, 'all', 'open', 2, NULL, '2026-10-05 10:00:00', '2026-10-05 10:00:00'),
+  (4, 'Noise Complaint – Brgy. Bangkal Night Market', 'complaint', 'Several residents have filed noise complaints regarding the weekend night market. Please submit your action report.', '2026-10-15', 1, 'selected', 'open', 2, NULL, '2026-10-07 11:00:00', '2026-10-07 11:00:00'),
+  (5, 'Updated BDRRM Plan Submission', 'file', 'All barangays must submit their updated Barangay Disaster Risk Reduction Management Plan.', '2026-11-15', 1, 'all', 'open', 2, NULL, '2026-10-10 08:00:00', '2026-10-10 08:00:00');
+
+-- Assignments: requirements 1-3 and 5 go to ALL active barangays; requirement 4 goes only to Bangkal (id 1)
+INSERT INTO `requirement_assignments` (`id`, `requirement_id`, `barangay_id`, `status`, `received_at`, `submitted_at`, `reviewed_by`, `reviewed_at`, `review_notes`, `created_at`, `updated_at`) VALUES
+  -- Requirement 1: Monthly template (mixed statuses for demo)
+  ( 1, 1,  1, 'complied',   '2026-10-02 08:00:00', '2026-10-08 09:00:00', 2, '2026-10-09 10:00:00', NULL, '2026-10-01 08:00:00', '2026-10-09 10:00:00'),
+  ( 2, 1,  2, 'submitted',  '2026-10-02 10:00:00', '2026-10-07 14:00:00', NULL, NULL, NULL, '2026-10-01 08:00:00', '2026-10-07 14:00:00'),
+  ( 3, 1,  3, 'received',   '2026-10-03 09:00:00', NULL, NULL, NULL, NULL, '2026-10-01 08:00:00', '2026-10-03 09:00:00'),
+  ( 4, 1,  6, 'pending',    NULL, NULL, NULL, NULL, NULL, '2026-10-01 08:00:00', '2026-10-01 08:00:00'),
+  ( 5, 1,  8, 'complied',   '2026-10-02 07:00:00', '2026-10-05 11:00:00', 2, '2026-10-06 09:00:00', NULL, '2026-10-01 08:00:00', '2026-10-06 09:00:00'),
+  ( 6, 1,  9, 'revision',   '2026-10-02 14:00:00', '2026-10-06 08:00:00', 2, '2026-10-07 10:00:00', 'Missing barangay captain signature on page 3.', '2026-10-01 08:00:00', '2026-10-07 10:00:00'),
+  ( 7, 1, 10, 'submitted',  '2026-10-03 08:00:00', '2026-10-09 15:00:00', NULL, NULL, NULL, '2026-10-01 08:00:00', '2026-10-09 15:00:00'),
+  ( 8, 1, 11, 'pending',    NULL, NULL, NULL, NULL, NULL, '2026-10-01 08:00:00', '2026-10-01 08:00:00'),
+  ( 9, 1, 12, 'complied',   '2026-10-02 09:00:00', '2026-10-04 10:00:00', 2, '2026-10-05 08:00:00', NULL, '2026-10-01 08:00:00', '2026-10-05 08:00:00'),
+  (10, 1, 13, 'received',   '2026-10-04 08:00:00', NULL, NULL, NULL, NULL, '2026-10-01 08:00:00', '2026-10-04 08:00:00'),
+  (11, 1, 14, 'pending',    NULL, NULL, NULL, NULL, NULL, '2026-10-01 08:00:00', '2026-10-01 08:00:00'),
+  (12, 1, 15, 'complied',   '2026-10-02 11:00:00', '2026-10-06 09:00:00', 2, '2026-10-07 08:00:00', NULL, '2026-10-01 08:00:00', '2026-10-07 08:00:00'),
+  (13, 1, 17, 'submitted',  '2026-10-03 07:00:00', '2026-10-10 10:00:00', NULL, NULL, NULL, '2026-10-01 08:00:00', '2026-10-10 10:00:00'),
+  (14, 1, 18, 'received',   '2026-10-04 10:00:00', NULL, NULL, NULL, NULL, '2026-10-01 08:00:00', '2026-10-04 10:00:00'),
+  (15, 1, 20, 'complied',   '2026-10-02 08:30:00', '2026-10-05 09:00:00', 2, '2026-10-06 14:00:00', NULL, '2026-10-01 08:00:00', '2026-10-06 14:00:00'),
+  (16, 1, 23, 'submitted',  '2026-10-03 10:00:00', '2026-10-08 11:00:00', NULL, NULL, NULL, '2026-10-01 08:00:00', '2026-10-08 11:00:00'),
+  (17, 1, 24, 'complied',   '2026-10-02 09:00:00', '2026-10-04 14:00:00', 2, '2026-10-05 10:00:00', NULL, '2026-10-01 08:00:00', '2026-10-05 10:00:00'),
+  (18, 1, 25, 'pending',    NULL, NULL, NULL, NULL, NULL, '2026-10-01 08:00:00', '2026-10-01 08:00:00'),
+  (19, 1, 26, 'received',   '2026-10-05 09:00:00', NULL, NULL, NULL, NULL, '2026-10-01 08:00:00', '2026-10-05 09:00:00'),
+  (20, 1, 27, 'complied',   '2026-10-02 10:00:00', '2026-10-04 16:00:00', 2, '2026-10-05 11:00:00', NULL, '2026-10-01 08:00:00', '2026-10-05 11:00:00'),
+  (21, 1, 28, 'pending',    NULL, NULL, NULL, NULL, NULL, '2026-10-01 08:00:00', '2026-10-01 08:00:00'),
+  (22, 1, 30, 'received',   '2026-10-06 08:00:00', NULL, NULL, NULL, NULL, '2026-10-01 08:00:00', '2026-10-06 08:00:00'),
+  (23, 1, 31, 'submitted',  '2026-10-03 14:00:00', '2026-10-09 09:00:00', NULL, NULL, NULL, '2026-10-01 08:00:00', '2026-10-09 09:00:00'),
+  (24, 1, 32, 'complied',   '2026-10-02 07:30:00', '2026-10-04 08:00:00', 2, '2026-10-05 09:00:00', NULL, '2026-10-01 08:00:00', '2026-10-05 09:00:00'),
+
+  -- Requirement 2: Budget report (fewer have started)
+  (25, 2,  1, 'submitted',  '2026-10-04 08:00:00', '2026-10-10 09:00:00', NULL, NULL, NULL, '2026-10-03 09:00:00', '2026-10-10 09:00:00'),
+  (26, 2,  2, 'pending',    NULL, NULL, NULL, NULL, NULL, '2026-10-03 09:00:00', '2026-10-03 09:00:00'),
+  (27, 2,  3, 'received',   '2026-10-05 10:00:00', NULL, NULL, NULL, NULL, '2026-10-03 09:00:00', '2026-10-05 10:00:00'),
+  (28, 2, 20, 'complied',   '2026-10-04 09:00:00', '2026-10-07 10:00:00', 2, '2026-10-08 08:00:00', NULL, '2026-10-03 09:00:00', '2026-10-08 08:00:00'),
+  (29, 2, 23, 'submitted',  '2026-10-05 08:00:00', '2026-10-09 14:00:00', NULL, NULL, NULL, '2026-10-03 09:00:00', '2026-10-09 14:00:00'),
+  (30, 2, 24, 'received',   '2026-10-06 08:00:00', NULL, NULL, NULL, NULL, '2026-10-03 09:00:00', '2026-10-06 08:00:00'),
+
+  -- Requirement 3: Memo (acknowledge only - most have received)
+  (31, 3,  1, 'received',   '2026-10-06 08:00:00', NULL, NULL, NULL, NULL, '2026-10-05 10:00:00', '2026-10-06 08:00:00'),
+  (32, 3,  2, 'received',   '2026-10-06 09:00:00', NULL, NULL, NULL, NULL, '2026-10-05 10:00:00', '2026-10-06 09:00:00'),
+  (33, 3,  3, 'pending',    NULL, NULL, NULL, NULL, NULL, '2026-10-05 10:00:00', '2026-10-05 10:00:00'),
+  (34, 3, 20, 'received',   '2026-10-05 14:00:00', NULL, NULL, NULL, NULL, '2026-10-05 10:00:00', '2026-10-05 14:00:00'),
+  (35, 3, 23, 'received',   '2026-10-06 07:00:00', NULL, NULL, NULL, NULL, '2026-10-05 10:00:00', '2026-10-06 07:00:00'),
+  (36, 3, 24, 'received',   '2026-10-06 10:00:00', NULL, NULL, NULL, NULL, '2026-10-05 10:00:00', '2026-10-06 10:00:00'),
+
+  -- Requirement 4: Complaint (selected - only Bangkal)
+  (37, 4,  1, 'received',   '2026-10-08 08:00:00', NULL, NULL, NULL, NULL, '2026-10-07 11:00:00', '2026-10-08 08:00:00'),
+
+  -- Requirement 5: BDRRM Plan (new - all pending)
+  (38, 5,  1, 'pending',    NULL, NULL, NULL, NULL, NULL, '2026-10-10 08:00:00', '2026-10-10 08:00:00'),
+  (39, 5,  2, 'pending',    NULL, NULL, NULL, NULL, NULL, '2026-10-10 08:00:00', '2026-10-10 08:00:00'),
+  (40, 5, 20, 'pending',    NULL, NULL, NULL, NULL, NULL, '2026-10-10 08:00:00', '2026-10-10 08:00:00'),
+  (41, 5, 23, 'pending',    NULL, NULL, NULL, NULL, NULL, '2026-10-10 08:00:00', '2026-10-10 08:00:00'),
+  (42, 5, 24, 'received',   '2026-10-11 08:00:00', NULL, NULL, NULL, NULL, '2026-10-10 08:00:00', '2026-10-11 08:00:00');
+
+-- Requirement activity logs
+INSERT INTO `activity_logs` (`user_id`, `action`, `subject_type`, `subject_id`, `meta`, `ip_address`, `created_at`, `updated_at`) VALUES
+  (2, 'requirement.sent', 'App\\Models\\Requirement', 1, '{"title":"Monthly Accomplishment Report Template – October 2026","audience":"all"}', '127.0.0.1', '2026-10-01 08:00:00', '2026-10-01 08:00:00'),
+  (2, 'requirement.sent', 'App\\Models\\Requirement', 2, '{"title":"Barangay Budget Utilisation Q3 2026","audience":"all"}', '127.0.0.1', '2026-10-03 09:00:00', '2026-10-03 09:00:00'),
+  (2, 'requirement.sent', 'App\\Models\\Requirement', 3, '{"title":"DILG Memorandum Circular No. 2026-45","audience":"all"}', '127.0.0.1', '2026-10-05 10:00:00', '2026-10-05 10:00:00'),
+  (2, 'requirement.sent', 'App\\Models\\Requirement', 4, '{"title":"Noise Complaint – Brgy. Bangkal Night Market","audience":"selected"}', '127.0.0.1', '2026-10-07 11:00:00', '2026-10-07 11:00:00'),
+  (2, 'requirement.sent', 'App\\Models\\Requirement', 5, '{"title":"Updated BDRRM Plan Submission","audience":"all"}', '127.0.0.1', '2026-10-10 08:00:00', '2026-10-10 08:00:00');
+
+-- 1) Document categories
+CREATE TABLE IF NOT EXISTS `document_categories` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `slug` varchar(255) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `sort_order` int unsigned NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `document_categories_slug_unique` (`slug`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 2) Repository documents
+CREATE TABLE IF NOT EXISTS `repository_documents` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `document_category_id` bigint unsigned NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text,
+  `access_level` varchar(20) NOT NULL DEFAULT 'public',
+  `barangay_id` bigint unsigned DEFAULT NULL,
+  `file_path` varchar(255) NOT NULL,
+  `original_filename` varchar(255) NOT NULL,
+  `mime_type` varchar(255) DEFAULT NULL,
+  `size_bytes` bigint unsigned NOT NULL DEFAULT 0,
+  `sha256` varchar(64) DEFAULT NULL,
+  `status` varchar(20) NOT NULL DEFAULT 'active',
+  `archived_at` timestamp NULL DEFAULT NULL,
+  `uploaded_by` bigint unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `repo_docs_category_status` (`document_category_id`, `status`),
+  KEY `repo_docs_barangay_status` (`barangay_id`, `status`),
+  KEY `repo_docs_status` (`status`),
+  CONSTRAINT `repo_docs_category_fk` FOREIGN KEY (`document_category_id`) REFERENCES `document_categories` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `repo_docs_barangay_fk` FOREIGN KEY (`barangay_id`) REFERENCES `barangays` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `repo_docs_uploader_fk` FOREIGN KEY (`uploaded_by`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- 3) Seed default document categories
+INSERT INTO `document_categories` (`name`, `slug`, `description`, `sort_order`, `created_at`, `updated_at`) VALUES
+  ('Policies & Guidelines', 'policies', 'Official DILG policies, memorandums, and guidelines', 1, NOW(), NOW()),
+  ('Compliance Records', 'compliance', 'Compliance certificates, inspection reports, and verification records', 2, NOW(), NOW()),
+  ('Barangay Documents', 'barangay-docs', 'Official barangay records, resolutions, and certifications', 3, NOW(), NOW()),
+  ('Administrative Records', 'admin-records', 'Internal administrative documents, meeting minutes, and correspondence', 4, NOW(), NOW()),
+  ('Cybersecurity & IT', 'cybersecurity', 'Network documentation, security audits, and IT policies', 5, NOW(), NOW()),
+  ('Reports & Analytics', 'reports', 'Consolidated reports, statistical data, and analytics outputs', 6, NOW(), NOW())
+ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
+
+-- 4) Register the migration so php artisan migrate skips it
+INSERT IGNORE INTO `migrations` (`migration`, `batch`) VALUES
+  ('2026_10_14_000001_create_repository_documents_table', 3);
+
+SELECT 'Repository tables created and seeded successfully.' AS result;

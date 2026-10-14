@@ -8,6 +8,8 @@ import { formatDate } from "@/lib/format";
 import { apiUrl } from "@/lib/http";
 import type { Paginated, Submission } from "@/types";
 import StatusBadge from "@/components/StatusBadge";
+import ThreeRsTabs from "@/components/threers/ThreeRsTabs";
+import { useFetch } from "@/hooks/useFetch";
 
 /* ------------------------------------------------------------------ */
 /* Status palette: one colour per status, reused by every chart below. */
@@ -35,7 +37,7 @@ function groupOf(status: Status): GroupKey {
 export default function BarangayDashboard() {
   const { user } = useAuth();
   // per_page=200 is the API maximum; one page is enough to cover a barangay's whole year.
-  const { data, loading, error, retry } = useApi<Paginated<Submission>>("/api/submissions?per_page=200");
+  const { data, loading, error, retry } = useApi<Paginated<Submission>>("/api/submissions?per_page=200", { pollInterval: 8000 });
   const submissions = data?.data ?? [];
 
   const counts: Record<GroupKey, number> = { compliant: 0, review: 0, pending: 0, fix: 0 };
@@ -50,8 +52,20 @@ export default function BarangayDashboard() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-semibold text-navy-900 dark:text-white transition-colors duration-500 ease-out">{user?.barangay?.name ?? "Your barangay"}</h1>
-          <p className="mt-1 text-sm sm:text-base text-muted dark:text-slate-400">Your report submissions and where each one stands.</p>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#7B4DFF] dark:text-[#CDBBFF] hover:underline mb-1 transition-colors"
+          >
+            &larr; Barangay Home
+          </Link>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-2xl sm:text-3xl font-semibold text-navy-900 dark:text-white transition-colors duration-500 ease-out">{user?.barangay?.name ?? "Your barangay"}</h1>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Live Telemetry
+            </span>
+          </div>
+          <p className="mt-1 text-sm sm:text-base text-muted dark:text-slate-400">Your report submissions and where each one stands in real time.</p>
         </div>
         <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
         <Link
@@ -72,8 +86,12 @@ export default function BarangayDashboard() {
         </div>
       </div>
 
+      <div className="mt-6">
+        <ThreeRsTabs />
+      </div>
+
       {error ? (
-        <div className="mt-8 rounded-3xl bg-[#FFF0F4] dark:bg-rose-950/30 dark:border dark:border-rose-900/50 p-8 text-center" role="alert">
+        <div className="mt-2 rounded-3xl bg-[#FFF0F4] dark:bg-rose-950/30 dark:border dark:border-rose-900/50 p-8 text-center" role="alert">
           <p className="font-medium text-bad dark:text-rose-400">{error}</p>
           <button onClick={retry} className="mt-3 text-sm font-semibold text-navy-700 dark:text-slate-300 underline underline-offset-4">
             Try again
@@ -91,6 +109,8 @@ export default function BarangayDashboard() {
               <BreakdownCard counts={counts} total={total} pct={compliantPct} />
             </div>
           </div>
+
+          <RequirementsCard />
 
           {/* New from DILG: forms, guidelines and advisories the barangay can download */}
           <DilgFeedCard />
@@ -156,6 +176,27 @@ const RESOURCE_LABEL: Record<string, string> = {
 };
 
 /** Latest forms, guidelines and advisories DILG Makati published. Laravel only returns the live versions. */
+/** What DILG has sent that this barangay still has to act on. */
+function RequirementsCard() {
+  const { data } = useFetch<{ to_do: number; new: number; overdue: number }>("/api/requirements/summary");
+  if (!data) return null;
+  return (
+    <section className="mt-5 flex flex-col gap-3 rounded-3xl bg-[#F1EBFF] dark:bg-[#241A3F]/70 dark:border dark:border-[#7B4DFF]/25 p-6 sm:flex-row sm:items-center sm:justify-between" aria-label="Requirements from DILG">
+      <div>
+        <h2 className="text-xl font-medium text-navy-900 dark:text-white">Requirements from DILG</h2>
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+          {data.to_do === 0
+            ? "You are all caught up. Nothing is waiting for you."
+            : `${data.to_do} waiting for your compliance${data.new ? ` (${data.new} new)` : ""}${data.overdue ? `, ${data.overdue} overdue` : ""}.`}
+        </p>
+      </div>
+      <Link href="/user/requirements" className="inline-flex justify-center rounded-full bg-[#7B4DFF] px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#5A18C9]">
+        Open requirements
+      </Link>
+    </section>
+  );
+}
+
 function DilgFeedCard() {
   const { data } = useApi<{ data: { id: number; title: string; type: string; version: string; description: string | null; created_at: string; category?: { name: string } | null }[] }>("/api/resources/library");
   const items = [...(data?.data ?? [])].sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 5);

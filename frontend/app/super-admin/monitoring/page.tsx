@@ -52,7 +52,7 @@ interface ActivityPage {
 
 const ROLE_TAG: Record<string, { label: string; cls: string }> = {
   super_admin: { label: "Super admin", cls: "bg-[#FFF8E6] text-[#7A5B00] dark:bg-amber-400/15 dark:text-amber-200" },
-  office_supervisor: { label: "Admin", cls: "bg-[#E8FAFF] text-[#0A5C73] dark:bg-sky-400/15 dark:text-sky-200" },
+  office_supervisor: { label: "DILG supervisor", cls: "bg-[#E8FAFF] text-[#0A5C73] dark:bg-sky-400/15 dark:text-sky-200" },
   barangay_rep: { label: "Barangay rep", cls: "bg-[#F3EDFE] text-[#5A18C9] dark:bg-[#7B4DFF]/25 dark:text-[#D1C4F9]" },
 };
 
@@ -93,7 +93,7 @@ function ago(iso: string | null): string {
 }
 
 export default function MonitoringPage() {
-  const summary = useApi<Summary>("/api/monitoring/summary");
+  const summary = useApi<Summary>("/api/monitoring/summary", { pollInterval: 8000 });
 
   const [role, setRole] = useState("");
   const [group, setGroup] = useState("");
@@ -107,6 +107,16 @@ export default function MonitoringPage() {
   const [feedError, setFeedError] = useState<string | null>(null);
   const [feedLoading, setFeedLoading] = useState(true);
   const [tick, setTick] = useState(0);
+
+  // Background real-time polling for feed updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (typeof document !== "undefined" && document.visibilityState === "visible") {
+        setTick((n) => n + 1);
+      }
+    }, 8000);
+    return () => clearInterval(interval);
+  }, []);
 
   const query = useMemo(() => {
     const p = new URLSearchParams();
@@ -155,9 +165,15 @@ export default function MonitoringPage() {
     <>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-navy-900 dark:text-white sm:text-3xl">Monitoring</h1>
+          <div className="flex items-center gap-2.5">
+            <h1 className="text-2xl font-semibold text-navy-900 dark:text-white sm:text-3xl">Monitoring</h1>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Live Telemetry
+            </span>
+          </div>
           <p className="mt-1 text-sm text-muted dark:text-slate-400 sm:text-base">
-            Every transaction of the DILG admins and the barangay representatives, in one place.
+            Every transaction of the DILG admins and the barangay representatives, updating in real time.
           </p>
         </div>
         <button
@@ -292,9 +308,9 @@ export default function MonitoringPage() {
         <div className="mt-4 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-6">
           <input type="search" value={q} onChange={(e) => changeFilter(setQ)(e.target.value)} placeholder="Search name, email, title" aria-label="Search" className={`${field} lg:col-span-2`} />
           <select value={role} onChange={(e) => changeFilter(setRole)(e.target.value)} aria-label="Who" className={field}>
-            <option value="">Admins and reps</option>
+            <option value="">DILG supervisors and reps</option>
             <option value="super_admin">Super admin</option>
-            <option value="office_supervisor">Admin</option>
+            <option value="office_supervisor">DILG supervisor</option>
             <option value="barangay_rep">Barangay reps</option>
           </select>
           <select value={group} onChange={(e) => changeFilter(setGroup)(e.target.value)} aria-label="What" className={field}>

@@ -5,7 +5,7 @@ import type { Role } from "@/types";
  *
  *   Guest        not signed in          -> "/" (profile chooser), "/citizens" (read-only), "/barangays" and "/login"
  *   User         barangay_rep           -> "/user"
- *   Admin        office_supervisor      -> "/admin"
+ *   DILG supervisor office_supervisor      -> "/admin"
  *   Super admin  super_admin            -> "/super-admin"
  *
  * Each signed-in role has its own top-level folder under `app/`, guarded by
@@ -33,30 +33,32 @@ export interface RoleInfo {
 export const ROLE_INFO: Record<Role, RoleInfo> = {
   barangay_rep: {
     label: "Barangay representative",
-    tag: "User",
-    description: "Files reports for one barangay and sees only that barangay's records.",
-    home: "/user",
+    tag: "Barangay rep",
+    description: "Receives what DILG sends, downloads the files, complies and files reports. Sees only their own barangay.",
+    home: "/",
     nav: [
+      { href: "/", label: "Home" },
       { href: "/user", label: "My reports" },
       { href: "/user/community", label: "Announcements & programs" },
     ],
   },
   office_supervisor: {
-    label: "Office supervisor",
-    tag: "Admin",
-    description: "Reviews submissions from every barangay and follows compliance.",
+    label: "DILG supervisor",
+    tag: "DILG supervisor",
+    description: "Sends files, report requests, complaints, resources and forms to the barangays, reviews what they send back and tracks compliance. Cannot manage accounts.",
     home: "/admin",
     nav: [{ href: "/admin", label: "Talaghayan" }],
   },
   super_admin: {
     label: "Super admin",
     tag: "Super admin",
-    description: "Everything an admin can do, plus monitoring of every transaction and issuing the barangay accounts.",
+    description: "Full control: everything the DILG supervisor can do, plus accounts, barangays, monitoring of every transaction and deleting records.",
     home: "/super-admin",
     nav: [
       { href: "/super-admin", label: "Talaghayan" },
       { href: "/super-admin/monitoring", label: "Monitoring" },
       { href: "/super-admin/users", label: "Accounts" },
+      { href: "/super-admin/barangays", label: "Barangays" },
     ],
   },
 };

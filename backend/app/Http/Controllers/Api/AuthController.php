@@ -58,7 +58,9 @@ class AuthController extends Controller
         }
 
         Auth::login($user);
-        $request->session()->regenerate();
+        if ($request->hasSession()) {
+            $request->session()->regenerate();
+        }
 
         ActivityLog::record('user.login', $user);
 
@@ -78,8 +80,10 @@ class AuthController extends Controller
         ActivityLog::record('user.logout', $request->user());
 
         Auth::guard('web')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        if ($request->hasSession()) {
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
 
         return response()->json(['message' => 'Logged out.']);
     }

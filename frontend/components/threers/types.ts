@@ -113,3 +113,129 @@ export type Incident = {
   status: string;
   created_at: string;
 };
+
+/* ---------- Requirements (DILG sends, barangays comply) ---------- */
+
+export type AssignmentStatus = "pending" | "received" | "submitted" | "revision" | "complied";
+
+export type RequirementFileItem = { id: number; original_filename: string; size_bytes: number };
+
+export type RequirementResponseItem = {
+  id: number;
+  version: number;
+  note: string | null;
+  original_filename: string | null;
+  size_bytes: number;
+  created_at: string;
+  uploader?: { id: number; name: string } | null;
+};
+
+export type RequirementAssignmentItem = {
+  id: number;
+  requirement_id: number;
+  barangay_id: number;
+  status: AssignmentStatus;
+  received_at: string | null;
+  submitted_at: string | null;
+  reviewed_at: string | null;
+  review_notes: string | null;
+  is_overdue?: boolean;
+  barangay?: { id: number; name: string } | null;
+  responses?: RequirementResponseItem[];
+  reviewer?: { id: number; name: string } | null;
+};
+
+export type RequirementItem = {
+  id: number;
+  title: string;
+  kind: "file" | "report" | "complaint" | "memo" | "other";
+  description: string | null;
+  due_date: string | null;
+  requires_response: boolean;
+  audience: "all" | "selected";
+  status: "open" | "closed";
+  created_at: string;
+  creator?: { id: number; name: string } | null;
+  files?: RequirementFileItem[];
+  files_count?: number;
+  progress?: { total: number; complied: number; submitted: number; revision: number; waiting: number; overdue: number; percent: number };
+  assignments?: RequirementAssignmentItem[];
+  assignment?: RequirementAssignmentItem;
+};
+
+/** A barangay's inbox row: its assignment plus the requirement DILG sent. */
+export type InboxItem = RequirementAssignmentItem & {
+  requirement: RequirementItem;
+  responses_count: number;
+};
+
+export type TrackerRow = {
+  barangay_id: number;
+  barangay: string;
+  total: number;
+  complied: number;
+  submitted: number;
+  revision: number;
+  waiting: number;
+  overdue: number;
+  percent: number | null;
+};
+
+export const KIND_LABEL: Record<RequirementItem["kind"], string> = {
+  file: "File",
+  report: "Report request",
+  complaint: "Complaint",
+  memo: "Memo",
+  other: "Other",
+};
+
+export const ASSIGNMENT_LABEL: Record<AssignmentStatus, string> = {
+  pending: "New",
+  received: "Received",
+  submitted: "Waiting for DILG review",
+  revision: "Needs revision",
+  complied: "Complied",
+};
+
+/* ---------- Repository (centralized document storage) ---------- */
+
+export type DocumentCategory = {
+  id: number;
+  name: string;
+  slug: string;
+  description: string | null;
+  documents_count?: number;
+};
+
+export type RepositoryDoc = {
+  id: number;
+  document_category_id: number;
+  title: string;
+  description: string | null;
+  access_level: "public" | "office" | "barangay";
+  barangay_id: number | null;
+  original_filename: string;
+  mime_type: string | null;
+  size_bytes: number;
+  sha256: string | null;
+  status: "active" | "archived";
+  archived_at: string | null;
+  uploaded_by: number;
+  created_at: string;
+  updated_at: string;
+  category?: { id: number; name: string; slug: string } | null;
+  barangay?: { id: number; name: string } | null;
+  uploader?: { id: number; name: string } | null;
+};
+
+export type RepositorySummary = {
+  total: number;
+  by_category: DocumentCategory[];
+  recent: RepositoryDoc[];
+};
+
+export const ACCESS_LABEL: Record<RepositoryDoc["access_level"], string> = {
+  public: "Everyone",
+  office: "DILG Office only",
+  barangay: "Barangay only",
+};
