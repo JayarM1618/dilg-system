@@ -1,4 +1,4 @@
-export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://backend.test";
+export const API_URL = "";
 
 class ApiError extends Error {
   status: number;
