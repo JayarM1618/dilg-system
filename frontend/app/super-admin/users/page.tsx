@@ -9,7 +9,7 @@ import { ROLE_INFO } from "@/lib/roles";
 import type { Role, User } from "@/types";
 
 type Filter = "all" | "pending" | "active" | "deactivated";
-type Issued = { user: User; activation_link: string; emailed: boolean };
+type Issued = { user: User; activation_link: string; emailed: boolean; email_error?: string | null };
 
 const FILTERS: { value: Filter; label: string }[] = [
   { value: "all", label: "All" },
@@ -167,6 +167,8 @@ export default function AccountsPage() {
           <p className="mt-1 text-sm text-[#2C5A4D] dark:text-emerald-200/80">
             {issued.emailed
               ? "It was emailed to them. You can also share it yourself. It works once and expires in 7 days."
+              : issued.email_error
+              ? `Email delivery failed: ${issued.email_error}. You can copy and send this link to them manually.`
               : "Email delivery is not set up on this server, so send this link to them yourself. It works once and expires in 7 days."}
           </p>
           <div className="mt-3 flex flex-col gap-2 sm:flex-row">

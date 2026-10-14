@@ -61,7 +61,8 @@ class UserController extends Controller
         $user->save();
 
         $link = $this->issueActivation($user);
-        $emailed = $this->sendInvite($user, $link);
+        $emailError = null;
+        $emailed = $this->sendInvite($user, $link, $emailError);
 
         ActivityLog::record('account.created', $user, [
             'role' => $user->role,
@@ -89,6 +90,7 @@ class UserController extends Controller
             'user' => $user->load('barangay:id,name,code'),
             'activation_link' => $link,
             'emailed' => $emailed,
+            'email_error' => $emailError,
         ], 201);
     }
 
@@ -150,7 +152,8 @@ class UserController extends Controller
         }
 
         $link = $this->issueActivation($user);
-        $emailed = $this->sendInvite($user, $link);
+        $emailError = null;
+        $emailed = $this->sendInvite($user, $link, $emailError);
 
         ActivityLog::record($wasActive ? 'account.access_reset' : 'account.invite_resent', $user, ['email' => $user->email]);
 
@@ -158,6 +161,7 @@ class UserController extends Controller
             'user' => $user->fresh()->load('barangay:id,name,code'),
             'activation_link' => $link,
             'emailed' => $emailed,
+            'email_error' => $emailError,
         ]);
     }
 
@@ -177,9 +181,10 @@ class UserController extends Controller
     }
 
     /** Best effort: uses the AccountActivation mailable for styled emails. */
-    private function sendInvite(User $user, string $link): bool
+    private function sendInvite(User $user, string $link, ?string &$error = null): bool
     {
         if (config('mail.default') === 'log') {
+            $error = 'Email delivery is set to log (MAIL_MAILER=log). Configure MAIL_MAILER in Railway variables.';
             return false;
         }
 
@@ -188,7 +193,8 @@ class UserController extends Controller
 
             return true;
         } catch (\Throwable $e) {
-            Log::warning('Invite email failed: ' . $e->getMessage());
+            $error = $e->getMessage();
+            Log::warning('Invite email failed for ' . $user->email . ': ' . $error);
 
             return false;
         }

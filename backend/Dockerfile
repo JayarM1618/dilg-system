@@ -18,8 +18,6 @@ WORKDIR /var/www/html
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
 
-# Install Resend for email (Railway blocks SMTP)
-RUN composer require resend/resend-laravel --no-scripts
 
 # Copy full app
 COPY . .
