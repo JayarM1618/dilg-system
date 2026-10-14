@@ -2,12 +2,12 @@ FROM php:8.3-fpm-alpine
 
 # Install system deps + PHP extensions Laravel needs
 RUN apk add --no-cache \
-    nginx supervisor curl zip unzip git \
-    libpng-dev libjpeg-turbo-dev freetype-dev \
-    oniguruma-dev libxml2-dev icu-dev \
+  nginx supervisor curl zip unzip git \
+  libpng-dev libjpeg-turbo-dev freetype-dev \
+  oniguruma-dev libxml2-dev icu-dev \
   && docker-php-ext-configure gd --with-freetype --with-jpeg \
   && docker-php-ext-install \
-    pdo_mysql mbstring exif pcntl bcmath gd intl xml
+  pdo_mysql mbstring exif pcntl bcmath gd intl xml
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -18,18 +18,21 @@ WORKDIR /var/www/html
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
 
+# Install Resend for email (Railway blocks SMTP)
+RUN composer require resend/resend-laravel --no-scripts
+
 # Copy full app
 COPY . .
 
 # Finish composer
 RUN composer dump-autoload --optimize \
- && composer run-script post-autoload-dump 2>/dev/null || true
+  && composer run-script post-autoload-dump 2>/dev/null || true
 
 # Create storage dirs Laravel expects
 RUN mkdir -p storage/framework/{sessions,views,cache} \
- && mkdir -p storage/logs bootstrap/cache \
- && chown -R www-data:www-data storage bootstrap/cache \
- && chmod -R 775 storage bootstrap/cache
+  && mkdir -p storage/logs bootstrap/cache \
+  && chown -R www-data:www-data storage bootstrap/cache \
+  && chmod -R 775 storage bootstrap/cache
 
 # ── Nginx config ──
 COPY docker/nginx.conf /etc/nginx/http.d/default.conf
