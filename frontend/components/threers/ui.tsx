@@ -50,9 +50,8 @@ export function Notice({
   return (
     <div
       role={kind === "error" ? "alert" : "status"}
-      className={`mb-4 flex items-start justify-between gap-3 rounded-md px-4 py-3 text-sm font-medium ${
-        kind === "error" ? "bg-bad-bg dark:bg-rose-950/40 text-bad dark:text-rose-400 border border-transparent dark:border-rose-900/50" : "bg-navy-50 dark:bg-emerald-950/40 text-ok dark:text-emerald-400 border border-transparent dark:border-emerald-900/50"
-      }`}
+      className={`mb-4 flex items-start justify-between gap-3 rounded-md px-4 py-3 text-sm font-medium ${kind === "error" ? "bg-bad-bg dark:bg-rose-950/40 text-bad dark:text-rose-400 border border-transparent dark:border-rose-900/50" : "bg-navy-50 dark:bg-emerald-950/40 text-ok dark:text-emerald-400 border border-transparent dark:border-emerald-900/50"
+        }`}
     >
       <span>{children}</span>
       {onClose && (

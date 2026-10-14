@@ -641,9 +641,8 @@ function SummaryCard({
   return (
     <Wrapper
       onClick={onClick}
-      className={`rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] px-4 py-4 text-left shadow-sm ${
-        onClick ? "cursor-pointer hover:border-[#7B4DFF]/40 hover:shadow-md transition" : ""
-      }`}
+      className={`rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] px-4 py-4 text-left shadow-sm ${onClick ? "cursor-pointer hover:border-[#7B4DFF]/40 hover:shadow-md transition" : ""
+        }`}
     >
       <div className="flex items-center gap-2 mb-2 text-slate-500 dark:text-slate-400">
         <Icon />

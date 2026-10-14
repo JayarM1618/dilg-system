@@ -73,9 +73,8 @@ export default function EventCalendar({ events }: { events: PublicProgram[] }) {
               onClick={() => setSelected(isSel ? null : key)}
               aria-pressed={isSel}
               aria-label={`${new Date(Date.UTC(y, m, day)).toLocaleDateString("en-PH", { month: "long", day: "numeric", timeZone: "UTC" })}${count ? `, ${count} event${count > 1 ? "s" : ""}` : ""}`}
-              className={`relative grid aspect-square place-items-center rounded-xl text-sm transition-colors ${focusRing} ${
-                isSel ? "bg-[#7B4DFF] font-semibold text-white" : count ? "bg-white/70 dark:bg-black/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-md transition-all duration-500 ease-out font-semibold text-[#1B1235] ring-1 ring-[#CDB9FF] hover:bg-[#EADFFE]" : "text-slate-600 hover:bg-white/70 dark:bg-black/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-md transition-all duration-500 ease-out"
-              } ${isToday && !isSel ? "ring-2 ring-[#F21DB4]" : ""}`}
+              className={`relative grid aspect-square place-items-center rounded-xl text-sm transition-colors ${focusRing} ${isSel ? "bg-[#7B4DFF] font-semibold text-white" : count ? "bg-white/70 dark:bg-black/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-md transition-all duration-500 ease-out font-semibold text-[#1B1235] ring-1 ring-[#CDB9FF] hover:bg-[#EADFFE]" : "text-slate-600 hover:bg-white/70 dark:bg-black/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] backdrop-blur-md transition-all duration-500 ease-out"
+                } ${isToday && !isSel ? "ring-2 ring-[#F21DB4]" : ""}`}
             >
               {day}
               {count > 0 && (

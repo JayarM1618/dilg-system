@@ -57,8 +57,8 @@ export default function RequirementsView() {
           user.role === "super_admin"
             ? "City-wide compliance matrix: audit requirement fulfillment, timelines, and response records across all barangays."
             : isOffice
-            ? "Send files, report requests, complaints or memos to the barangays, then track who has complied."
-            : "What DILG has sent to your barangay. Open each one, download the files and send your compliance back."
+              ? "Send files, report requests, complaints or memos to the barangays, then track who has complied."
+              : "What DILG has sent to your barangay. Open each one, download the files and send your compliance back."
         }
       />
       <ThreeRsTabs />
@@ -107,9 +107,8 @@ function OfficeSide({ canDelete }: { canDelete: boolean }) {
           <button
             key={v}
             onClick={() => setView(v)}
-            className={`rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors ${
-              view === v ? "bg-white dark:bg-[#201835] text-[#5A18C9] dark:text-white shadow-sm" : "text-slate-600 dark:text-slate-300"
-            }`}
+            className={`rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors ${view === v ? "bg-white dark:bg-[#201835] text-[#5A18C9] dark:text-white shadow-sm" : "text-slate-600 dark:text-slate-300"
+              }`}
           >
             {v === "sent" ? "Sent requirements" : "Barangay tracker"}
           </button>

@@ -120,35 +120,59 @@ class SubmissionController extends Controller
         $data = $request->validate([
             'report_category_id' => ['nullable', 'exists:report_categories,id'],
             'date' => ['nullable', 'date'],
+            'barangay_ids' => ['nullable', 'array'],
+            'barangay_ids.*' => ['integer', 'exists:barangays,id'],
         ]);
 
         $created = PeriodOpener::open(
             isset($data['date']) ? CarbonImmutable::parse($data['date']) : null,
             $data['report_category_id'] ?? null,
+            $data['barangay_ids'] ?? null,
         );
 
-        ActivityLog::record('report.period_opened', null, ['created' => $created, 'report_category_id' => $data['report_category_id'] ?? null]);
+        ActivityLog::record('report.period_opened', null, [
+            'created' => $created,
+            'report_category_id' => $data['report_category_id'] ?? null,
+            'barangay_ids' => $data['barangay_ids'] ?? null,
+        ]);
 
-        // ── Notify all barangay reps that new reporting periods are open ──
+        // ── Notify barangay reps that new reporting periods are open ──
         if ($created > 0) {
             $categoryName = isset($data['report_category_id'])
                 ? ReportCategory::find($data['report_category_id'])?->name ?? 'reports'
                 : 'reports';
 
-            NotificationService::notifyBarangay(
-                null, // all barangays
-                'submission.period_opened',
-                'New reporting period opened',
-                "{$created} new report slot(s) for {$categoryName} are now open. Please submit on time.",
-                '/user/reports',
-                $request->user(),
-            );
+            if (!empty($data['barangay_ids'])) {
+                foreach ($data['barangay_ids'] as $bId) {
+                    NotificationService::notifyBarangay(
+                        (int) $bId,
+                        'submission.period_opened',
+                        'New reporting period opened',
+                        "A new report slot for {$categoryName} is now open for your barangay. Please submit on time.",
+                        '/user/reports',
+                        $request->user(),
+                    );
+                }
+            } else {
+                NotificationService::notifyBarangay(
+                    null, // all barangays
+                    'submission.period_opened',
+                    'New reporting period opened',
+                    "{$created} new report slot(s) for {$categoryName} are now open. Please submit on time.",
+                    '/user/reports',
+                    $request->user(),
+                );
+            }
         }
+
+        $targetDesc = !empty($data['barangay_ids'])
+            ? (count($data['barangay_ids']) === 1 ? 'for the selected barangay' : 'for ' . count($data['barangay_ids']) . ' selected barangays')
+            : 'for the barangays';
 
         return response()->json([
             'created' => $created,
             'message' => $created > 0
-                ? "Opened {$created} report slot(s) for the barangays."
+                ? "Opened {$created} report slot(s) {$targetDesc}."
                 : 'Those periods were already open. Nothing new was added.',
         ]);
     }

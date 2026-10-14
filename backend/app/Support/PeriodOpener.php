@@ -15,17 +15,21 @@ use Carbon\CarbonImmutable;
 class PeriodOpener
 {
     /** @return int how many new rows were created */
-    public static function open(?CarbonImmutable $date = null, ?int $categoryId = null): int
+    public static function open(?CarbonImmutable $date = null, ?int $categoryId = null, ?array $barangayIds = null): int
     {
         $date ??= CarbonImmutable::now('Asia/Manila');
-        $barangayIds = Barangay::where('is_active', true)->pluck('id');
+        $query = Barangay::where('is_active', true);
+        if (!empty($barangayIds)) {
+            $query->whereIn('id', $barangayIds);
+        }
+        $targetBarangayIds = $query->pluck('id');
         $categories = $categoryId ? ReportCategory::whereKey($categoryId)->get() : ReportCategory::all();
         $created = 0;
 
         foreach ($categories as $category) {
             $period = ReportingPeriod::forCycle($category->cycle, $date);
 
-            foreach ($barangayIds as $barangayId) {
+            foreach ($targetBarangayIds as $barangayId) {
                 $row = Submission::firstOrCreate(
                     [
                         'barangay_id' => $barangayId,

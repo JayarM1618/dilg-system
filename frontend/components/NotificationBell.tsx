@@ -146,9 +146,8 @@ function NotificationRow({
           handleClick();
         }
       }}
-      className={`group relative w-full text-left p-4 transition-all duration-200 cursor-pointer border-b border-slate-100 dark:border-white/5 last:border-b-0 hover:bg-slate-50/90 dark:hover:bg-white/[0.04] ${
-        unread ? "bg-purple-50/40 dark:bg-[#201836]/40" : ""
-      }`}
+      className={`group relative w-full text-left p-4 transition-all duration-200 cursor-pointer border-b border-slate-100 dark:border-white/5 last:border-b-0 hover:bg-slate-50/90 dark:hover:bg-white/[0.04] ${unread ? "bg-purple-50/40 dark:bg-[#201836]/40" : ""
+        }`}
     >
       <div className="flex items-start gap-3.5">
         {/* Category Icon */}
@@ -178,11 +177,10 @@ function NotificationRow({
           </div>
 
           <h4
-            className={`text-sm leading-snug tracking-tight ${
-              unread
+            className={`text-sm leading-snug tracking-tight ${unread
                 ? "font-bold text-slate-900 dark:text-white"
                 : "font-medium text-slate-700 dark:text-slate-200"
-            }`}
+              }`}
           >
             {notif.title}
           </h4>
@@ -450,20 +448,18 @@ export default function NotificationBell() {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
-                    active
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${active
                       ? "bg-[#7B4DFF] text-white shadow-xs"
                       : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10"
-                  }`}
+                    }`}
                 >
                   {tab.label}
                   {tab.count > 0 && (
                     <span
-                      className={`px-1.5 py-0.2 rounded-full text-[10px] ${
-                        active
+                      className={`px-1.5 py-0.2 rounded-full text-[10px] ${active
                           ? "bg-white/25 text-white"
                           : "bg-slate-200/70 dark:bg-white/10 text-slate-600 dark:text-slate-300"
-                      }`}
+                        }`}
                     >
                       {tab.count}
                     </span>
