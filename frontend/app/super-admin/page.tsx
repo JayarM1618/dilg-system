@@ -1,5 +1,11 @@
-import TalaghayanBoard from "@/components/TalaghayanBoard";
+"use client";
 
-export default function SuperAdminHome() {
-  return <TalaghayanBoard />;
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+/** Old route — redirects to the new Talaghayan hub. */
+export default function SuperAdminRedirect() {
+  const router = useRouter();
+  useEffect(() => { router.replace("/talaghayan"); }, [router]);
+  return null;
 }

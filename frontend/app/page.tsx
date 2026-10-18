@@ -118,14 +118,8 @@ export default function ChooserPage() {
 
   function handleAccountClick(account: SavedAccount) {
     if (user && user.email.toLowerCase() === account.email.toLowerCase()) {
-      // Already logged in with this account
-      if (user.role === "barangay_rep") {
-        // Rep → go straight to their dashboard (the landing content is already shown)
-        router.push(homeFor(user.role));
-      } else {
-        // DILG / Admin → go to the DILG landing page
-        router.push("/dilg");
-      }
+      // Already logged in with this account → navigate to their role hub
+      router.push(homeFor(user.role));
     } else {
       // Different account → login page with email prefilled
       router.push(`/login?email=${encodeURIComponent(account.email)}`);
@@ -149,16 +143,17 @@ export default function ChooserPage() {
   // When a barangay rep is logged in, show the barangay landing page
   // content directly (no barangay list) instead of the Chrome chooser.
   // ----------------------------------------------------------------
-  const isBarangayRep = !loading && user?.role === "barangay_rep";
+  useEffect(() => {
+    if (!loading && user?.role === "barangay_rep") {
+      router.replace("/user");
+    }
+  }, [loading, user, router]);
 
-  if (isBarangayRep) {
+  if (!loading && user?.role === "barangay_rep") {
     return (
-      <BarangayRepLanding
-        userName={user!.name}
-        barangayName={user!.barangay?.name ?? "Your barangay"}
-        barangayCount={barangays.length}
-        onLogout={logout}
-      />
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-[#0E0A17]">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#7B4DFF] border-t-transparent" />
+      </div>
     );
   }
 
@@ -524,7 +519,7 @@ function BarangayRepLanding({
             <NotificationBell />
 
             <Link
-              href="/user"
+              href="/borms"
               className={`rounded-full bg-[#7B4DFF] px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-[#6A3CF0] transition-colors ${focusRing}`}
             >
               Open Dashboard &rarr;
@@ -571,13 +566,13 @@ function BarangayRepLanding({
 
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <Link
-                  href="/user"
+                  href="/borms"
                   className={`inline-flex items-center gap-2 rounded-full bg-[#7B4DFF] px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-[#6A3CF0] transition-colors ${focusRing}`}
                 >
                   Enter Submissions Dashboard &rarr;
                 </Link>
                 <Link
-                  href="/user/requirements"
+                  href="/borms/requirements"
                   className={`inline-flex items-center gap-2 rounded-full border border-slate-300 dark:border-white/20 bg-white/80 dark:bg-white/10 px-5 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/20 transition-colors ${focusRing}`}
                 >
                   {reqSummary && reqSummary.to_do > 0 ? `DILG Directives (${reqSummary.to_do})` : "View Directives"}
@@ -643,7 +638,7 @@ function BarangayRepLanding({
               complianceRate={compliantPct}
               title="Current Period Tally"
               subtitle="Progress toward compliance clearance"
-              actionHref="/user"
+              actionHref="/borms"
               actionLabel="Inspect active reports"
             />
           </section>
@@ -669,7 +664,7 @@ function BarangayRepLanding({
                 </div>
               </div>
               <Link
-                href="/user/requirements"
+                href="/borms/requirements"
                 className={`inline-flex shrink-0 items-center justify-center rounded-full bg-[#7B4DFF] px-5 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-[#6A3CF0] transition-colors ${focusRing}`}
               >
                 Comply Now &rarr;
@@ -685,7 +680,7 @@ function BarangayRepLanding({
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link
-              href="/user"
+              href="/borms"
               className="flex flex-col justify-between rounded-2xl bg-white dark:bg-[#181126] border border-slate-200 dark:border-white/10 p-5 shadow-sm hover:border-[#7B4DFF] dark:hover:border-[#7B4DFF] transition-colors"
             >
               <div>
@@ -703,7 +698,7 @@ function BarangayRepLanding({
             </Link>
 
             <Link
-              href="/user/reports"
+              href="/borms/reports"
               className="flex flex-col justify-between rounded-2xl bg-white dark:bg-[#181126] border border-slate-200 dark:border-white/10 p-5 shadow-sm hover:border-[#7B4DFF] dark:hover:border-[#7B4DFF] transition-colors"
             >
               <div>
@@ -721,7 +716,7 @@ function BarangayRepLanding({
             </Link>
 
             <Link
-              href="/user/requirements"
+              href="/borms/requirements"
               className="flex flex-col justify-between rounded-2xl bg-white dark:bg-[#181126] border border-slate-200 dark:border-white/10 p-5 shadow-sm hover:border-[#7B4DFF] dark:hover:border-[#7B4DFF] transition-colors"
             >
               <div>
@@ -739,7 +734,7 @@ function BarangayRepLanding({
             </Link>
 
             <Link
-              href="/user/community"
+              href="/borms/community"
               className="flex flex-col justify-between rounded-2xl bg-white dark:bg-[#181126] border border-slate-200 dark:border-white/10 p-5 shadow-sm hover:border-[#7B4DFF] dark:hover:border-[#7B4DFF] transition-colors"
             >
               <div>
@@ -821,7 +816,7 @@ function BarangayRepLanding({
               <h2 className="text-2xl font-bold">Manage Barangay {barangayName} Reports</h2>
               <p className="mt-1 text-xs sm:text-sm text-[#E9DFFF]">Proceed to your authorized operations deck to file requirements and review feedback.</p>
             </div>
-            <Link href="/user" className={`w-full sm:w-auto text-center shrink-0 rounded-full bg-white px-7 py-3 text-sm font-bold text-[#5A18C9] hover:bg-slate-50 transition-colors ${focusRing}`}>
+            <Link href="/borms" className={`w-full sm:w-auto text-center shrink-0 rounded-full bg-white px-7 py-3 text-sm font-bold text-[#5A18C9] hover:bg-slate-50 transition-colors ${focusRing}`}>
               Open Dashboard &rarr;
             </Link>
           </div>

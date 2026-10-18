@@ -1,4 +1,5 @@
 <?php
+use App\Http\Middleware\BagwisReadOnly;
 use App\Http\Middleware\EnsureUserHasRole;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -18,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->alias([
             'role' => EnsureUserHasRole::class,
+            'bagwis.readonly' => BagwisReadOnly::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

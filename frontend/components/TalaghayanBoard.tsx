@@ -31,17 +31,20 @@ export default function TalaghayanBoard() {
     <div className="space-y-6 sm:space-y-8">
       {/* ── Page Header ── */}
       <div>
-        <div className="flex items-center gap-2.5">
-          <h1 className="text-2xl sm:text-3xl font-semibold text-[#1B1235] dark:text-white transition-colors duration-500 ease-out">
-            Talaghayan
-          </h1>
+        <div className="flex flex-wrap items-center gap-2.5 mb-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F1EBFF] dark:bg-[#352D52] px-3 py-0.5 text-xs font-bold text-[#5A18C9] dark:text-[#CDBBFF]">
+            Sub-System of Talaghayan
+          </span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
             Live Board &bull; Real-Time Sync
           </span>
         </div>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1B1235] dark:text-white transition-colors duration-500 ease-out">
+          BORMS Operations Board
+        </h1>
         <p className="mt-1 text-sm sm:text-base text-slate-500 dark:text-[#C9BCEB] transition-colors duration-500 ease-out">
-          Report compliance for every active barangay in real time.
+          Barangay Operations &amp; Records Management System &bull; Active compliance matrix for all 33 Makati barangays across the Three Rs.
         </p>
       </div>
 

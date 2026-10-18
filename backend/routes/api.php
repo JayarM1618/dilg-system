@@ -95,9 +95,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/security-incidents', [SecurityIncidentController::class, 'index']);
     Route::post('/security-incidents', [SecurityIncidentController::class, 'store']);
 
-    // --- Office staff / supervisors only ---
-    Route::middleware('role:super_admin,office_supervisor')->group(function () {
+    // --- Bagwis: city-level read-only for barangay reps, full for office ---
+    // These GET endpoints power the Bagwis sub-system dashboard. Office staff
+    // always have full access; barangay reps may only read (the middleware
+    // blocks POST/PATCH/DELETE for them).
+    Route::middleware('bagwis.readonly')->group(function () {
+        Route::get('/dashboard/talaghayan', [DashboardController::class, 'talaghayan']);
+        Route::get('/dashboard/summary', [DashboardController::class, 'summary']);
+        Route::get('/reports/periods', [ReportController::class, 'periods']);
+        Route::get('/reports/compliance', [ReportController::class, 'compliance']);
+        Route::get('/reports/compliance/export', [ReportController::class, 'exportCompliance']);
+        Route::get('/reports/security', [ReportController::class, 'security']);
         Route::get('/barangays', [BarangayController::class, 'index']);
+    });
+
+    // --- Office staff / supervisors only (write operations) ---
+    Route::middleware('role:super_admin,office_supervisor')->group(function () {
         Route::patch('/submissions/{submission}/review', [SubmissionController::class, 'review']);
         Route::post('/submissions/open-periods', [SubmissionController::class, 'openPeriods']);
         Route::post('/report-categories', [ReportCategoryController::class, 'store']);
@@ -115,19 +128,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/requirements/{requirement}/reopen', [RequirementController::class, 'reopen'])->whereNumber('requirement');
         Route::patch('/requirement-assignments/{assignment}/review', [RequirementController::class, 'review'])->whereNumber('assignment');
 
-        // "Reporting" of the 3 Rs - the automated Talaghayan dashboard
-        Route::get('/dashboard/talaghayan', [DashboardController::class, 'talaghayan']);
-        Route::get('/dashboard/summary', [DashboardController::class, 'summary']);
-
         // Resources management (templates, guidelines, SOPs)
         Route::post('/resources', [ResourceController::class, 'store']);
         Route::patch('/resources/{resource}/archive', [ResourceController::class, 'archive']);
-
-        // "Reports" - compliance + security reporting
-        Route::get('/reports/periods', [ReportController::class, 'periods']);
-        Route::get('/reports/compliance', [ReportController::class, 'compliance']);
-        Route::get('/reports/compliance/export', [ReportController::class, 'exportCompliance']);
-        Route::get('/reports/security', [ReportController::class, 'security']);
     });
 
     // --- Super admin only ---

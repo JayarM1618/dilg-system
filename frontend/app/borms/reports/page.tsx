@@ -1,5 +1,5 @@
 import ReportsView from "@/components/threers/ReportsView";
 
-export default function ReportsPage() {
+export default function BormsReportsPage() {
   return <ReportsView />;
 }

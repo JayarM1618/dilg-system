@@ -53,10 +53,10 @@ export default function BarangayDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <Link
-            href="/"
+            href="/user"
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#7B4DFF] dark:text-[#CDBBFF] hover:underline mb-1 transition-colors"
           >
-            &larr; Barangay Home
+            &larr; Barangay Portal Hub
           </Link>
           <div className="flex items-center gap-2.5">
             <h1 className="text-2xl sm:text-3xl font-semibold text-navy-900 dark:text-white transition-colors duration-500 ease-out">{user?.barangay?.name ?? "Your barangay"}</h1>
@@ -69,7 +69,7 @@ export default function BarangayDashboard() {
         </div>
         <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
         <Link
-          href="/user/reports"
+          href="/borms/reports"
           className="inline-flex w-full sm:w-auto justify-center items-center gap-2 rounded-full bg-[#7B4DFF] px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#5A18C9]"
         >
           Submit a report

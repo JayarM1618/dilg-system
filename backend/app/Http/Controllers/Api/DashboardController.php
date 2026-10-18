@@ -16,7 +16,7 @@ class DashboardController extends Controller
      */
     public function talaghayan(Request $request)
     {
-        abort_unless($request->user()->hasOfficeOversight(), 403);
+        abort_unless($request->user() && $request->user()->is_active, 403);
 
         $barangays = Barangay::where('is_active', true)->orderBy('name')->get();
 
@@ -51,7 +51,7 @@ class DashboardController extends Controller
     /** Quick summary counters for the top of the dashboard. */
     public function summary(Request $request)
     {
-        abort_unless($request->user()->hasOfficeOversight(), 403);
+        abort_unless($request->user() && $request->user()->is_active, 403);
 
         return response()->json([
             'total_barangays' => Barangay::where('is_active', true)->count(),

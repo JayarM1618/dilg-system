@@ -92,8 +92,30 @@ class AuthController extends Controller
     {
         $user = $request->user();
 
+        if (! $user) {
+            return response()->json(['user' => null]);
+        }
+
+        $subsystems = match ($user->role) {
+            'super_admin' => [
+                'talaghayan' => ['access' => 'full'],
+                'borms'      => ['access' => 'full'],
+                'bagwis'     => ['access' => 'full'],
+            ],
+            'office_supervisor' => [
+                'borms'  => ['access' => 'full'],
+                'bagwis' => ['access' => 'full'],
+            ],
+            'barangay_rep' => [
+                'borms'  => ['access' => 'full'],
+                'bagwis' => ['access' => 'read_only'],
+            ],
+            default => [],
+        };
+
         return response()->json([
-            'user' => $user ? $user->load('barangay') : null,
+            'user'       => $user->load('barangay'),
+            'subsystems' => $subsystems,
         ]);
     }
 }

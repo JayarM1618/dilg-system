@@ -1,5 +1,5 @@
 import ResourcesView from "@/components/threers/ResourcesView";
 
-export default function ResourcesPage() {
+export default function BormsResourcesPage() {
   return <ResourcesView />;
 }
