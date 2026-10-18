@@ -232,14 +232,14 @@ export default function SupervisorAdminHome() {
               </p>
 
               <p className="mt-3 text-sm text-slate-600 dark:text-[#C9BCEB] leading-relaxed">
-                Makati City Field Office command board. Inspect the live 33-barangay compliance tally, track reporting cycles, export official CSV compliance reports, and monitor security incident logs across the city.
+                Makati City Field Office command board. Inspect the live 23-barangay compliance tally, track reporting cycles, export official CSV compliance reports, and monitor security incident logs across the city.
               </p>
 
               {/* City features tags */}
               <div className="mt-5 grid grid-cols-2 gap-2 text-xs">
                 <div className="flex items-center gap-1.5 rounded-lg bg-white/70 dark:bg-white/5 p-2 border border-slate-200/60 dark:border-white/10 text-slate-700 dark:text-slate-200 transition-colors group-hover:bg-white dark:group-hover:bg-white/10">
                   <span className="text-[#06D6A0] font-bold">&bull;</span>
-                  <span>33 Barangays Live Matrix</span>
+                  <span>23 Barangays Live Matrix</span>
                 </div>
                 <div className="flex items-center gap-1.5 rounded-lg bg-white/70 dark:bg-white/5 p-2 border border-slate-200/60 dark:border-white/10 text-slate-700 dark:text-slate-200 transition-colors group-hover:bg-white dark:group-hover:bg-white/10">
                   <span className="text-[#06D6A0] font-bold">&bull;</span>

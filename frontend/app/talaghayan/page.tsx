@@ -161,7 +161,7 @@ export default function TalaghayanHome() {
         <div className="group rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/60 dark:bg-white/5 p-4 sm:p-5 backdrop-blur-xl shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Makati Barangays</span>
           <p className="mt-2 text-2xl sm:text-3xl font-extrabold text-[#1B1235] dark:text-white">
-            {summary?.total_barangays ?? 33}
+            {summary?.total_barangays ?? 23}
           </p>
           <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Full Jurisdiction</p>
         </div>
@@ -286,14 +286,14 @@ export default function TalaghayanHome() {
               </p>
 
               <p className="mt-3 text-sm text-slate-600 dark:text-[#C9BCEB] leading-relaxed">
-                Makati City Field Office command board. Inspect the live 33-barangay compliance tally, track reporting cycles, export official CSV compliance reports, and monitor security incident logs across the city.
+                Makati City Field Office command board. Inspect the live 23-barangay compliance tally, track reporting cycles, export official CSV compliance reports, and monitor security incident logs across the city.
               </p>
 
               {/* City features tags */}
               <div className="mt-5 grid grid-cols-2 gap-2 text-xs">
                 <div className="flex items-center gap-1.5 rounded-lg bg-white/70 dark:bg-white/5 p-2 border border-slate-200/60 dark:border-white/10 text-slate-700 dark:text-slate-200 transition-colors group-hover:bg-white dark:group-hover:bg-white/10">
                   <span className="text-[#06D6A0] font-bold">&bull;</span>
-                  <span>33 Barangays Live Matrix</span>
+                  <span>23 Barangays Live Matrix</span>
                 </div>
                 <div className="flex items-center gap-1.5 rounded-lg bg-white/70 dark:bg-white/5 p-2 border border-slate-200/60 dark:border-white/10 text-slate-700 dark:text-slate-200 transition-colors group-hover:bg-white dark:group-hover:bg-white/10">
                   <span className="text-[#06D6A0] font-bold">&bull;</span>
@@ -406,7 +406,7 @@ export default function TalaghayanHome() {
                 Barangays Directory
               </h3>
               <p className="mt-1.5 text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
-                Configure the 33 official Makati barangays, edit official designations, and monitor account assignment status.
+                Configure the 23 official Makati barangays, edit official designations, and monitor account assignment status.
               </p>
             </div>
             <span className="mt-5 inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-[#A06C00] dark:text-[#FFD60A]">

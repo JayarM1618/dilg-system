@@ -196,7 +196,7 @@ export default function BarangaySignInPage() {
             <div className="lg:col-span-7 flex flex-col justify-center">
               <div className="inline-flex items-center gap-2 self-start rounded-full bg-white/80 dark:bg-black/30 px-3.5 py-1 text-xs font-semibold text-[#0E5440] dark:text-[#84DEBD] ring-1 ring-[#06D6A0]/30 shadow-sm backdrop-blur-md">
                 <span className="h-2 w-2 rounded-full bg-[#06D6A0]" />
-                Talaghayan &middot; Barangay Report Tracker
+                Talaghayan &middot; E-Sub LGRRC
               </div>
 
               <h1 id="hero-title" className="mt-4 text-balance text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#0E2B24] dark:text-[#E8F8F3] transition-colors duration-500 leading-tight">
@@ -261,7 +261,7 @@ export default function BarangaySignInPage() {
               nonCompliant={realtime.data?.non_compliant ?? 0}
               complianceRate={realtime.data?.compliance_rate ?? 100}
               title="This month"
-              subtitle="Live tally of every report across all 24 barangays"
+              subtitle="Live tally of every report across all 23 barangays"
               actionHref={cta.href}
               actionLabel="View Dashboard"
             />

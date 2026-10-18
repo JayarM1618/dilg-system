@@ -211,7 +211,7 @@ export default function DilgSignInPage() {
               nonCompliant={realtime.data?.non_compliant ?? 0}
               complianceRate={realtime.data?.compliance_rate ?? 100}
               title="Monthly Verification Summary"
-              subtitle="Overall compliance clearance across all 24 barangays"
+              subtitle="Overall compliance clearance across all 23 barangays"
               actionHref={cta.href}
               actionLabel="Open DILG console"
             />

@@ -44,7 +44,7 @@ export default function TalaghayanBoard() {
           BORMS Operations Board
         </h1>
         <p className="mt-1 text-sm sm:text-base text-slate-500 dark:text-[#C9BCEB] transition-colors duration-500 ease-out">
-          Barangay Operations &amp; Records Management System &bull; Active compliance matrix for all 33 Makati barangays across the Three Rs.
+          Barangay Operations &amp; Records Management System &bull; Active compliance matrix for all 23 Makati barangays across the Three Rs.
         </p>
       </div>
 

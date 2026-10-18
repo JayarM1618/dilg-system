@@ -97,7 +97,7 @@ export default function BagwisDashboard() {
 
   const currentPeriodLabel = compliance.data?.period_label ?? selectedPeriod;
 
-  // Filtered rows for the 33 barangays matrix
+  // Filtered rows for the 23 barangays matrix
   const filteredRows = useMemo(() => {
     return rows.filter((r) => {
       const matchesSearch =
@@ -284,7 +284,7 @@ export default function BagwisDashboard() {
                 Makati City Barangays Compliance Status
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 dark:text-[#C9BCEB]">
-                Real-time compliance tracking across all 33 barangays of Makati City.
+                Real-time compliance tracking across all 23 barangays of Makati City.
               </p>
             </div>
 

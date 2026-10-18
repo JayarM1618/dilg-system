@@ -174,14 +174,14 @@ export default function BarangayUserHome() {
               </p>
 
               <p className="mt-3 text-sm text-slate-600 dark:text-[#C9BCEB] leading-relaxed">
-                City-wide transparency portal for all 33 barangays of Makati City. Check city-wide compliance matrices, reporting cycles, and security audit status. As a representative, this system is for viewing only.
+                City-wide transparency portal for all 23 barangays of Makati City. Check city-wide compliance matrices, reporting cycles, and security audit status. As a representative, this system is for viewing only.
               </p>
 
               {/* City features tags */}
               <div className="mt-5 grid grid-cols-2 gap-2 text-xs">
                 <div className="flex items-center gap-1.5 rounded-lg bg-white/70 dark:bg-white/5 p-2 border border-slate-200/60 dark:border-white/10 text-slate-700 dark:text-slate-200">
                   <span className="text-[#06D6A0] font-bold">&bull;</span>
-                  <span>33 Barangays Matrix</span>
+                  <span>23 Barangays Matrix</span>
                 </div>
                 <div className="flex items-center gap-1.5 rounded-lg bg-white/70 dark:bg-white/5 p-2 border border-slate-200/60 dark:border-white/10 text-slate-700 dark:text-slate-200">
                   <span className="text-[#06D6A0] font-bold">&bull;</span>

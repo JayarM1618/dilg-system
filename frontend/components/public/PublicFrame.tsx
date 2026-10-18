@@ -42,7 +42,7 @@ export default function PublicFrame({ children }: { children: ReactNode }) {
 
           <span className="hidden xs:inline-flex items-center gap-1.5 rounded-full bg-[#F1EBFF] px-3 py-1 text-xs font-semibold text-[#5A18C9] dark:bg-[#352D52] dark:text-[#CDBBFF] transition-colors duration-500">
             <span className="h-1.5 w-1.5 rounded-full bg-[#7B4DFF] animate-pulse" />
-            Citizens View
+            Makati Citizen View
           </span>
 
           <div className="ml-auto flex items-center gap-2 sm:gap-3">
@@ -66,7 +66,7 @@ export default function PublicFrame({ children }: { children: ReactNode }) {
 
       {/* Full-width Footer */}
       <footer className="relative z-10 w-full border-t border-[#EDE7FA] dark:border-[#251E38] py-6 text-center text-sm text-slate-500 dark:text-[#7C6FA3] transition-colors duration-500">
-        &copy; {new Date().getFullYear()} Talaghayan &middot; Barangay Report Tracker &middot; DILG Makati
+        &copy; {new Date().getFullYear()} Talaghayan &middot; E-Sub LGRRC &middot; DILG Makati
       </footer>
     </div>
   );

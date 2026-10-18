@@ -187,7 +187,7 @@ export default function ChooserPage() {
               href="/citizens"
               className={`rounded-full border border-slate-200 dark:border-white/15 px-3.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10 ${focusRing}`}
             >
-              Public Citizens View
+              Makati Citizen View
             </Link>
             <Link
               href="/login"
@@ -403,7 +403,7 @@ export default function ChooserPage() {
               <div className="mt-4 grid grid-cols-2 gap-2 text-left">
                 <div className="rounded-xl bg-slate-50 dark:bg-white/5 p-3 border border-slate-100 dark:border-white/5">
                   <p className="text-[10px] font-bold uppercase text-slate-400">Jurisdiction</p>
-                  <p className="text-sm font-bold text-slate-800 dark:text-white mt-0.5">24 Barangays</p>
+                  <p className="text-sm font-bold text-slate-800 dark:text-white mt-0.5">23 Barangays</p>
                 </div>
                 <div className="rounded-xl bg-slate-50 dark:bg-white/5 p-3 border border-slate-100 dark:border-white/5">
                   <p className="text-[10px] font-bold uppercase text-slate-400">Audit Status</p>

@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Talaghayan | Barangay report tracker", template: "%s | Talaghayan" },
+  title: { default: "Talaghayan | E-Sub LGRRC", template: "%s | Talaghayan" },
   description: "File barangay reports, track compliance and review submissions with Talaghayan.",
 };
 

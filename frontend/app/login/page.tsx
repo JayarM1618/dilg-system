@@ -7,8 +7,7 @@ import { useRouter } from "next/navigation";
 import { Poppins } from "next/font/google";
 import BrandMark from "@/components/BrandMark";
 import { useAuth } from "@/hooks/useAuth";
-import { api, ApiError } from "@/lib/api";
-import { apiUrl } from "@/lib/http";
+import { ApiError } from "@/lib/api";
 import { homeFor } from "@/lib/roles";
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
@@ -42,7 +41,7 @@ const SYSTEM_MODULES = [
   },
   {
     title: "Real-time Citywide Analytics",
-    description: "Instant data aggregation and compliance rate tallying for all 24 Makati barangays without spreadsheets.",
+    description: "Instant data aggregation and compliance rate tallying for all 23 Makati barangays without spreadsheets.",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
         <line x1="18" y1="20" x2="18" y2="10" />
@@ -63,10 +62,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // "Continue with Google" is shown only when the Laravel server has it set up.
-  const [googleReady, setGoogleReady] = useState(false);
   useEffect(() => {
-    api.get<{ google: boolean }>("/api/auth/providers").then((r) => setGoogleReady(!!r.google)).catch(() => undefined);
     const params = new URLSearchParams(window.location.search);
     const msg = params.get("error");
     if (msg) setError(msg);
@@ -122,7 +118,7 @@ export default function LoginPage() {
               href="/citizens"
               className={`rounded-full bg-white dark:bg-white/10 px-4 py-2 text-xs sm:text-sm font-semibold text-[#5A18C9] dark:text-[#CDBBFF] ring-1 ring-[#D7CEF2] dark:ring-white/15 hover:bg-slate-50 dark:hover:bg-white/15 ${focusRing}`}
             >
-              Citizens View &rarr;
+              Makati Citizen View &rarr;
             </Link>
           </div>
         </div>
@@ -146,7 +142,7 @@ export default function LoginPage() {
 
               <p className="mt-4 text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl">
                 The centralized digital infrastructure for official report submissions, compliance verification,
-                and governance performance monitoring across all 24 barangays in the City of Makati.
+                and governance performance monitoring across all 23 barangays in the City of Makati.
               </p>
             </div>
 
@@ -310,24 +306,6 @@ export default function LoginPage() {
                   )}
                 </button>
               </form>
-
-              {/* Google SSO if enabled */}
-              {googleReady && (
-                <div className="mt-5 pt-5 border-t border-slate-100 dark:border-white/10">
-                  <a
-                    href={apiUrl("/auth/google/redirect")}
-                    className={`flex w-full items-center justify-center gap-2.5 rounded-xl bg-slate-50 dark:bg-[#201833] py-3 px-4 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 ring-1 ring-slate-200 dark:ring-white/10 hover:bg-slate-100 dark:hover:bg-[#2A2042] transition-colors ${focusRing}`}
-                  >
-                    <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
-                      <path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 8 3l5.7-5.7C34 6.1 29.3 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/>
-                      <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 8 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
-                      <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/>
-                      <path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.6-.4-3.9z"/>
-                    </svg>
-                    Continue with Google Workspace
-                  </a>
-                </div>
-              )}
 
               {/* Support footnote */}
               <div className="mt-6 pt-4 border-t border-slate-100 dark:border-white/10 text-center text-[11px] text-slate-500 dark:text-slate-400">
