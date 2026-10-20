@@ -19,6 +19,36 @@ function timeAgo(iso: string): string {
   return new Date(iso).toLocaleDateString("en-PH", { month: "short", day: "numeric" });
 }
 
+export function normalizeActionUrl(url?: string | null): string {
+  if (!url || typeof url !== "string") return "/borms";
+
+  let target = url.trim();
+  if (!target) return "/borms";
+
+  try {
+    if (target.startsWith("http://") || target.startsWith("https://")) {
+      const parsed = new URL(target);
+      target = parsed.pathname + parsed.search + parsed.hash;
+    }
+  } catch {
+    // ignore
+  }
+
+  // Normalize legacy prefixes to current unified routes
+  target = target
+    .replace(/^\/(?:user|admin|super-admin)\/requirements([\/?#].*)?$/, (_, rest) => `/borms/requirements${rest || ""}`)
+    .replace(/^\/(?:user|admin|super-admin)\/reports([\/?#].*)?$/, (_, rest) => `/borms/reports${rest || ""}`)
+    .replace(/^\/(?:user|admin|super-admin)\/repository([\/?#].*)?$/, (_, rest) => `/borms/repository${rest || ""}`)
+    .replace(/^\/(?:user|admin|super-admin)\/resources([\/?#].*)?$/, (_, rest) => `/borms/resources${rest || ""}`)
+    .replace(/^\/(?:user|admin|super-admin)\/community([\/?#].*)?$/, (_, rest) => `/borms/community${rest || ""}`)
+    .replace(/^\/super-admin\/(?:accounts|users)([\/?#].*)?$/, (_, rest) => `/talaghayan/users${rest || ""}`)
+    .replace(/^\/super-admin\/barangays([\/?#].*)?$/, (_, rest) => `/talaghayan/barangays${rest || ""}`)
+    .replace(/^\/super-admin([\/?#].*)?$/, (_, rest) => `/talaghayan${rest || ""}`)
+    .replace(/^\/(?:user|admin)([\/?#].*)?$/, (_, rest) => `/borms${rest || ""}`);
+
+  return target || "/borms";
+}
+
 interface CategoryMeta {
   label: string;
   badgeBg: string;
@@ -288,7 +318,7 @@ export default function NotificationBell() {
 
   const handleNavigate = (url: string) => {
     close();
-    router.push(url);
+    router.push(normalizeActionUrl(url));
   };
 
   // Filtered notifications based on activeTab
@@ -348,7 +378,7 @@ export default function NotificationBell() {
           role="alert"
           onClick={() => {
             markRead(latestToast.id);
-            if (latestToast.action_url) router.push(latestToast.action_url);
+            if (latestToast.action_url) router.push(normalizeActionUrl(latestToast.action_url));
             dismissToast();
           }}
           className="fixed top-5 right-5 z-50 w-84 sm:w-96 rounded-2xl bg-white/95 dark:bg-[#1C142E]/95 backdrop-blur-2xl border border-[#7B4DFF]/30 p-4 shadow-2xl shadow-[#7B4DFF]/20 cursor-pointer animate-in fade-in slide-in-from-top-4 duration-300 transition-transform hover:scale-[1.02]"

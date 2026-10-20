@@ -259,7 +259,7 @@ export default function BarangaySignInPage() {
               underReview={realtime.data?.under_review ?? 0}
               pending={realtime.data?.pending ?? 0}
               nonCompliant={realtime.data?.non_compliant ?? 0}
-              complianceRate={realtime.data?.compliance_rate ?? 100}
+              complianceRate={realtime.data?.compliance_rate ?? 0}
               title="This month"
               subtitle="Live tally of every report across all 23 barangays"
               actionHref={cta.href}

@@ -51,17 +51,15 @@ export function useAuth() {
   );
 
   const logout = useCallback(async () => {
+    setUser(null);
     try {
-      if (user) {
-        await api.post("/api/logout");
-      }
+      await api.post("/api/logout", undefined, { silent401: true });
     } catch {
       // Even if session is already expired or unreachable, clean up local state
     } finally {
-      setUser(null);
       router.push("/login");
     }
-  }, [user, router]);
+  }, [router]);
 
   return { user, loading, login, logout, refetch: fetchUser, ApiError };
 }

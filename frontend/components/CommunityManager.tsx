@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useFetch } from "@/hooks/useFetch";
 import { apiSend } from "@/lib/http";
 import { ApiError } from "@/lib/api";
+import { useConfirm } from "@/components/ConfirmModal";
 import {
   CATEGORIES, categoryOf, eventWhen, formatLongDate, localInputToIso,
   type PublicBarangayDetail,
@@ -180,6 +181,7 @@ function ProfileForm({ barangayId, initial }: { barangayId: number; initial: Pub
 function Announcements({
   barangayId, items, onChange,
 }: { barangayId: number; items: PublicBarangayDetail["announcements"]; onChange: () => void }) {
+  const confirm = useConfirm();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [pinned, setPinned] = useState(false);
@@ -194,8 +196,9 @@ function Announcements({
     if (ok) { setTitle(""); setBody(""); setPinned(false); }
   }
 
-  function remove(id: number, name: string) {
-    if (!window.confirm(`Delete the announcement "${name}"? Citizens will no longer see it.`)) return;
+  async function remove(id: number, name: string) {
+    const ok = await confirm(`Delete the announcement "${name}"? Citizens will no longer see it.`);
+    if (!ok) return;
     void run(() => apiSend(`/api/announcements/${id}`, "DELETE"), "Announcement deleted.");
   }
 
@@ -242,6 +245,7 @@ function Announcements({
 function Programs({
   barangayId, events, programs, onChange,
 }: { barangayId: number; events: PublicBarangayDetail["events"]; programs: PublicBarangayDetail["programs"]; onChange: () => void }) {
+  const confirm = useConfirm();
   const [kind, setKind] = useState<"event" | "program">("event");
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("other");
@@ -271,8 +275,9 @@ function Programs({
     if (ok) { setTitle(""); setVenue(""); setStarts(""); setEnds(""); setSchedule(""); setDescription(""); }
   }
 
-  function remove(id: number, name: string) {
-    if (!window.confirm(`Delete "${name}"? Citizens will no longer see it.`)) return;
+  async function remove(id: number, name: string) {
+    const ok = await confirm(`Delete "${name}"? Citizens will no longer see it.`);
+    if (!ok) return;
     void run(() => apiSend(`/api/programs/${id}`, "DELETE"), "Deleted.");
   }
 

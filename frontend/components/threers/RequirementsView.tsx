@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useFetch } from "@/hooks/useFetch";
 import { apiSend, apiUrl } from "@/lib/http";
 import { formatDate } from "@/lib/format";
+import { useConfirm } from "@/components/ConfirmModal";
 import ThreeRsTabs from "./ThreeRsTabs";
 import { Notice, PageTitle, btn, btnGhost, field, formatBytes, formatDateTime } from "./ui";
 import {
@@ -194,11 +195,15 @@ function SentRow({
   onChanged: () => void;
   setFlash: (f: Flash) => void;
 }) {
+  const confirm = useConfirm();
   const [open, setOpen] = useState(false);
   const p = item.progress!;
 
   async function act(path: string, method: "POST" | "DELETE", ok: string, confirmText?: string) {
-    if (confirmText && !window.confirm(confirmText)) return;
+    if (confirmText) {
+      const confirmed = await confirm(confirmText);
+      if (!confirmed) return;
+    }
     try {
       await apiSend(path, method);
       setFlash({ kind: "ok", text: ok });

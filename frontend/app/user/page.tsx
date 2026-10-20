@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { useFetch } from "@/hooks/useFetch";
+import RealtimeAnalyticsSection from "@/components/RealtimeAnalyticsSection";
 
 const focusRing =
   "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7B4DFF]";
@@ -78,6 +79,26 @@ export default function BarangayUserHome() {
           </Link>
         </div>
       )}
+
+      {/* ── Real‑Time Analytics ── */}
+      <section aria-label="Barangay representative real‑time analytics">
+        {user?.barangay_id ? (
+          <RealtimeAnalyticsSection
+            defaultBarangayId={user.barangay_id}
+            restrictedToBarangayId={user.barangay_id}
+            restrictedBarangayName={user.barangay?.name}
+            actionHref="/borms/reports"
+            actionLabel="Submit & Inspect Reports"
+          />
+        ) : (
+          <div className="rounded-2xl bg-white dark:bg-[#181126] border border-slate-200 dark:border-white/10 p-10 flex items-center justify-center shadow-sm">
+            <div className="flex items-center gap-3 text-slate-500 text-sm">
+              <span className="h-4 w-4 border-2 border-[#7B4DFF] border-t-transparent rounded-full animate-spin" />
+              <span>Loading telemetry analytics...</span>
+            </div>
+          </div>
+        )}
+      </section>
 
       {/* ── Sub-systems Selection ── */}
       <section aria-labelledby="subsystems-heading" className="space-y-4">

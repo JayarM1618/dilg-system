@@ -26,8 +26,15 @@ class NotificationController extends Controller
     /** Just the unread count (for polling the bell badge). */
     public function unreadCount(Request $request)
     {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json([
+                'unread_count' => 0,
+            ]);
+        }
+
         return response()->json([
-            'unread_count' => Notification::forUser($request->user()->id)->unread()->count(),
+            'unread_count' => Notification::forUser($user->id)->unread()->count(),
         ]);
     }
 

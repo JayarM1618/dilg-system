@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useFetch } from "@/hooks/useFetch";
 import { apiSend, apiUrl } from "@/lib/http";
 import { formatDate } from "@/lib/format";
+import { useConfirm } from "@/components/ConfirmModal";
 import ThreeRsTabs from "./ThreeRsTabs";
 import { Notice, PageTitle, TYPE_LABEL, btn, btnGhost, field } from "./ui";
 import type { Category, ResourceItem } from "./types";
@@ -13,6 +14,7 @@ const TYPES = ["template", "guideline", "sop", "security_advisory", "other"] as 
 
 export default function ResourcesView() {
   const { user } = useAuth();
+  const confirm = useConfirm();
   const [type, setType] = useState("");
   const [history, setHistory] = useState(false);
   const [flash, setFlash] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
@@ -34,7 +36,8 @@ export default function ResourcesView() {
   const groups = TYPES.map((t) => ({ type: t, items: items.filter((i) => i.type === t) })).filter((g) => g.items.length > 0);
 
   async function archive(r: ResourceItem) {
-    if (!window.confirm(`Withdraw "${r.title}" v${r.version}? Barangays will no longer see it.`)) return;
+    const ok = await confirm(`Withdraw "${r.title}" v${r.version}? Barangays will no longer see it.`);
+    if (!ok) return;
     try {
       await apiSend(`/api/resources/${r.id}/archive`, "PATCH");
       setFlash({ kind: "ok", text: `"${r.title}" v${r.version} was withdrawn.` });

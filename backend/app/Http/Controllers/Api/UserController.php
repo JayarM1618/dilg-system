@@ -81,7 +81,7 @@ class UserController extends Controller
             'account.created',
             "New account created: {$user->name}",
             "A {$roleLabel} account was created for {$user->email}.",
-            '/super-admin/accounts',
+            '/talaghayan/users',
             $request->user(),
             false, // skip email — the admin who did it is right there
         );

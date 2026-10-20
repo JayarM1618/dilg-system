@@ -16,8 +16,13 @@ use Illuminate\Http\Request;
 class ReportController extends Controller
 {
     /** Periods that exist, newest first - feeds the period picker. */
-    public function periods()
+    public function periods(Request $request)
     {
+        $user = $request->user() ?? auth('sanctum')->user();
+        if (! $user) {
+            return response()->json(['data' => []]);
+        }
+
         $rows = Submission::selectRaw('period_label, min(period_start) as period_start, max(due_date) as due_date')
             ->groupBy('period_label')
             ->orderByDesc('period_start')
@@ -29,6 +34,27 @@ class ReportController extends Controller
     /** Compliance numbers for one period (default: newest), optionally one report category. */
     public function compliance(Request $request)
     {
+        $user = $request->user() ?? auth('sanctum')->user();
+        if (! $user) {
+            return response()->json([
+                'period_label' => '',
+                'totals' => [
+                    'pending' => 0,
+                    'submitted' => 0,
+                    'under_review' => 0,
+                    'compliant' => 0,
+                    'non_compliant' => 0,
+                    'total' => 0,
+                    'overdue' => 0,
+                    'late_filed' => 0,
+                    'compliance_rate' => 0,
+                    'filing_rate' => 0,
+                ],
+                'by_barangay' => [],
+                'overdue' => [],
+            ]);
+        }
+
         [$period, $rows] = $this->rowsFor($request);
 
         $barangays = Barangay::where('is_active', true)->orderBy('name')->get(['id', 'name', 'code'])->keyBy('id');

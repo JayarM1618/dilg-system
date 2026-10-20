@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { useApi } from "@/hooks/useApi";
 import { useFetch } from "@/hooks/useFetch";
+import { useState } from "react";
 import type { User } from "@/types";
+import RealtimeAnalyticsSection from "@/components/RealtimeAnalyticsSection";
 
 interface DashboardSummary {
   total_barangays: number;
@@ -48,6 +50,7 @@ export default function TalaghayanHome() {
   // Monitoring & account metrics
   const monitoring = useApi<MonitoringSummary>("/api/monitoring/summary", { pollInterval: 10000 });
   const usersList = useApi<{ data: User[] }>("/api/users", { pollInterval: 12000 });
+
 
   const summary = totals.data;
   const awaitingReview = (summary?.submitted ?? 0) + (summary?.under_review ?? 0);
@@ -189,6 +192,11 @@ export default function TalaghayanHome() {
           </p>
           <p className="mt-1 text-xs text-blue-600/80 dark:text-blue-400/80">Live Transactional Events</p>
         </div>
+      </section>
+
+      {/* ── Real‑Time Analytics ── */}
+      <section aria-label="Root real‑time analytics">
+        <RealtimeAnalyticsSection actionHref="/borms/reports" actionLabel="Inspect active reports" />
       </section>
 
       {/* ── Sub-systems Selection ── */}

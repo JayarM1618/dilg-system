@@ -36,14 +36,16 @@ Route::middleware('throttle:20,1')->group(function () {
 });
 
 Route::get('/me', [AuthController::class, 'me']);
+Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+Route::post('/logout', [AuthController::class, 'logout']);
+Route::get('/reports/periods', [ReportController::class, 'periods']);
+Route::get('/reports/compliance', [ReportController::class, 'compliance']);
 
 // --- Authenticated (any active role) ---
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
 
     // ──── Notifications ────
     Route::get('/notifications', [NotificationController::class, 'index']);
-    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
     Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead']);
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead']);
     Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->whereNumber('notification');
@@ -102,8 +104,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('bagwis.readonly')->group(function () {
         Route::get('/dashboard/talaghayan', [DashboardController::class, 'talaghayan']);
         Route::get('/dashboard/summary', [DashboardController::class, 'summary']);
-        Route::get('/reports/periods', [ReportController::class, 'periods']);
-        Route::get('/reports/compliance', [ReportController::class, 'compliance']);
         Route::get('/reports/compliance/export', [ReportController::class, 'exportCompliance']);
         Route::get('/reports/security', [ReportController::class, 'security']);
         Route::get('/barangays', [BarangayController::class, 'index']);

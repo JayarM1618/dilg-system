@@ -149,7 +149,7 @@ class SubmissionController extends Controller
                         'submission.period_opened',
                         'New reporting period opened',
                         "A new report slot for {$categoryName} is now open for your barangay. Please submit on time.",
-                        '/user/reports',
+                        '/borms/reports',
                         $request->user(),
                     );
                 }
@@ -159,7 +159,7 @@ class SubmissionController extends Controller
                     'submission.period_opened',
                     'New reporting period opened',
                     "{$created} new report slot(s) for {$categoryName} are now open. Please submit on time.",
-                    '/user/reports',
+                    '/borms/reports',
                     $request->user(),
                 );
             }
@@ -248,7 +248,7 @@ class SubmissionController extends Controller
             'submission.uploaded',
             "New report from Brgy. {$bName}",
             "{$catName} ({$submission->period_label}) has been submitted for review.",
-            '/admin/reports',
+            '/borms/reports',
             $user,
         );
 
@@ -289,7 +289,7 @@ class SubmissionController extends Controller
             'submission.reviewed',
             "Report marked: {$label}",
             "Your {$catName} ({$submission->period_label}) was reviewed" . ($data['status'] === 'non_compliant' ? '. Please check the remarks and resubmit.' : '.'),
-            '/user/reports',
+            '/borms/reports',
             $request->user(),
         );
 

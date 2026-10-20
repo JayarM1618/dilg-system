@@ -3,12 +3,28 @@
 import { useMemo, useState } from "react";
 import type { MonthTrendPoint } from "@/hooks/useRealtimeAnalytics";
 
+export interface ChartTabItem {
+  id: string;
+  label: string;
+  active?: boolean;
+  icon?: React.ReactNode;
+}
+
 interface RealtimeComplianceChartProps {
   trend: MonthTrendPoint[];
   title?: string;
   subtitle?: string;
   badgeLabel?: string;
   loading?: boolean;
+  // Comparison mode props
+  isComparison?: boolean;
+  compareTrend?: MonthTrendPoint[];
+  primaryLabel?: string;
+  compareLabel?: string;
+  // Interactive view tabs
+  tabs?: ChartTabItem[];
+  onTabChange?: (tabId: string) => void;
+  extraActions?: React.ReactNode;
 }
 
 export default function RealtimeComplianceChart({
@@ -17,10 +33,17 @@ export default function RealtimeComplianceChart({
   subtitle = "Aggregate performance across monthly submission milestones",
   badgeLabel,
   loading = false,
+  isComparison = false,
+  compareTrend,
+  primaryLabel = "Citywide Average",
+  compareLabel = "Specific Barangay",
+  tabs,
+  onTabChange,
+  extraActions,
 }: RealtimeComplianceChartProps) {
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
 
-  // Filter or default trend points
+  // Filter or default primary trend points
   const points = useMemo(() => {
     if (trend && trend.length > 0) return trend;
     return [
@@ -34,6 +57,12 @@ export default function RealtimeComplianceChart({
     ];
   }, [trend]);
 
+  // Comparison points (aligned by month index)
+  const compPoints = useMemo(() => {
+    if (!isComparison || !compareTrend || compareTrend.length === 0) return [];
+    return compareTrend;
+  }, [isComparison, compareTrend]);
+
   // SVG dimensions
   const W = 460;
   const H = 210;
@@ -44,19 +73,19 @@ export default function RealtimeComplianceChart({
   const plotW = W - L - R;
   const plotH = H - T - B;
 
-  // Compute maximum Y bound
+  // Maximum Y bound
   const maxVal = useMemo(() => {
+    if (isComparison) return 100; // Rate is 0 - 100%
     const highest = Math.max(
       1,
       ...points.map((p) => Math.max(p.due || 0, p.filed || 0, p.compliant || 0)),
     );
-    // Round up to clean scale step
     if (highest <= 5) return 5;
     if (highest <= 10) return 10;
     if (highest <= 20) return 20;
     if (highest <= 50) return 50;
     return Math.ceil(highest / 10) * 10;
-  }, [points]);
+  }, [points, isComparison]);
 
   const xCoord = (index: number) => {
     if (points.length <= 1) return L + plotW / 2;
@@ -67,10 +96,6 @@ export default function RealtimeComplianceChart({
     const ratio = Math.min(1, Math.max(0, val / maxVal));
     return T + (1 - ratio) * plotH;
   };
-
-  // Build SVG path commands
-  const filedCoords = points.map((p, i) => ({ x: xCoord(i), y: yCoord(p.filed) }));
-  const compliantCoords = points.map((p, i) => ({ x: xCoord(i), y: yCoord(p.compliant) }));
 
   const buildPath = (coords: { x: number; y: number }[]) => {
     if (coords.length === 0) return "";
@@ -85,10 +110,12 @@ export default function RealtimeComplianceChart({
     return d;
   };
 
+  // Coordinates & paths for standard mode
+  const filedCoords = points.map((p, i) => ({ x: xCoord(i), y: yCoord(p.filed) }));
+  const compliantCoords = points.map((p, i) => ({ x: xCoord(i), y: yCoord(p.compliant) }));
   const filedPath = buildPath(filedCoords);
   const compliantPath = buildPath(compliantCoords);
 
-  // Area paths for gradient fills
   const filedArea = filedCoords.length > 0
     ? `${filedPath} L ${filedCoords[filedCoords.length - 1].x} ${T + plotH} L ${filedCoords[0].x} ${T + plotH} Z`
     : "";
@@ -96,30 +123,42 @@ export default function RealtimeComplianceChart({
     ? `${compliantPath} L ${compliantCoords[compliantCoords.length - 1].x} ${T + plotH} L ${compliantCoords[0].x} ${T + plotH} Z`
     : "";
 
+  // Coordinates & paths for comparison mode (% rates)
+  const primaryRateCoords = points.map((p, i) => ({ x: xCoord(i), y: yCoord(p.rate) }));
+  const compRateCoords = compPoints.map((p, i) => ({ x: xCoord(i), y: yCoord(p.rate) }));
+  const primaryRatePath = buildPath(primaryRateCoords);
+  const compRatePath = buildPath(compRateCoords);
+
   const active = hoverIndex !== null ? points[hoverIndex] : null;
+  const activeComp = hoverIndex !== null && compPoints[hoverIndex] ? compPoints[hoverIndex] : null;
   const activeX = hoverIndex !== null ? xCoord(hoverIndex) : null;
 
-  // Latest / peak compliance rate
+  // Latest points & peak rates
   const latestPoint = points[points.length - 1];
+  const latestComp = compPoints.length > 0 ? compPoints[compPoints.length - 1] : null;
   const peakRate = Math.max(...points.map((p) => p.rate));
+  const peakCompRate = compPoints.length > 0 ? Math.max(...compPoints.map((p) => p.rate)) : 0;
 
   return (
     <div className="relative">
       {/* Header & Badges */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            {title}
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{subtitle}</p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-0.5">
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+              {title}
+            </h2>
+            {badgeLabel ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-100 dark:bg-[#2C2145] px-2.5 py-0.5 text-xs font-semibold text-[#7B4DFF] dark:text-[#CDBBFF]">
+                {badgeLabel}
+              </span>
+            ) : null}
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-400">{subtitle}</p>
         </div>
 
-        <div className="flex items-center gap-2">
-          {badgeLabel ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-100 dark:bg-[#2C2145] px-2.5 py-1 text-xs font-semibold text-[#7B4DFF] dark:text-[#CDBBFF]">
-              {badgeLabel}
-            </span>
-          ) : null}
+        <div className="flex flex-wrap items-center gap-2">
+          {extraActions}
           <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             Live Real-Time
@@ -127,22 +166,68 @@ export default function RealtimeComplianceChart({
         </div>
       </div>
 
-      {/* Legend & Summary Tally */}
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-4 text-slate-600 dark:text-slate-300">
-          <span className="inline-flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#F21DB4]" />
-            Filed Reports ({latestPoint?.filed ?? 0})
-          </span>
-          <span className="inline-flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#7B4DFF]" />
-            Compliant &amp; Cleared ({latestPoint?.compliant ?? 0})
-          </span>
-        </div>
+      {/* View Switcher Tabs (if provided) */}
+      {tabs && tabs.length > 0 && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 dark:border-white/5 pb-3">
+          <div className="inline-flex items-center p-1 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200/70 dark:border-white/10 text-xs">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => onTabChange?.(tab.id)}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 ${
+                  tab.active
+                    ? "bg-white dark:bg-[#7B4DFF] text-[#5A18C9] dark:text-white shadow-sm"
+                    : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+                }`}
+              >
+                {tab.icon}
+                {tab.label}
+              </button>
+            ))}
+          </div>
 
-        <div className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
-          Peak Performance: <strong className="text-emerald-500">{peakRate}%</strong>
+          <div className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+            {isComparison ? (
+              <span>Comparing: <strong className="text-purple-600 dark:text-purple-400">{primaryLabel}</strong> vs <strong className="text-emerald-600 dark:text-emerald-400">{compareLabel}</strong></span>
+            ) : (
+              <span>Peak Performance: <strong className="text-emerald-500">{peakRate}%</strong></span>
+            )}
+          </div>
         </div>
+      )}
+
+      {/* Legend & Summary Tally */}
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+        {isComparison ? (
+          <div className="flex items-center gap-4 text-slate-600 dark:text-slate-300">
+            <span className="inline-flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#7B4DFF]" />
+              <strong>{primaryLabel}</strong> ({latestPoint?.rate ?? 0}%)
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#06D6A0]" />
+              <strong>{compareLabel}</strong> ({latestComp?.rate ?? 0}%)
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-4 text-slate-600 dark:text-slate-300">
+            <span className="inline-flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#F21DB4]" />
+              Filed Reports ({latestPoint?.filed ?? 0})
+            </span>
+            <span className="inline-flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#7B4DFF]" />
+              Compliant &amp; Cleared ({latestPoint?.compliant ?? 0})
+            </span>
+          </div>
+        )}
+
+        {!tabs && (
+          <div className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+            Peak Performance: <strong className="text-emerald-500">{peakRate}%</strong>
+          </div>
+        )}
       </div>
 
       {/* SVG Canvas */}
@@ -168,7 +253,7 @@ export default function RealtimeComplianceChart({
           {/* Grid lines */}
           {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
             const y = T + (1 - ratio) * plotH;
-            const val = Math.round(maxVal * ratio);
+            const val = isComparison ? `${Math.round(100 * ratio)}%` : Math.round(maxVal * ratio);
             return (
               <g key={ratio}>
                 <line
@@ -195,30 +280,58 @@ export default function RealtimeComplianceChart({
             );
           })}
 
-          {/* Gradient fills */}
-          {filedArea && <path d={filedArea} fill="url(#filedGradient)" />}
-          {compliantArea && <path d={compliantArea} fill="url(#compliantGradient)" />}
-
-          {/* Curves */}
-          {filedPath && (
-            <path
-              d={filedPath}
-              fill="none"
-              stroke="#F21DB4"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          )}
-          {compliantPath && (
-            <path
-              d={compliantPath}
-              fill="none"
-              stroke="#7B4DFF"
-              strokeWidth="2.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
+          {/* Curves & Areas */}
+          {isComparison ? (
+            <>
+              {/* Primary Rate Curve */}
+              {primaryRatePath && (
+                <path
+                  d={primaryRatePath}
+                  fill="none"
+                  stroke="#7B4DFF"
+                  strokeWidth="2.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )}
+              {/* Compare Rate Curve */}
+              {compRatePath && (
+                <path
+                  d={compRatePath}
+                  fill="none"
+                  stroke="#06D6A0"
+                  strokeWidth="2.8"
+                  strokeDasharray="4 2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )}
+            </>
+          ) : (
+            <>
+              {filedArea && <path d={filedArea} fill="url(#filedGradient)" />}
+              {compliantArea && <path d={compliantArea} fill="url(#compliantGradient)" />}
+              {filedPath && (
+                <path
+                  d={filedPath}
+                  fill="none"
+                  stroke="#F21DB4"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )}
+              {compliantPath && (
+                <path
+                  d={compliantPath}
+                  fill="none"
+                  stroke="#7B4DFF"
+                  strokeWidth="2.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )}
+            </>
           )}
 
           {/* Crosshair on hover */}
@@ -238,16 +351,71 @@ export default function RealtimeComplianceChart({
           {/* Interactive touch/hover points */}
           {points.map((p, i) => {
             const x = xCoord(i);
-            const yCompliant = yCoord(p.compliant);
             const isHovered = hoverIndex === i;
 
+            if (isComparison) {
+              const yPrim = yCoord(p.rate);
+              const yComp = compPoints[i] ? yCoord(compPoints[i].rate) : yPrim;
+
+              return (
+                <g
+                  key={p.month}
+                  className="cursor-pointer"
+                  onMouseEnter={() => setHoverIndex(i)}
+                >
+                  <rect
+                    x={x - plotW / points.length / 2}
+                    y={T}
+                    width={plotW / points.length}
+                    height={plotH}
+                    fill="transparent"
+                  />
+                  {/* Primary dot */}
+                  <circle
+                    cx={x}
+                    cy={yPrim}
+                    r={isHovered ? 5.5 : 3.5}
+                    fill="#7B4DFF"
+                    stroke="#fff"
+                    strokeWidth="2"
+                    className="transition-all duration-200"
+                  />
+                  {/* Comparison dot */}
+                  <circle
+                    cx={x}
+                    cy={yComp}
+                    r={isHovered ? 5.5 : 3.5}
+                    fill="#06D6A0"
+                    stroke="#fff"
+                    strokeWidth="2"
+                    className="transition-all duration-200"
+                  />
+                  {/* X Axis Month Label */}
+                  <text
+                    x={x}
+                    y={H - 12}
+                    textAnchor="middle"
+                    fontSize="10"
+                    fill="currentColor"
+                    className={`font-semibold transition-colors ${
+                      isHovered
+                        ? "text-[#7B4DFF] dark:text-[#CDBBFF]"
+                        : "text-slate-400 dark:text-slate-500"
+                    }`}
+                  >
+                    {p.label}
+                  </text>
+                </g>
+              );
+            }
+
+            const yCompliant = yCoord(p.compliant);
             return (
               <g
                 key={p.month}
                 className="cursor-pointer"
                 onMouseEnter={() => setHoverIndex(i)}
               >
-                {/* Hit area */}
                 <rect
                   x={x - plotW / points.length / 2}
                   y={T}
@@ -255,8 +423,6 @@ export default function RealtimeComplianceChart({
                   height={plotH}
                   fill="transparent"
                 />
-
-                {/* Point circle for compliant */}
                 <circle
                   cx={x}
                   cy={yCompliant}
@@ -266,8 +432,6 @@ export default function RealtimeComplianceChart({
                   strokeWidth="2"
                   className="transition-all duration-200"
                 />
-
-                {/* X Axis Month Label */}
                 <text
                   x={x}
                   y={H - 12}
@@ -294,21 +458,47 @@ export default function RealtimeComplianceChart({
             style={{ left: `${(activeX / W) * 100}%` }}
           >
             <p className="font-bold text-[11px] text-slate-300">{active.label} ({active.month})</p>
-            <div className="mt-1 space-y-0.5">
-              <div className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#F21DB4]" />
-                <span className="text-[11px] text-slate-300">Filed:</span>
-                <strong className="text-white ml-auto">{active.filed}</strong>
+
+            {isComparison ? (
+              <div className="mt-1 space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#7B4DFF]" />
+                  <span className="text-[11px] text-slate-300">{primaryLabel}:</span>
+                  <strong className="text-white ml-auto">{active.rate}%</strong>
+                </div>
+                {activeComp && (
+                  <div className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#06D6A0]" />
+                    <span className="text-[11px] text-slate-300">{compareLabel}:</span>
+                    <strong className="text-[#84DEBD] ml-auto">{activeComp.rate}%</strong>
+                  </div>
+                )}
+                {activeComp && (
+                  <div className="border-t border-white/10 pt-1 mt-1 text-[10px] text-slate-300 flex items-center justify-between">
+                    <span>Performance Gap:</span>
+                    <span className={activeComp.rate >= active.rate ? "text-emerald-400 font-bold" : "text-amber-400 font-bold"}>
+                      {activeComp.rate >= active.rate ? `+${(activeComp.rate - active.rate).toFixed(1)}%` : `${(activeComp.rate - active.rate).toFixed(1)}%`}
+                    </span>
+                  </div>
+                )}
               </div>
-              <div className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#7B4DFF]" />
-                <span className="text-[11px] text-slate-300">Compliant:</span>
-                <strong className="text-[#84DEBD] ml-auto">{active.compliant}</strong>
+            ) : (
+              <div className="mt-1 space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#F21DB4]" />
+                  <span className="text-[11px] text-slate-300">Filed:</span>
+                  <strong className="text-white ml-auto">{active.filed}</strong>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#7B4DFF]" />
+                  <span className="text-[11px] text-slate-300">Compliant:</span>
+                  <strong className="text-[#84DEBD] ml-auto">{active.compliant}</strong>
+                </div>
+                <div className="border-t border-white/10 pt-1 mt-1 text-[11px] font-semibold text-amber-300">
+                  Compliance: {active.rate}%
+                </div>
               </div>
-              <div className="border-t border-white/10 pt-1 mt-1 text-[11px] font-semibold text-amber-300">
-                Compliance: {active.rate}%
-              </div>
-            </div>
+            )}
           </div>
         )}
       </div>

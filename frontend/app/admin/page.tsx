@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { useApi } from "@/hooks/useApi";
 import { useFetch } from "@/hooks/useFetch";
+import RealtimeAnalyticsSection from "@/components/RealtimeAnalyticsSection";
 
 interface Summary {
   total_barangays: number;
@@ -136,6 +137,11 @@ export default function SupervisorAdminHome() {
           </div>
         </section>
       )}
+
+      {/* ── Real‑Time Analytics ── */}
+      <section aria-label="Supervisor real‑time analytics">
+        <RealtimeAnalyticsSection actionHref="/borms/reports" actionLabel="Inspect active reports" />
+      </section>
 
       {/* ── Sub-systems Selection ── */}
       <section aria-labelledby="subsystems-heading" className="space-y-4">

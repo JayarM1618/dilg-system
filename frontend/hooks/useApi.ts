@@ -20,10 +20,10 @@ interface UseApiResult<T> {
  * Pass `{ pollInterval: 8000 }` for real-time live telemetry auto-refresh.
  * Call `retry()` to refetch after an error.
  */
-export function useApi<T>(path: string, options: UseApiOptions = {}): UseApiResult<T> {
+export function useApi<T>(path: string | null, options: UseApiOptions = {}): UseApiResult<T> {
   const { pollInterval } = options;
   const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(path !== null);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
@@ -31,6 +31,7 @@ export function useApi<T>(path: string, options: UseApiOptions = {}): UseApiResu
 
   const fetchData = useCallback(
     async (isBackground = false) => {
+      if (path === null) return;
       if (typeof document !== "undefined" && document.visibilityState === "hidden") {
         return;
       }
@@ -40,7 +41,7 @@ export function useApi<T>(path: string, options: UseApiOptions = {}): UseApiResu
       }
 
       try {
-        const res = await api.get<T>(path);
+        const res = await api.get<T>(path, { silent401: true });
         setData(res);
         setError(null);
         setLastUpdated(new Date());
@@ -65,7 +66,7 @@ export function useApi<T>(path: string, options: UseApiOptions = {}): UseApiResu
 
   // Real-time polling when pollInterval is specified
   useEffect(() => {
-    if (!pollInterval || pollInterval <= 0) return;
+    if (!path || !pollInterval || pollInterval <= 0) return;
 
     const interval = setInterval(() => {
       fetchData(true);
@@ -83,7 +84,7 @@ export function useApi<T>(path: string, options: UseApiOptions = {}): UseApiResu
       clearInterval(interval);
       document.removeEventListener("visibilitychange", onVisibilityChange);
     };
-  }, [fetchData, pollInterval]);
+  }, [fetchData, path, pollInterval]);
 
   const retry = useCallback(() => {
     setLoading(true);
@@ -91,5 +92,5 @@ export function useApi<T>(path: string, options: UseApiOptions = {}): UseApiResu
     setAttempt((n) => n + 1);
   }, []);
 
-  return { data, loading, error, retry, lastUpdated };
+  return { data, loading: path === null ? false : loading, error, retry, lastUpdated };
 }

@@ -71,7 +71,7 @@ class PublicController extends Controller
             'pending' => $pending,
             'non_compliant' => $nonCompliant,
             'overdue' => $overdue,
-            'compliance_rate' => $total > 0 ? round(($compliant / $total) * 100, 1) : 100,
+            'compliance_rate' => $total > 0 ? round(($compliant / $total) * 100, 1) : 0,
             'total_barangays' => $barangaysCount,
             'monthly_trend' => $months,
             'updated_at' => now()->toIso8601String(),

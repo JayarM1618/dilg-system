@@ -4,6 +4,7 @@ import { useRef, useState, type FormEvent } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useFetch } from "@/hooks/useFetch";
 import { apiSend, apiUrl } from "@/lib/http";
+import { useConfirm } from "@/components/ConfirmModal";
 import ThreeRsTabs from "./ThreeRsTabs";
 import {
   Notice,
@@ -476,6 +477,7 @@ function DocumentRow({
   onFlash: (f: Flash) => void;
   onDone: () => void;
 }) {
+  const confirmModal = useConfirm();
   const [busy, setBusy] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
 
@@ -493,7 +495,8 @@ function DocumentRow({
   }
 
   async function handleDelete() {
-    if (!confirm(`Permanently delete "${doc.title}"? This cannot be undone.`)) return;
+    const ok = await confirmModal(`Permanently delete "${doc.title}"? This cannot be undone.`);
+    if (!ok) return;
     setBusy(true);
     try {
       await apiSend(`/api/repository/${doc.id}`, "DELETE", {});

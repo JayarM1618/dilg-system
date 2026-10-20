@@ -413,15 +413,21 @@ export default function ChooserPage() {
 
               <div className="mt-4 pt-4 border-t border-slate-100 dark:border-white/10 space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
                 <div className="flex items-start gap-2">
-                  <span className="text-[#06D6A0] font-bold">&check;</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#06D6A0] mt-0.5 shrink-0">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
                   <span>End-to-end audit compliance pursuant to R.A. 7160</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="text-[#06D6A0] font-bold">&check;</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#06D6A0] mt-0.5 shrink-0">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
                   <span>Direct submission pipeline with validation remarks</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="text-[#06D6A0] font-bold">&check;</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#06D6A0] mt-0.5 shrink-0">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
                   <span>Real-time compliance dashboard for citywide tracking</span>
                 </div>
               </div>
@@ -636,7 +642,7 @@ function BarangayRepLanding({
               pending={pendingCount}
               nonCompliant={fixCount}
               complianceRate={compliantPct}
-              title="Current Period Tally"
+              title="Compliance Status Overview"
               subtitle="Progress toward compliance clearance"
               actionHref="/borms"
               actionLabel="Inspect active reports"

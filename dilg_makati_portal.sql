@@ -363,7 +363,6 @@ INSERT INTO `barangays` (`id`, `name`, `code`, `is_active`, `created_at`, `updat
   (17, 'Pinagkaisahan', 'BGY-017', 1, '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
   (18, 'Pio del Pilar', 'BGY-018', 1, '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
   (20, 'Poblacion', 'BGY-020', 1, '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
-  (23, 'Rizal', 'BGY-023', 1, '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
   (24, 'San Antonio', 'BGY-024', 1, '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
   (25, 'San Isidro', 'BGY-025', 1, '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
   (26, 'San Lorenzo', 'BGY-026', 1, '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
@@ -387,7 +386,6 @@ INSERT INTO `users` (`id`, `name`, `email`, `role`, `barangay_id`, `is_active`, 
   (2, 'DILG Makati Supervisor', 'supervisor@dilg.gov.ph', 'office_supervisor', NULL, 1, '2026-09-30 09:00:00', '2026-09-30 09:00:00', '2026-09-30 09:00:00', '$2y$12$k65lFAfAwNhrHo3MUyW6R.JsI6u0s25IXzyOXy9/swLbKRwUUs4Re', '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
   (3, 'Bangkal Barangay Representative', 'rep.bangkal@barangay.test', 'barangay_rep', 1, 1, '2026-09-30 09:00:00', '2026-09-30 09:00:00', '2026-09-30 09:00:00', '$2y$12$k65lFAfAwNhrHo3MUyW6R.JsI6u0s25IXzyOXy9/swLbKRwUUs4Re', '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
   (4, 'Poblacion Barangay Representative', 'rep.poblacion@barangay.test', 'barangay_rep', 20, 1, '2026-09-30 09:00:00', '2026-09-30 09:00:00', '2026-09-30 09:00:00', '$2y$12$k65lFAfAwNhrHo3MUyW6R.JsI6u0s25IXzyOXy9/swLbKRwUUs4Re', '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
-  (5, 'Rizal Barangay Representative', 'rep.rizal@barangay.test', 'barangay_rep', 23, 1, '2026-09-30 09:00:00', '2026-09-30 09:00:00', '2026-09-30 09:00:00', '$2y$12$k65lFAfAwNhrHo3MUyW6R.JsI6u0s25IXzyOXy9/swLbKRwUUs4Re', '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
   (7, 'San Antonio Barangay Representative', 'rep.san.antonio@barangay.test', 'barangay_rep', 24, 1, '2026-09-30 09:00:00', '2026-09-30 09:00:00', '2026-09-30 09:00:00', '$2y$12$k65lFAfAwNhrHo3MUyW6R.JsI6u0s25IXzyOXy9/swLbKRwUUs4Re', '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
   (9, 'Ron Suarez', 'orangeezz50805@gmail.com', 'office_supervisor', NULL, 1, '2026-10-12 17:00:19', '2026-10-12 17:01:41', '2026-10-12 17:01:41', '$2y$12$p/itb1ADoHvMDaImEs9lSOw9d7mb8FSGsDFrgj.fggfHQN6.avEES', '2026-10-12 17:00:12', '2026-10-14 18:37:05');
 
@@ -481,7 +479,6 @@ INSERT INTO `security_incidents` (`id`, `reported_by`, `type`, `severity`, `desc
 UPDATE `barangays` SET `about` = 'A residential and commercial barangay in the heart of Makati. The barangay hall serves residents with certificates, clearances and community programs.', `hall_address` = 'Barangay Hall, Bangkal, Makati City', `office_hours` = 'Monday to Friday, 8:00 AM to 5:00 PM' WHERE `id` = 1;
 UPDATE `barangays` SET `about` = 'A residential barangay known for its tree-lined streets. The barangay focuses on safety, cleanliness and neighbourhood programs.', `hall_address` = 'Barangay Hall, Bel-Air, Makati City', `office_hours` = 'Monday to Friday, 8:00 AM to 5:00 PM' WHERE `id` = 2;
 UPDATE `barangays` SET `about` = 'A busy mixed-use barangay with shops, restaurants and homes. The barangay supports small businesses and keeps the community safe.', `hall_address` = 'Barangay Hall, Poblacion, Makati City', `office_hours` = 'Monday to Friday, 8:00 AM to 5:00 PM' WHERE `id` = 20;
-UPDATE `barangays` SET `about` = 'A residential barangay with a close-knit community. Programs focus on senior citizens, youth and the environment.', `hall_address` = 'Barangay Hall, Rizal, Makati City', `office_hours` = 'Monday to Friday, 8:00 AM to 5:00 PM' WHERE `id` = 23;
 UPDATE `barangays` SET `about` = 'A residential barangay offering skills training and disaster preparedness for its families.', `hall_address` = 'Barangay Hall, San Antonio, Makati City', `office_hours` = 'Monday to Friday, 8:00 AM to 5:00 PM' WHERE `id` = 24;
 
 INSERT INTO `barangay_announcements` (`id`, `barangay_id`, `title`, `body`, `is_pinned`, `published_at`, `created_by`, `created_at`, `updated_at`) VALUES
@@ -505,8 +502,6 @@ INSERT INTO `barangay_programs` (`id`, `barangay_id`, `kind`, `title`, `descript
   (6, 20, 'event', 'Business Permit Renewal Desk', 'Extended desk for business clearance renewals.', 'social_services', 'Poblacion Barangay Hall', '2026-10-14 01:00:00', '2026-10-14 09:00:00', NULL, 4, '2026-10-09 10:00:00', '2026-10-09 10:00:00'),
   (7, 20, 'event', 'Peace and Order Dialogue', 'Residents and tanod meet to discuss safety concerns.', 'peace_and_order', 'Poblacion Barangay Hall', '2026-10-27 07:00:00', '2026-10-27 09:00:00', NULL, 4, '2026-10-09 10:00:00', '2026-10-09 10:00:00'),
   (8, 20, 'event', 'Christmas Tree Lighting', 'Community program with music and food stalls.', 'other', 'Poblacion Plaza', '2026-11-30 10:00:00', '2026-11-30 13:00:00', NULL, 4, '2026-10-09 10:00:00', '2026-10-09 10:00:00'),
-  (9, 23, 'event', 'Senior Citizens Pension Orientation', 'Learn how to claim pension and other benefits.', 'social_services', 'Rizal Barangay Hall', '2026-10-17 02:00:00', '2026-10-17 05:00:00', NULL, 5, '2026-10-09 10:00:00', '2026-10-09 10:00:00'),
-  (10, 23, 'event', 'Tree Planting Activity', 'Volunteers welcome. Seedlings provided.', 'environment', 'Rizal Riverside', '2026-10-29 23:00:00', '2026-10-30 03:00:00', NULL, 5, '2026-10-09 10:00:00', '2026-10-09 10:00:00'),
   (11, 24, 'event', 'Livelihood Training: Food Processing', 'Hands-on training. Limited slots, register early.', 'livelihood', 'San Antonio Barangay Hall', '2026-10-20 01:00:00', '2026-10-20 07:00:00', NULL, 7, '2026-10-09 10:00:00', '2026-10-09 10:00:00'),
   (12, 24, 'event', 'Disaster Preparedness Drill', 'Earthquake and fire drill for all households.', 'peace_and_order', 'San Antonio Covered Court', '2026-11-03 01:00:00', '2026-11-03 04:00:00', NULL, 7, '2026-10-09 10:00:00', '2026-10-09 10:00:00'),
   (13, 1, 'program', 'Feeding Program', 'Weekly supplemental feeding for children of the barangay.', 'health', NULL, NULL, NULL, 'Every Saturday, 8 AM to 11 AM', 3, '2026-10-09 10:00:00', '2026-10-09 10:00:00'),
@@ -514,8 +509,6 @@ INSERT INTO `barangay_programs` (`id`, `barangay_id`, `kind`, `title`, `descript
   (15, 2, 'program', 'Senior Citizen Wellness Hour', 'Light exercise and blood pressure checks for seniors.', 'health', NULL, NULL, NULL, 'Every Tuesday, 9 AM', NULL, '2026-10-09 10:00:00', '2026-10-09 10:00:00'),
   (16, 20, 'program', 'Livelihood Bazaar', 'A place for residents to sell homemade products.', 'livelihood', NULL, NULL, NULL, 'Every Friday, 3 PM', 4, '2026-10-09 10:00:00', '2026-10-09 10:00:00'),
   (17, 20, 'program', 'Barangay Legal Aid Desk', 'Free legal advice for residents.', 'social_services', NULL, NULL, NULL, 'Monday to Friday, 1 PM to 4 PM', 4, '2026-10-09 10:00:00', '2026-10-09 10:00:00'),
-  (18, 23, 'program', 'Youth Tutorial Sessions', 'Free tutoring for elementary and high school students.', 'education', NULL, NULL, NULL, 'Every Wednesday, 4 PM', 5, '2026-10-09 10:00:00', '2026-10-09 10:00:00'),
-  (19, 23, 'program', 'Zumba for Health', 'Free community exercise session.', 'sports_youth', NULL, NULL, NULL, 'Monday, Wednesday and Friday, 5:30 AM', 5, '2026-10-09 10:00:00', '2026-10-09 10:00:00'),
   (20, 24, 'program', 'Skills Training Center', 'Short courses in cooking, sewing and basic electrical work.', 'livelihood', NULL, NULL, NULL, 'Weekdays, 9 AM to 3 PM', 7, '2026-10-09 10:00:00', '2026-10-09 10:00:00'),
   (21, 24, 'program', 'Solid Waste Segregation Drive', 'Sort your waste to keep San Antonio clean.', 'environment', NULL, NULL, NULL, 'Collection every Thursday', 7, '2026-10-09 10:00:00', '2026-10-09 10:00:00');
 
@@ -524,8 +517,6 @@ INSERT INTO `barangay_programs` (`id`, `barangay_id`, `kind`, `title`, `descript
 -- ---------------------------------------------------------------------
 INSERT INTO `activity_logs` (`user_id`, `action`, `subject_type`, `subject_id`, `meta`, `ip_address`, `created_at`, `updated_at`) VALUES
   (1, 'user.login', NULL, NULL, '[]', '127.0.0.1', '2026-10-05 01:10:00', '2026-10-05 01:10:00'),
-  (1, 'account.created', NULL, NULL, '{"email": "rep.rizal@barangay.test", "role": "barangay_rep", "barangay_id": 23}', '127.0.0.1', '2026-10-05 01:20:00', '2026-10-05 01:20:00'),
-  (5, 'account.activated', NULL, NULL, '{"email": "rep.rizal@barangay.test"}', '127.0.0.1', '2026-10-05 02:00:00', '2026-10-05 02:00:00'),
   (3, 'user.login', NULL, NULL, '[]', '127.0.0.1', '2026-10-06 00:30:00', '2026-10-06 00:30:00'),
   (3, 'barangay.announcement.created', NULL, NULL, '{"barangay_id": 1, "title": "Barangay Assembly this month"}', '127.0.0.1', '2026-10-07 02:00:00', '2026-10-07 02:00:00'),
   (3, 'barangay.program.created', NULL, NULL, '{"barangay_id": 1, "kind": "event", "title": "Medical and Dental Mission"}', '127.0.0.1', '2026-10-07 02:15:00', '2026-10-07 02:15:00'),
@@ -535,8 +526,7 @@ INSERT INTO `activity_logs` (`user_id`, `action`, `subject_type`, `subject_id`, 
   (4, 'barangay.announcement.created', NULL, NULL, '{"barangay_id": 20, "title": "Night market schedule"}', '127.0.0.1', '2026-10-08 03:20:00', '2026-10-08 03:20:00'),
   (1, 'resource.uploaded', NULL, NULL, '{"version": 1}', '127.0.0.1', '2026-10-09 02:00:00', '2026-10-09 02:00:00'),
   (7, 'user.login', NULL, NULL, '[]', '127.0.0.1', '2026-10-09 04:00:00', '2026-10-09 04:00:00'),
-  (7, 'barangay.program.created', NULL, NULL, '{"barangay_id": 24, "kind": "program", "title": "Skills Training Center"}', '127.0.0.1', '2026-10-09 04:10:00', '2026-10-09 04:10:00'),
-  (5, 'security_incident.reported', NULL, NULL, '{"severity": "low"}', '127.0.0.1', '2026-10-10 01:00:00', '2026-10-10 01:00:00');
+  (7, 'barangay.program.created', NULL, NULL, '{"barangay_id": 24, "kind": "program", "title": "Skills Training Center"}', '127.0.0.1', '2026-10-09 04:10:00', '2026-10-09 04:10:00');
 
 -- ---------------------------------------------------------------------
 --  Demo requirements data (DILG supervisor → barangays compliance flow)

@@ -103,7 +103,7 @@ class ResourceController extends Controller
             'resource.new',
             "New {$typeLabel}: {$resource->title}",
             "Version {$resource->version} is now available in the Resources library.",
-            '/user/resources',
+            '/borms/resources',
             $request->user(),
         );
 

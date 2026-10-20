@@ -214,7 +214,7 @@ class RepositoryController extends Controller
                     'repository.new',
                     "New document: {$document->title}",
                     'A new document has been added to the Repository.',
-                    '/user/repository',
+                    '/borms/repository',
                     $user,
                 );
             } elseif ($accessLevel === 'barangay' && $barangayId) {
@@ -223,7 +223,7 @@ class RepositoryController extends Controller
                     'repository.new',
                     "New document: {$document->title}",
                     'A new document has been shared with your barangay.',
-                    '/user/repository',
+                    '/borms/repository',
                     $user,
                 );
             }
@@ -234,7 +234,7 @@ class RepositoryController extends Controller
                 'repository.new',
                 "New document from Brgy. {$bName}",
                 "\"{$document->title}\" was uploaded to the Repository.",
-                '/admin/repository',
+                '/borms/repository',
                 $user,
             );
         }

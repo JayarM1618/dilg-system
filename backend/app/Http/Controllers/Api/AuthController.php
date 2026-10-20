@@ -77,7 +77,10 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        ActivityLog::record('user.logout', $request->user());
+        $user = $request->user() ?? auth('sanctum')->user();
+        if ($user) {
+            ActivityLog::record('user.logout', $user);
+        }
 
         Auth::guard('web')->logout();
         if ($request->hasSession()) {

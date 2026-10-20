@@ -22,17 +22,20 @@ export default function RealtimePeriodTally({
   pending,
   nonCompliant,
   complianceRate,
-  title = "Current Period Tally",
+  title = "Compliance Status Overview",
   subtitle = "Progress toward compliance clearance",
-  actionHref = "/user",
+  actionHref = "/borms/reports",
   actionLabel = "Inspect active reports",
 }: RealtimePeriodTallyProps) {
-  // Proportions for concentric rings (clamped 0 to 1)
-  const safeTotal = Math.max(1, total);
   const filedCount = compliant + underReview;
-  const filedPct = Math.min(1, Math.max(0.08, filedCount / safeTotal));
-  const reviewPct = Math.min(1, Math.max(0.08, underReview / safeTotal));
-  const compliantPct = Math.min(1, Math.max(0.08, compliant / safeTotal));
+
+  // Proportions for concentric rings (clamped 0 to 1; 0 when total or count is 0)
+  const filedPct = total > 0 && filedCount > 0 ? Math.min(1, Math.max(0.04, filedCount / total)) : 0;
+  const reviewPct = total > 0 && underReview > 0 ? Math.min(1, Math.max(0.04, underReview / total)) : 0;
+  const compliantPct = total > 0 && compliant > 0 ? Math.min(1, Math.max(0.04, compliant / total)) : 0;
+
+  // Effective display rate: if total is 0, show 0%
+  const displayRate = total > 0 ? Math.round(complianceRate) : 0;
 
   // Concentric ring radii and circumferences
   const rOuter = 46;
@@ -55,7 +58,7 @@ export default function RealtimePeriodTally({
           </div>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-50 dark:bg-[#2C2145] px-2.5 py-1 text-xs font-semibold text-[#7B4DFF] dark:text-[#CDBBFF] border border-[#7B4DFF]/20">
             <span className="h-1.5 w-1.5 rounded-full bg-[#7B4DFF] animate-pulse" />
-            Live Tally
+            Live Status
           </span>
         </div>
 
@@ -148,7 +151,7 @@ export default function RealtimePeriodTally({
             {/* Center Rate Text */}
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
               <span className="text-base font-black tracking-tight text-slate-900 dark:text-white">
-                {Math.round(complianceRate)}%
+                {displayRate}%
               </span>
               <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                 Rate
@@ -161,7 +164,9 @@ export default function RealtimePeriodTally({
       {/* Bottom Sub-footer */}
       <div className="mt-6 flex items-center justify-between border-t border-slate-100 dark:border-white/5 pt-4 text-xs">
         <span className="text-slate-500 dark:text-slate-400 font-medium">
-          {total > 0 ? `${compliant} compliant &bull; ${pending} pending filing` : "100% compliant"}
+          {total > 0
+            ? `${compliant} compliant • ${pending} pending filing`
+            : "No active submissions recorded"}
         </span>
         <Link
           href={actionHref}

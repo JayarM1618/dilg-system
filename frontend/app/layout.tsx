@@ -23,6 +23,7 @@ export const metadata: Metadata = {
 
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { ConfirmProvider } from "@/components/ConfirmModal";
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
@@ -44,8 +45,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           defaultTheme="system"
           enableSystem
         >
-          {children}
-          <ThemeToggle />
+          <ConfirmProvider>
+            {children}
+            <ThemeToggle />
+          </ConfirmProvider>
         </ThemeProvider>
       </body>
     </html>

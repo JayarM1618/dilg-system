@@ -81,14 +81,14 @@ export default function BagwisDashboard() {
   const userBarangayId = user?.barangay_id;
 
   // Real-time city-level endpoints
-  const grid = useApi<{ data: TalaghayanRow[] }>("/api/dashboard/talaghayan", { pollInterval: 8000 });
-  const totals = useApi<Summary>("/api/dashboard/summary", { pollInterval: 8000 });
-  const periods = useFetch<{ data: Period[] }>("/api/reports/periods");
+  const grid = useApi<{ data: TalaghayanRow[] }>(user ? "/api/dashboard/talaghayan" : null, { pollInterval: 8000 });
+  const totals = useApi<Summary>(user ? "/api/dashboard/summary" : null, { pollInterval: 8000 });
+  const periods = useFetch<{ data: Period[] }>(user ? "/api/reports/periods" : null);
 
   const qs = selectedPeriod ? `?period_label=${encodeURIComponent(selectedPeriod)}` : "";
-  const compliance = useFetch<ComplianceReportData>(`/api/reports/compliance${qs}`, { pollInterval: 10000 });
-  const security = useFetch<SecuritySummary>("/api/reports/security", { pollInterval: 12000 });
-  const incidents = useFetch<{ data: SecurityIncident[] }>("/api/security-incidents", { pollInterval: 15000 });
+  const compliance = useFetch<ComplianceReportData>(user ? `/api/reports/compliance${qs}` : null, { pollInterval: 10000 });
+  const security = useFetch<SecuritySummary>(user ? "/api/reports/security" : null, { pollInterval: 12000 });
+  const incidents = useFetch<{ data: SecurityIncident[] }>(user ? "/api/security-incidents" : null, { pollInterval: 15000 });
 
   const rows = grid.data?.data ?? [];
   const summary = totals.data;

@@ -221,7 +221,7 @@ class RequirementController extends Controller
             'requirement.new',
             "New {$kindLabel} from DILG",
             "\"{$requirement->title}\"{$due}",
-            '/user/requirements',
+            '/borms/requirements',
             $request->user(),
         );
 
@@ -324,7 +324,7 @@ class RequirementController extends Controller
             'requirement.responded',
             "Barangay {$bName} responded",
             "Response submitted for \"{$requirement->title}\"",
-            '/admin/requirements',
+            '/borms/requirements',
             $request->user(),
         );
 
@@ -365,7 +365,7 @@ class RequirementController extends Controller
             'requirement.reviewed',
             "Requirement marked: {$label}",
             "Your response to \"{$requirement->title}\" was reviewed" . ($data['decision'] === 'revision' ? '. Please check the notes and resubmit.' : '.'),
-            '/user/requirements',
+            '/borms/requirements',
             $request->user(),
         );
 
