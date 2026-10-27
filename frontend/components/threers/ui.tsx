@@ -93,9 +93,33 @@ export function Pager({
 }
 
 export const TYPE_LABEL: Record<string, string> = {
-  template: "Report templates",
+  template: "Report Templates",
   guideline: "Guidelines",
   sop: "Procedures (SOP)",
-  security_advisory: "Security advisories",
+  toolkit: "Toolkits & Manuals",
+  citizen_chart: "Makati Citizen Charts",
+  drive_link: "Google Drive Links",
+  security_advisory: "Security Advisories",
   other: "Other",
+};
+
+export const RESOURCE_GROUP_LABEL: Record<string, string> = {
+  standard_formats: "Standard Formats & Templates",
+  sectoral_toolkits: "Sectoral Toolkits & Reference Manuals",
+  citizen_charts: "Makati Citizen Charts",
+  drive_links: "Google Drive Files Link",
+};
+
+export const CYCLE_LABEL: Record<string, string> = {
+  weekly: "Weekly",
+  monthly: "Monthly",
+  quarterly: "Quarterly",
+  semestral: "Semestral",
+  annual: "Annual",
+};
+
+export const SECTOR_ICON: Record<string, string> = {
+  Barangay: "🏘️",
+  SK: "🧑‍🤝‍🧑",
+  "Brgy / SK": "🏛️",
 };

@@ -1,6 +1,7 @@
 "use client";
 
 import { useApi } from "@/hooks/useApi";
+import { useAuth } from "@/hooks/useAuth";
 import type { TalaghayanRow } from "@/types";
 import StatusBadge from "@/components/StatusBadge";
 import ThreeRsTabs from "@/components/threers/ThreeRsTabs";
@@ -14,8 +15,9 @@ interface Summary {
 }
 
 export default function TalaghayanBoard() {
-  const grid = useApi<{ data: TalaghayanRow[] }>("/api/dashboard/talaghayan", { pollInterval: 8000 });
-  const totals = useApi<Summary>("/api/dashboard/summary", { pollInterval: 8000 });
+  const { user } = useAuth();
+  const grid = useApi<{ data: TalaghayanRow[] }>(user ? "/api/dashboard/talaghayan" : null, { pollInterval: 8000 });
+  const totals = useApi<Summary>(user ? "/api/dashboard/summary" : null, { pollInterval: 8000 });
 
   const rows = grid.data?.data ?? [];
   const summary = totals.data;

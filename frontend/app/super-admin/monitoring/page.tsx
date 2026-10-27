@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { api, ApiError } from "@/lib/api";
 import { useApi } from "@/hooks/useApi";
+import { useAuth } from "@/hooks/useAuth";
 
 /* ---------- types (shape of Laravel's /api/monitoring/* responses) ---------- */
 
@@ -93,7 +94,8 @@ function ago(iso: string | null): string {
 }
 
 export default function MonitoringPage() {
-  const summary = useApi<Summary>("/api/monitoring/summary", { pollInterval: 8000 });
+  const { user } = useAuth();
+  const summary = useApi<Summary>(user ? "/api/monitoring/summary" : null, { pollInterval: 8000 });
 
   const [role, setRole] = useState("");
   const [group, setGroup] = useState("");

@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, useRef, type FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Poppins } from "next/font/google";
 import BrandMark from "@/components/BrandMark";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth, type TwoFactorChallenge } from "@/hooks/useAuth";
 import { ApiError } from "@/lib/api";
 import { homeFor } from "@/lib/roles";
 
@@ -53,14 +53,23 @@ const SYSTEM_MODULES = [
 ];
 
 export default function LoginPage() {
-  const { user, loading, login } = useAuth();
+  const { user, loading, login, verifyTwoFactor } = useAuth();
   const router = useRouter();
 
+  // Step 1: credentials
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Step 2: TOTP verification
+  const [twoFactorChallenge, setTwoFactorChallenge] = useState<TwoFactorChallenge | null>(null);
+  const [totpCode, setTotpCode] = useState(["", "", "", "", "", ""]);
+  const [useRecoveryCode, setUseRecoveryCode] = useState(false);
+  const [recoveryCode, setRecoveryCode] = useState("");
+  const [verifying2FA, setVerifying2FA] = useState(false);
+  const totpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -75,19 +84,250 @@ export default function LoginPage() {
     if (!loading && user) router.replace(homeFor(user.role));
   }, [loading, user, router]);
 
+  // Auto-focus first TOTP input when step 2 appears
+  useEffect(() => {
+    if (twoFactorChallenge && !useRecoveryCode) {
+      setTimeout(() => totpRefs.current[0]?.focus(), 100);
+    }
+  }, [twoFactorChallenge, useRecoveryCode]);
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
 
     try {
-      await login(email.trim(), password);
+      const result = await login(email.trim(), password);
+      // If 2FA required, show the code entry step
+      if ("requires_2fa" in result && result.requires_2fa) {
+        setTwoFactorChallenge(result);
+        setSubmitting(false);
+        return;
+      }
+      // Otherwise login() already redirected
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Invalid credentials. Please verify and try again.");
       setSubmitting(false);
     }
   }
 
+  function handleTotpInput(index: number, value: string) {
+    if (!/^\d*$/.test(value)) return; // digits only
+    const newCode = [...totpCode];
+    newCode[index] = value.slice(-1); // single digit
+    setTotpCode(newCode);
+
+    // Auto-advance to next input
+    if (value && index < 5) {
+      totpRefs.current[index + 1]?.focus();
+    }
+
+    // Auto-submit when all 6 digits entered
+    if (newCode.every((d) => d !== "") && newCode.join("").length === 6) {
+      handleVerify2FA(newCode.join(""));
+    }
+  }
+
+  function handleTotpKeyDown(index: number, key: string) {
+    if (key === "Backspace" && !totpCode[index] && index > 0) {
+      totpRefs.current[index - 1]?.focus();
+    }
+  }
+
+  function handleTotpPaste(e: React.ClipboardEvent) {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (!pasted) return;
+    const newCode = [...totpCode];
+    for (let i = 0; i < 6; i++) {
+      newCode[i] = pasted[i] || "";
+    }
+    setTotpCode(newCode);
+    if (pasted.length === 6) {
+      handleVerify2FA(pasted);
+    } else {
+      totpRefs.current[pasted.length]?.focus();
+    }
+  }
+
+  async function handleVerify2FA(code?: string) {
+    if (!twoFactorChallenge) return;
+    setError(null);
+    setVerifying2FA(true);
+
+    const finalCode = code || (useRecoveryCode ? recoveryCode.trim() : totpCode.join(""));
+
+    if (!finalCode || (!useRecoveryCode && finalCode.length !== 6)) {
+      setError("Please enter a valid 6-digit code.");
+      setVerifying2FA(false);
+      return;
+    }
+
+    try {
+      await verifyTwoFactor(twoFactorChallenge.user_id, finalCode);
+      // verifyTwoFactor redirects on success
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Invalid verification code. Please try again.");
+      setTotpCode(["", "", "", "", "", ""]);
+      totpRefs.current[0]?.focus();
+      setVerifying2FA(false);
+    }
+  }
+
+  // ── RENDER: 2FA Code Entry Step ──
+  if (twoFactorChallenge) {
+    return (
+      <div className={`${poppins.className} min-h-screen w-full bg-slate-50 dark:bg-[#0E0A17] text-slate-800 dark:text-[#E9DFFF] transition-colors duration-500 ease-out flex flex-col`}>
+        <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden">
+          <div className="absolute -left-40 top-0 h-[40rem] w-[40rem] rounded-full bg-[#E6FBF3]/40 blur-3xl dark:bg-[#06D6A0]/10" />
+          <div className="absolute right-0 top-40 h-[40rem] w-[40rem] rounded-full bg-[#F3EDFE]/40 blur-3xl dark:bg-[#7B4DFF]/15" />
+        </div>
+
+        <header className="relative z-20 w-full border-b border-slate-200 dark:border-white/10 bg-white/80 dark:bg-[#150F22]/85 backdrop-blur-2xl">
+          <div className="w-full flex items-center justify-between px-4 sm:px-8 lg:px-12 py-3.5 sm:py-4">
+            <div className="flex items-center gap-3">
+              <BrandMark tone="dark" />
+              <span className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-slate-100 dark:bg-white/10 px-3 py-1 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#06D6A0]" />
+                Two-Factor Authentication
+              </span>
+            </div>
+          </div>
+        </header>
+
+        <main className="relative z-10 flex-1 flex items-center justify-center px-4 py-12">
+          <div className="w-full max-w-md rounded-3xl bg-white dark:bg-[#171126] border border-slate-200 dark:border-white/10 p-7 sm:p-9 shadow-2xl shadow-purple-950/10 dark:shadow-black/60">
+            {/* Header */}
+            <div className="text-center mb-6">
+              <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-[#F1EBFF] dark:bg-[#2C2145] text-[#7B4DFF] dark:text-[#CDBBFF] mb-4">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  <path d="M9 12l2 2 4-4" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                Two-Factor Verification
+              </h2>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                {useRecoveryCode
+                  ? "Enter one of your recovery codes"
+                  : "Enter the 6-digit code from your authenticator app"}
+              </p>
+            </div>
+
+            {!useRecoveryCode ? (
+              <>
+                {/* TOTP Code Input — 6 boxes */}
+                <div className="flex justify-center gap-2 mb-4" onPaste={handleTotpPaste}>
+                  {totpCode.map((digit, i) => (
+                    <input
+                      key={i}
+                      ref={(el) => { totpRefs.current[i] = el; }}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={digit}
+                      onChange={(e) => handleTotpInput(i, e.target.value)}
+                      onKeyDown={(e) => handleTotpKeyDown(i, e.key)}
+                      className={`w-12 h-14 text-center text-xl font-bold rounded-xl bg-slate-50 dark:bg-[#201833] text-slate-900 dark:text-white outline-none ring-1 ring-slate-200 dark:ring-white/10 transition focus:ring-2 focus:ring-[#7B4DFF] ${focusRing}`}
+                      aria-label={`Digit ${i + 1}`}
+                      autoComplete="one-time-code"
+                      disabled={verifying2FA}
+                    />
+                  ))}
+                </div>
+
+                <p className="text-center text-xs text-slate-400 dark:text-slate-500 mb-6">
+                  Open your authenticator app (Google Authenticator, Authy, etc.) and enter the current code.
+                </p>
+              </>
+            ) : (
+              /* Recovery code input */
+              <div className="mb-6">
+                <input
+                  type="text"
+                  value={recoveryCode}
+                  onChange={(e) => setRecoveryCode(e.target.value)}
+                  placeholder="Enter recovery code"
+                  className={`w-full rounded-xl bg-slate-50 dark:bg-[#201833] py-3 px-4 text-sm text-slate-900 dark:text-white outline-none ring-1 ring-slate-200 dark:ring-white/10 transition placeholder:text-slate-400 focus:ring-2 focus:ring-[#7B4DFF] font-mono tracking-widest text-center ${focusRing}`}
+                  disabled={verifying2FA}
+                  autoFocus
+                />
+                <p className="mt-2 text-center text-xs text-slate-400 dark:text-slate-500">
+                  Each recovery code can only be used once.
+                </p>
+              </div>
+            )}
+
+            {error && (
+              <div role="alert" className="mb-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 p-3 text-xs font-semibold text-rose-700 dark:text-rose-300 flex items-center gap-2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                <span>{error}</span>
+              </div>
+            )}
+
+            {/* Submit / actions */}
+            {useRecoveryCode && (
+              <button
+                type="button"
+                onClick={() => handleVerify2FA()}
+                disabled={verifying2FA || !recoveryCode.trim()}
+                className={`w-full rounded-xl bg-[#7B4DFF] py-3.5 px-4 text-sm font-bold text-white shadow-lg shadow-[#7B4DFF]/25 hover:bg-[#6A3CF0] active:bg-[#5A18C9] disabled:cursor-not-allowed disabled:opacity-60 transition-colors flex items-center justify-center gap-2 ${focusRing}`}
+              >
+                {verifying2FA ? (
+                  <>
+                    <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                    Verifying...
+                  </>
+                ) : (
+                  "Verify Recovery Code"
+                )}
+              </button>
+            )}
+
+            <div className="mt-4 flex flex-col items-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setUseRecoveryCode(!useRecoveryCode);
+                  setError(null);
+                  setTotpCode(["", "", "", "", "", ""]);
+                  setRecoveryCode("");
+                }}
+                className="text-xs font-semibold text-[#7B4DFF] dark:text-[#CDBBFF] hover:underline"
+              >
+                {useRecoveryCode ? "Use authenticator app instead" : "Lost access? Use a recovery code"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setTwoFactorChallenge(null);
+                  setError(null);
+                  setTotpCode(["", "", "", "", "", ""]);
+                  setRecoveryCode("");
+                  setPassword("");
+                }}
+                className="text-xs text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
+              >
+                &larr; Back to sign in
+              </button>
+            </div>
+          </div>
+        </main>
+
+        <footer className="relative z-10 w-full border-t border-slate-200 dark:border-white/10 py-4 text-center text-xs text-slate-500 dark:text-[#7C6FA3]">
+          Talaghayan Portal v2.4 &middot; Department of the Interior and Local Government &middot; Makati City
+        </footer>
+      </div>
+    );
+  }
+
+  // ── RENDER: Normal Login Form (Step 1) ──
   return (
     <div className={`${poppins.className} min-h-screen w-full bg-slate-50 dark:bg-[#0E0A17] text-slate-800 dark:text-[#E9DFFF] transition-colors duration-500 ease-out flex flex-col`}>
       {/* Static Atmospheric Glows */}
@@ -127,8 +367,8 @@ export default function LoginPage() {
       {/* Main Authentication System Content */}
       <main className="relative z-10 flex-1 flex items-center justify-center px-4 sm:px-8 lg:px-12 py-8 sm:py-12">
         <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          
-          {/* Left Column: System Briefing & Modules (System aesthetic) */}
+
+          {/* Left Column: System Briefing & Modules */}
           <section className="lg:col-span-7 flex flex-col justify-center space-y-6">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full bg-[#E6FBF3] dark:bg-[#0D2D23] px-3.5 py-1 text-xs font-bold text-[#0E5440] dark:text-[#84DEBD] ring-1 ring-[#06D6A0]/40">
@@ -146,7 +386,7 @@ export default function LoginPage() {
               </p>
             </div>
 
-            {/* System Modules (Clean, structured, NO TILT / NO HOVER SCALE) */}
+            {/* System Modules */}
             <div className="space-y-3 pt-2">
               {SYSTEM_MODULES.map((mod) => (
                 <div
@@ -179,7 +419,7 @@ export default function LoginPage() {
             </div>
           </section>
 
-          {/* Right Column: Modern System Login Card */}
+          {/* Right Column: Login Card */}
           <section className="lg:col-span-5 flex justify-center">
             <div className="w-full max-w-md rounded-3xl bg-white dark:bg-[#171126] border border-slate-200 dark:border-white/10 p-7 sm:p-9 shadow-2xl shadow-purple-950/10 dark:shadow-black/60">
               {/* Header */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api, ApiError } from "@/lib/api";
 
 interface UseFetchOptions {
@@ -27,10 +27,15 @@ export function useFetch<T>(path: string | null, options: UseFetchOptions = {}):
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const pausedRef = useRef(false);
+
+  useEffect(() => {
+    pausedRef.current = false;
+  }, [path, attempt]);
 
   const executeFetch = useCallback(
     async (isBackground = false) => {
-      if (path === null) return;
+      if (path === null || pausedRef.current) return;
       if (typeof document !== "undefined" && document.visibilityState === "hidden") {
         return;
       }
@@ -41,16 +46,24 @@ export function useFetch<T>(path: string | null, options: UseFetchOptions = {}):
 
       try {
         const res = await api.get<T>(path, { silent401: true });
+        if (res === null) {
+          // 401 unauthenticated -> stop further background polling
+          pausedRef.current = true;
+          setData(null);
+          setError(null);
+          return;
+        }
         setData(res);
         setError(null);
         setLastUpdated(new Date());
       } catch (err: unknown) {
+        if (err instanceof ApiError && err.status === 401) {
+          pausedRef.current = true;
+          setData(null);
+          setError(null);
+          return;
+        }
         if (!isBackground) {
-          if (err instanceof ApiError && err.status === 401) {
-            setData(null);
-            setError(null);
-            return;
-          }
           setError(
             err instanceof ApiError ? err.message : "Could not reach the server. Please try again.",
           );
@@ -98,3 +111,5 @@ export function useFetch<T>(path: string | null, options: UseFetchOptions = {}):
 
   return { data, loading: path === null ? false : loading, error, reload, lastUpdated };
 }
+
+export { useApi } from "./useApi";

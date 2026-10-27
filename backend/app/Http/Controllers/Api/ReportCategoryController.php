@@ -15,6 +15,14 @@ use Illuminate\Validation\Rule;
  */
 class ReportCategoryController extends Controller
 {
+    public function index()
+    {
+        return ReportCategory::with('latestResource.uploader:id,name')
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+    }
+
     public function store(Request $request)
     {
         abort_unless($request->user()->hasOfficeOversight(), 403);

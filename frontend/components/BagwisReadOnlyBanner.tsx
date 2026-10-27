@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-export default function BagwisReadOnlyBanner() {
+export function BagwisReadOnlyBanner() {
   return (
     <div
       role="status"
@@ -49,3 +49,5 @@ export default function BagwisReadOnlyBanner() {
     </div>
   );
 }
+
+export default BagwisReadOnlyBanner;

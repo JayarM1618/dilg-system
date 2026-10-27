@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import BrandMark from "@/components/BrandMark";
 import NotificationBell from "@/components/NotificationBell";
+import UserProfileModal from "@/components/UserProfileModal";
 import { useAuth } from "@/hooks/useAuth";
 import { ROLE_INFO, homeFor } from "@/lib/roles";
 import type { Role } from "@/types";
@@ -13,6 +14,7 @@ import type { Role } from "@/types";
  * Header, role guard and tabs shared by every signed-in area.
  *  - not signed in          -> /login
  *  - signed in as wrong role -> that role's own home
+ *  - password expired        -> /force-password
  */
 function getNavIcon(label: string) {
   switch (label.toLowerCase()) {
@@ -123,9 +125,10 @@ const focusRing =
   "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7B4DFF]";
 
 export default function DashboardShell({ allow, children }: { allow: Role[]; children: ReactNode }) {
-  const { user, loading, logout } = useAuth();
+  const { user, loading, logout, verification, security } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const [showProfile, setShowProfile] = useState(false);
 
   const allowed = !!user && allow.includes(user.role);
 
@@ -134,6 +137,14 @@ export default function DashboardShell({ allow, children }: { allow: Role[]; chi
     if (!user) router.replace("/login");
     else if (!allowed) router.replace(homeFor(user.role));
   }, [loading, user, allowed, router]);
+
+  // Redirect to force-password page if password is expired
+  useEffect(() => {
+    if (loading || !user || !security) return;
+    if (security.password_expired || security.force_password_change) {
+      router.replace("/force-password");
+    }
+  }, [loading, user, security, router]);
 
   if (loading || !user || !allowed) {
     return (
@@ -145,6 +156,13 @@ export default function DashboardShell({ allow, children }: { allow: Role[]; chi
 
   const info = ROLE_INFO[user.role];
 
+  // Pending verification or rejected — show a full-page banner with limited nav
+  const isPendingVerification = verification?.is_pending === true;
+  const isRejected = verification?.is_rejected === true;
+
+  // 2FA not yet set up (optional prompt, not blocking)
+  const show2FAPrompt = !user.two_factor_enabled && user.role !== "super_admin";
+
   return (
     <div className="min-h-screen text-slate-800 dark:text-[#E9DFFF] transition-colors duration-500 ease-out p-3 sm:p-6 lg:p-8">
       <div className="relative mx-auto flex min-h-[calc(100vh-1.5rem)] w-full flex-col overflow-hidden bg-white/40 dark:bg-[#1B142F]/40 backdrop-blur-3xl shadow-[0_30px_80px_-30px_rgba(91,60,200,0.35)] dark:shadow-[0_30px_80px_-30px_rgba(0,0,0,0.8)] border border-white/40 dark:border-white/10 rounded-2xl sm:rounded-[2rem] sm:min-h-[calc(100vh-3rem)] lg:min-h-[calc(100vh-4rem)] transition-colors duration-500 ease-out">
@@ -152,11 +170,49 @@ export default function DashboardShell({ allow, children }: { allow: Role[]; chi
         <header className="border-b border-[#EDE7FA] dark:border-[#2B2542]">
           <div className="mx-auto flex w-full items-center justify-between gap-3 px-4 py-3 sm:px-8 sm:py-4">
             <BrandMark tone="dark" href={info.home} />
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div className="hidden text-right text-sm leading-tight sm:block">
-                <p className="font-semibold">{user.name}</p>
-                <p className="text-slate-500 dark:text-[#7C6FA3] transition-colors duration-500 ease-out">{info.label}</p>
-              </div>
+            <div className="flex items-center gap-2.5 sm:gap-4">
+              {/* Profile Avatar / Trigger */}
+              <button
+                type="button"
+                onClick={() => setShowProfile(true)}
+                title="View Official Profile & Records"
+                aria-label="View Official Profile"
+                className={`group flex items-center gap-2.5 rounded-full p-1 sm:pr-3.5 border border-[#EDE7FA] dark:border-[#2B2542] hover:border-[#7B4DFF]/50 dark:hover:border-[#7B4DFF]/60 hover:bg-white/60 dark:hover:bg-[#2B2542]/60 transition-all duration-200 text-left ${focusRing}`}
+              >
+                <div className="relative shrink-0">
+                  {user.profile_photo_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={user.profile_photo_url}
+                      alt={user.name}
+                      className="h-8 w-8 sm:h-9 sm:w-9 rounded-full object-cover border-2 border-[#7B4DFF]/30 group-hover:border-[#7B4DFF] shadow-sm transition-colors"
+                    />
+                  ) : (
+                    <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-gradient-to-tr from-[#5A18C9] to-[#8C52FF] text-xs font-bold text-white shadow-sm border-2 border-[#7B4DFF]/30 group-hover:border-[#7B4DFF] transition-colors">
+                      {user.name.slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                  <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-[#1B142F]" title="Account Active" />
+                </div>
+                <div className="hidden text-left sm:block">
+                  <div className="flex items-center gap-1.5">
+                    <p className="font-semibold text-xs leading-tight text-slate-800 dark:text-slate-100 group-hover:text-[#7B4DFF] dark:group-hover:text-[#CDBBFF] transition-colors truncate max-w-[140px]">
+                      {user.name}
+                    </p>
+                    {user.two_factor_enabled && (
+                      <span title="2FA Enabled" className="text-emerald-500">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        </svg>
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] leading-tight text-slate-500 dark:text-[#7C6FA3] truncate max-w-[140px]">
+                    {user.position || info.label}
+                  </p>
+                </div>
+              </button>
+
               <NotificationBell />
               <button
                 onClick={() => void logout()}
@@ -168,7 +224,64 @@ export default function DashboardShell({ allow, children }: { allow: Role[]; chi
           </div>
         </header>
 
-        {info.nav.length > 0 && (
+        {/* ── Verification Status Banners ── */}
+        {isPendingVerification && (
+          <div className="border-b border-amber-200 dark:border-amber-700/30 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 sm:px-8">
+            <div className="flex items-start gap-3">
+              <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-amber-100 dark:bg-amber-800/30 text-amber-600 dark:text-amber-300 mt-0.5">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
+              </div>
+              <div>
+                <p className="text-sm font-bold text-amber-800 dark:text-amber-200">Account Pending Verification</p>
+                <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed mt-0.5">
+                  Your account is currently being reviewed by a DILG administrator. You will receive a notification once your account has been verified. Until then, system access is restricted.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isRejected && (
+          <div className="border-b border-rose-200 dark:border-rose-700/30 bg-rose-50 dark:bg-rose-900/20 px-4 py-3 sm:px-8">
+            <div className="flex items-start gap-3">
+              <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-rose-100 dark:bg-rose-800/30 text-rose-600 dark:text-rose-300 mt-0.5">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>
+              </div>
+              <div>
+                <p className="text-sm font-bold text-rose-800 dark:text-rose-200">Account Verification Rejected</p>
+                <p className="text-xs text-rose-700 dark:text-rose-300 leading-relaxed mt-0.5">
+                  Your account verification was not approved.
+                  {verification?.rejection_reason && (
+                    <> <strong>Reason:</strong> {verification.rejection_reason}</>
+                  )}
+                  {" "}Please contact the DILG Makati City Field Office for assistance.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── 2FA Setup Prompt (non-blocking) ── */}
+        {show2FAPrompt && !isPendingVerification && !isRejected && (
+          <div className="border-b border-[#D7CEF2] dark:border-[#2B2542] bg-[#F3EDFE] dark:bg-[#1E1636] px-4 py-2.5 sm:px-8">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-xs text-[#5A18C9] dark:text-[#CDBBFF]">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+                <span className="font-semibold">Secure your account with two-factor authentication.</span>
+              </div>
+              <Link
+                href="/two-factor"
+                className={`shrink-0 rounded-full bg-[#7B4DFF] px-3.5 py-1.5 text-xs font-bold text-white hover:bg-[#6A3CF0] transition ${focusRing}`}
+              >
+                Set Up 2FA
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {info.nav.length > 0 && !isPendingVerification && !isRejected && (
           <nav
             aria-label="Dashboard"
             className="border-b border-[#EDE7FA] dark:border-[#2B2542] bg-white/40 dark:bg-black/20 px-4 sm:px-8 py-2.5 overflow-x-auto scrollbar-none"
@@ -209,57 +322,97 @@ export default function DashboardShell({ allow, children }: { allow: Role[]; chi
         )}
 
         <main className="w-full px-4 py-6 sm:px-8 sm:py-8 flex-1">
-          {pathname !== info.home && (
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-[#EDE7FA]/70 dark:border-white/10 pb-4">
-              <button
-                type="button"
-                onClick={() => {
-                  if (typeof window !== "undefined" && window.history.length > 1) {
-                    router.back();
-                  } else {
-                    router.push(info.home);
-                  }
-                }}
-                className={`group inline-flex items-center gap-2 rounded-full border border-slate-200/90 dark:border-white/15 bg-white/70 dark:bg-white/5 px-4 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-[#E0D5FC] shadow-sm backdrop-blur-md transition-all hover:border-[#7B4DFF]/60 hover:bg-[#F3EDFE] dark:hover:bg-[#7B4DFF]/20 hover:text-[#5A18C9] dark:hover:text-white active:scale-95 ${focusRing}`}
-                aria-label="Back to previous page"
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="transition-transform group-hover:-translate-x-1"
-                >
-                  <path d="M19 12H5M12 19l-7-7 7-7" />
-                </svg>
-                <span>Back</span>
-              </button>
-
-              <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-medium text-slate-400 dark:text-[#7C6FA3]">
-                <Link
-                  href={info.home}
-                  className="hover:text-[#5A18C9] dark:hover:text-[#CDBBFF] hover:underline transition-colors"
-                >
-                  {user.role === "super_admin"
-                    ? "Talaghayan Hub"
-                    : user.role === "office_supervisor"
-                    ? "Supervisor Hub"
-                    : "Barangay Hub"}
-                </Link>
-                <span>/</span>
-                <span className="font-semibold text-slate-700 dark:text-slate-200 capitalize">
-                  {getBreadcrumbLabel(pathname)}
-                </span>
-              </nav>
+          {/* If pending/rejected, show restricted message instead of children */}
+          {(isPendingVerification || isRejected) ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="max-w-md text-center">
+                {isPendingVerification && (
+                  <>
+                    <div className="mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-amber-50 dark:bg-amber-900/20 text-amber-500 dark:text-amber-300 mb-4">
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
+                    </div>
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Waiting for Verification</h2>
+                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                      A DILG administrator is reviewing your profile and photo. You&apos;ll be notified once your account is verified. This usually takes 1-2 business days.
+                    </p>
+                  </>
+                )}
+                {isRejected && (
+                  <>
+                    <div className="mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-rose-50 dark:bg-rose-900/20 text-rose-500 dark:text-rose-300 mb-4">
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>
+                    </div>
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">Verification Rejected</h2>
+                    {verification?.rejection_reason && (
+                      <div className="mt-3 rounded-2xl bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800/40 p-4 text-left">
+                        <p className="text-xs font-bold text-rose-800 dark:text-rose-200">Reason</p>
+                        <p className="mt-1 text-sm text-rose-700 dark:text-rose-300">{verification.rejection_reason}</p>
+                      </div>
+                    )}
+                    <p className="mt-3 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                      Please contact the DILG Makati City Field Office to resolve this issue. You may need to re-submit your activation information.
+                    </p>
+                  </>
+                )}
+              </div>
             </div>
+          ) : (
+            <>
+              {pathname !== info.home && (
+                <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-[#EDE7FA]/70 dark:border-white/10 pb-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (typeof window !== "undefined" && window.history.length > 1) {
+                        router.back();
+                      } else {
+                        router.push(info.home);
+                      }
+                    }}
+                    className={`group inline-flex items-center gap-2 rounded-full border border-slate-200/90 dark:border-white/15 bg-white/70 dark:bg-white/5 px-4 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-[#E0D5FC] shadow-sm backdrop-blur-md transition-all hover:border-[#7B4DFF]/60 hover:bg-[#F3EDFE] dark:hover:bg-[#7B4DFF]/20 hover:text-[#5A18C9] dark:hover:text-white active:scale-95 ${focusRing}`}
+                    aria-label="Back to previous page"
+                  >
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="transition-transform group-hover:-translate-x-1"
+                    >
+                      <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                    <span>Back</span>
+                  </button>
+
+                  <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-medium text-slate-400 dark:text-[#7C6FA3]">
+                    <Link
+                      href={info.home}
+                      className="hover:text-[#5A18C9] dark:hover:text-[#CDBBFF] hover:underline transition-colors"
+                    >
+                      {user.role === "super_admin"
+                        ? "Talaghayan Hub"
+                        : user.role === "office_supervisor"
+                        ? "Supervisor Hub"
+                        : "Barangay Hub"}
+                    </Link>
+                    <span>/</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-200 capitalize">
+                      {getBreadcrumbLabel(pathname)}
+                    </span>
+                  </nav>
+                </div>
+              )}
+              {children}
+            </>
           )}
-          {children}
         </main>
       </div>
+
+      <UserProfileModal isOpen={showProfile} onClose={() => setShowProfile(false)} />
     </div>
   );
 }

@@ -25,9 +25,9 @@ const focusRing =
  */
 export default function SupervisorAdminHome() {
   const { user } = useAuth();
-  const totals = useApi<Summary>("/api/dashboard/summary", { pollInterval: 8000 });
+  const totals = useApi<Summary>(user ? "/api/dashboard/summary" : null, { pollInterval: 8000 });
   const reqSummary = useFetch<{ awaiting_review: number; to_do: number }>(
-    "/api/requirements/summary",
+    user ? "/api/requirements/summary" : null,
     { pollInterval: 8000 }
   );
 

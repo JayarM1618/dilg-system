@@ -5,7 +5,8 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS `requirement_responses`, `requirement_assignments`, `requirement_files`, `requirements`,
   `barangay_programs`, `barangay_announcements`, `activity_logs`, `security_incidents`, `submission_files`, `submissions`, `resources`,
-  `report_categories`, `sessions`, `users`, `barangays`, `cache`, `cache_locks`,
+  `report_categories`, `bagwis_ppa_entries`, `bagwis_ppas`, `repository_documents`, `document_categories`,
+  `sessions`, `users`, `barangays`, `cache`, `cache_locks`,
   -- tables from the old schema that the system no longer uses (so re-importing cleans them away)
   `personal_access_tokens`, `password_reset_tokens`, `jobs`, `job_batches`, `failed_jobs`,
   `migrations`;
@@ -39,6 +40,10 @@ CREATE TABLE `barangays` (
 CREATE TABLE `users` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
+  `first_name` varchar(255) DEFAULT NULL,
+  `last_name` varchar(255) DEFAULT NULL,
+  `contact_number` varchar(50) DEFAULT NULL,
+  `position` varchar(255) DEFAULT NULL,
   `email` varchar(255) NOT NULL,
   `role` enum('super_admin','office_supervisor','barangay_rep') NOT NULL DEFAULT 'barangay_rep',
   `barangay_id` bigint unsigned DEFAULT NULL,
@@ -47,6 +52,12 @@ CREATE TABLE `users` (
   `activated_at` timestamp NULL DEFAULT NULL,
   `activation_token` varchar(64) DEFAULT NULL,
   `activation_expires_at` timestamp NULL DEFAULT NULL,
+  `terms_accepted_at` timestamp NULL DEFAULT NULL,
+  `profile_photo_path` varchar(2048) DEFAULT NULL,
+  `verification_status` enum('unverified','pending','verified','rejected') NOT NULL DEFAULT 'unverified',
+  `verified_at` timestamp NULL DEFAULT NULL,
+  `verified_by` bigint unsigned DEFAULT NULL,
+  `rejection_reason` text DEFAULT NULL,
   `created_by` bigint unsigned DEFAULT NULL,
   `email_verified_at` timestamp NULL DEFAULT NULL,
   `password` varchar(255) NOT NULL,
@@ -58,8 +69,10 @@ CREATE TABLE `users` (
   UNIQUE KEY `users_activation_token_unique` (`activation_token`),
   KEY `users_barangay_id_foreign` (`barangay_id`),
   KEY `users_created_by_foreign` (`created_by`),
+  KEY `users_verified_by_foreign` (`verified_by`),
   CONSTRAINT `users_barangay_id_foreign` FOREIGN KEY (`barangay_id`) REFERENCES `barangays` (`id`) ON DELETE SET NULL,
-  CONSTRAINT `users_created_by_foreign` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
+  CONSTRAINT `users_created_by_foreign` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `users_verified_by_foreign` FOREIGN KEY (`verified_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `sessions` (
@@ -93,8 +106,15 @@ CREATE TABLE `cache_locks` (
 CREATE TABLE `report_categories` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
+  `slug` varchar(60) NULL UNIQUE,
   `cycle` enum('weekly','monthly','quarterly','semestral','annual') NOT NULL,
   `description` text,
+  `sector` varchar(30) DEFAULT 'Barangay',
+  `scope` varchar(30) NULL,
+  `deadline_description` varchar(255) NULL,
+  `barangay_action` varchar(255) NULL,
+  `supervisor_action` varchar(255) NULL,
+  `sort_order` smallint unsigned DEFAULT 0,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -105,6 +125,7 @@ CREATE TABLE `resources` (
   `report_category_id` bigint unsigned DEFAULT NULL,
   `title` varchar(255) NOT NULL,
   `type` varchar(30) NOT NULL DEFAULT 'template',
+  `resource_group` varchar(60) DEFAULT 'standard_formats',
   `description` text,
   `file_path` varchar(255) NOT NULL,
   `original_filename` varchar(255) DEFAULT NULL,
@@ -322,6 +343,41 @@ CREATE TABLE `requirement_responses` (
   CONSTRAINT `requirement_responses_uploaded_by_foreign` FOREIGN KEY (`uploaded_by`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Bagwis PPAs (city-level programs)
+CREATE TABLE `bagwis_ppas` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `slug` varchar(60) NOT NULL UNIQUE,
+  `frequency` varchar(30) NOT NULL,
+  `responsible_office` varchar(255) NOT NULL,
+  `description` text NULL,
+  `deadline_description` varchar(255) NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `sort_order` smallint unsigned DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `bagwis_ppa_entries` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `bagwis_ppa_id` bigint unsigned NOT NULL,
+  `period_label` varchar(40) NOT NULL,
+  `status` varchar(30) DEFAULT 'pending',
+  `remarks` text NULL,
+  `submitted_by` bigint unsigned NULL,
+  `submitted_at` timestamp NULL,
+  `reviewed_by` bigint unsigned NULL,
+  `reviewed_at` timestamp NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY `uq_ppa_period` (`bagwis_ppa_id`, `period_label`),
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_ppa_entry_ppa` FOREIGN KEY (`bagwis_ppa_id`) REFERENCES `bagwis_ppas` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_ppa_entry_submitter` FOREIGN KEY (`submitted_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_ppa_entry_reviewer` FOREIGN KEY (`reviewed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- Tell Laravel these migrations already ran, so `php artisan migrate` will not try to re-create the tables.
@@ -373,12 +429,29 @@ INSERT INTO `barangays` (`id`, `name`, `code`, `is_active`, `created_at`, `updat
   (32, 'Valenzuela', 'BGY-032', 1, '2026-09-30 09:00:00', '2026-09-30 09:00:00');
 
 -- Report categories (the "3 Rs": what barangays must submit)
-INSERT INTO `report_categories` (`id`, `name`, `cycle`, `description`, `created_at`, `updated_at`) VALUES
-  (1, 'Monthly Accomplishment Report', 'monthly', 'Summary of barangay programs, projects and activities accomplished during the month.', '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
-  (2, 'Weekly Peace and Order Situation Report', 'weekly', 'Weekly peace and order, blotter and incident summary.', '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
-  (3, 'Quarterly Barangay Financial Report', 'quarterly', 'Statement of income and expenditures for the quarter.', '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
-  (4, 'Semestral Barangay Development Plan Update', 'semestral', 'Progress update on the Barangay Development Plan.', '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
-  (5, 'Annual Barangay Profile', 'annual', 'Yearly update of the barangay profile and demographic data.', '2026-09-30 09:00:00', '2026-09-30 09:00:00');
+INSERT INTO `report_categories` (`id`, `name`, `slug`, `cycle`, `description`, `sector`, `scope`, `deadline_description`, `barangay_action`, `supervisor_action`, `sort_order`, `created_at`, `updated_at`) VALUES
+  (1, 'Monthly Accomplishment Report', NULL, 'monthly', 'Summary of barangay programs, projects and activities accomplished during the month.', 'Barangay', NULL, NULL, NULL, NULL, 0, '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
+  (2, 'Weekly Peace and Order Situation Report', NULL, 'weekly', 'Weekly peace and order, blotter and incident summary.', 'Barangay', NULL, NULL, NULL, NULL, 0, '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
+  (3, 'Quarterly Barangay Financial Report', NULL, 'quarterly', 'Statement of income and expenditures for the quarter.', 'Barangay', NULL, NULL, NULL, NULL, 0, '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
+  (4, 'Semestral Barangay Development Plan Update', NULL, 'semestral', 'Progress update on the Barangay Development Plan.', 'Barangay', NULL, NULL, NULL, NULL, 0, '2026-09-30 09:00:00', '2026-09-30 09:00:00'),
+  (5, 'Annual Barangay Profile', NULL, 'annual', 'Yearly update of the barangay profile and demographic data.', 'Barangay', NULL, NULL, NULL, NULL, 0, '2026-09-30 09:00:00', '2026-09-30 09:00:00');
+
+-- PDF Architecture: 14 BORMS report categories
+INSERT INTO `report_categories` (`slug`, `name`, `cycle`, `description`, `sector`, `scope`, `deadline_description`, `barangay_action`, `supervisor_action`, `sort_order`, `created_at`, `updated_at`) VALUES
+  ('cleanup-barkada', 'Clean-Up (BARKADA Report)', 'weekly', 'Barangay Kalinisan Day — lingguhang paglilinis at clean-up drive sa bawat barangay.', 'Barangay', NULL, 'Tuwing Lunes', 'Submit photo docs & attendance', 'Review / Validate', 1, NOW(), NOW()),
+  ('barco', 'BaRCO (Road Clearing)', 'monthly', 'Barangay Road Clearing Operations — buwanang pag-uulat ng paglilinis ng mga kalsada at bangketa.', 'Barangay', NULL, 'Tuwing ika-20 ng buwan', 'Submit road clearing form', 'Review / Validate', 2, NOW(), NOW()),
+  ('eca', 'ECA (Compliance Assessment)', 'monthly', 'Enhanced Compliance Assessment — pagsusuri sa pagsunod ng lokal na pamahalaan sa environmental laws at ecological sanitation.', 'Barangay', NULL, 'Regular Monthly', 'Submit compliance checklist', 'Review / Validate', 3, NOW(), NOW()),
+  ('vaw-desk', 'VAW Desk Report', 'quarterly', 'Violence Against Women — ulat ng mga kaso at aksyon mula sa Barangay VAW Desk.', 'Barangay', NULL, 'Ika-5 ng Apr, Jul, Oct, Dec', 'Submit quarterly cases log', 'Review / Validate', 4, NOW(), NOW()),
+  ('vac-report', 'VAC Report (Child Protection)', 'quarterly', 'Violence Against Children — ulat ng mga kasong naaksyunan para sa proteksyon ng kabataan.', 'Barangay', NULL, 'Ika-5 ng Apr, Jul, Oct, Dec', 'Submit quarterly cases log', 'Review / Validate', 5, NOW(), NOW()),
+  ('kp-report', 'KP Report (Katarungang Pambarangay)', 'quarterly', 'Katarungang Pambarangay — submit Lupon cases summary.', 'Barangay', NULL, 'Ika-5 ng Apr, Jul, Oct, Dec', 'Submit Lupon cases summary', 'Review / Validate', 6, NOW(), NOW()),
+  ('bfdp', 'BFDP (Brgy Full Disclosure Policy)', 'quarterly', 'Barangay Full Disclosure Policy — upload photos of 3 transparency boards & financial docs.', 'Barangay', NULL, 'Ika-10 ng Apr, Jul, Oct, Dec', 'Upload photos of 3 boards & financial docs', 'Review / Audit Compliance', 7, NOW(), NOW()),
+  ('skfdp', 'SKFDP (SK Full Disclosure Policy)', 'quarterly', 'Sangguniang Kabataan Full Disclosure Policy — upload SK financial postings & budget.', 'SK', NULL, 'Ika-10 ng Apr, Jul, Oct, Dec', 'Upload SK financial postings & budget', 'Review / Audit Compliance', 8, NOW(), NOW()),
+  ('ba-soba', 'Barangay Assembly (BA / SOBA)', 'semestral', 'State of the Barangay Address / Barangay Assembly — upload post-assembly docs & minutes.', 'Barangay', NULL, 'Pagkatapos ng Assembly (Mar & Oct)', 'Upload post-assembly docs & minutes', 'Review / Validate', 9, NOW(), NOW()),
+  ('rbi', 'RBI (Registry of Inhabitants)', 'semestral', 'Registry of Barangay Inhabitants — upload updated population summary.', 'Barangay', NULL, 'Kada Semestre', 'Upload updated population summary', 'Review / Validate', 10, NOW(), NOW()),
+  ('kk-assembly', 'KK Assembly (Katipunan ng Kabataan)', 'semestral', 'Katipunan ng Kabataan Assembly — upload youth assembly documentation.', 'SK', NULL, 'Kada Semestre', 'Upload youth assembly documentation', 'Review / Validate', 11, NOW(), NOW()),
+  ('skmt-sk-concerns', 'SKMT / SK Concerns', 'annual', 'Sangguniang Kabataan Mandatory Training — upload SK training completion documents.', 'SK', NULL, 'Depende sa Training/Election Cycle', 'Upload SK training completion', 'Review / Validate', 12, NOW(), NOW()),
+  ('accomplishment-report', 'Barangay Accomplishment Report', 'annual', 'Annual accomplishment report ng barangay.', 'Barangay', NULL, 'Katapusan ng Taon', 'Submit annual accomplishment report', 'Review / Final Sign-off', 13, NOW(), NOW()),
+  ('sglgb-self-audit', 'SGLGB Self-Audit Assessment', 'annual', 'Seal of Good Local Governance for Barangay — fill-out self-assessment & attach MOVs.', 'Brgy / SK', NULL, 'DILG Audit Period', 'Fill-out self-assessment & attach MOVs', 'Validate & On-site Audit', 14, NOW(), NOW());
 
 -- Users. Password for ALL accounts = password123   (bcrypt hash below)
 INSERT INTO `users` (`id`, `name`, `email`, `role`, `barangay_id`, `is_active`, `invited_at`, `activated_at`, `email_verified_at`, `password`, `created_at`, `updated_at`) VALUES
@@ -604,14 +677,17 @@ INSERT INTO `activity_logs` (`user_id`, `action`, `subject_type`, `subject_id`, 
 -- 1) Document categories
 CREATE TABLE IF NOT EXISTS `document_categories` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `parent_id` bigint unsigned NULL,
   `name` varchar(255) NOT NULL,
   `slug` varchar(255) NOT NULL,
+  `group_slug` varchar(60) NULL,
   `description` varchar(255) DEFAULT NULL,
   `sort_order` int unsigned NOT NULL DEFAULT 0,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `document_categories_slug_unique` (`slug`)
+  UNIQUE KEY `document_categories_slug_unique` (`slug`),
+  CONSTRAINT `fk_doc_cat_parent` FOREIGN KEY (`parent_id`) REFERENCES `document_categories` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 2) Repository documents
@@ -644,17 +720,48 @@ CREATE TABLE IF NOT EXISTS `repository_documents` (
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- 3) Seed default document categories
-INSERT INTO `document_categories` (`name`, `slug`, `description`, `sort_order`, `created_at`, `updated_at`) VALUES
-  ('Policies & Guidelines', 'policies', 'Official DILG policies, memorandums, and guidelines', 1, NOW(), NOW()),
-  ('Compliance Records', 'compliance', 'Compliance certificates, inspection reports, and verification records', 2, NOW(), NOW()),
-  ('Barangay Documents', 'barangay-docs', 'Official barangay records, resolutions, and certifications', 3, NOW(), NOW()),
-  ('Administrative Records', 'admin-records', 'Internal administrative documents, meeting minutes, and correspondence', 4, NOW(), NOW()),
-  ('Cybersecurity & IT', 'cybersecurity', 'Network documentation, security audits, and IT policies', 5, NOW(), NOW()),
-  ('Reports & Analytics', 'reports', 'Consolidated reports, statistical data, and analytics outputs', 6, NOW(), NOW())
+INSERT INTO `document_categories` (`name`, `slug`, `group_slug`, `description`, `parent_id`, `sort_order`, `created_at`, `updated_at`) VALUES
+  ('Policies & Guidelines', 'policies', NULL, 'Official DILG policies, memorandums, and guidelines', NULL, 1, NOW(), NOW()),
+  ('Compliance Records', 'compliance', NULL, 'Compliance certificates, inspection reports, and verification records', NULL, 2, NOW(), NOW()),
+  ('Barangay Documents', 'barangay-docs', NULL, 'Official barangay records, resolutions, and certifications', NULL, 3, NOW(), NOW()),
+  ('Administrative Records', 'admin-records', NULL, 'Internal administrative documents, meeting minutes, and correspondence', NULL, 4, NOW(), NOW()),
+  ('Cybersecurity & IT', 'cybersecurity', NULL, 'Network documentation, security audits, and IT policies', NULL, 5, NOW(), NOW()),
+  ('Reports & Analytics', 'reports', NULL, 'Consolidated reports, statistical data, and analytics outputs', NULL, 6, NOW(), NOW())
 ON DUPLICATE KEY UPDATE `name` = VALUES(`name`);
 
--- 4) Register the migration so php artisan migrate skips it
+-- PDF Architecture: Repository parent categories
+INSERT INTO `document_categories` (`slug`, `name`, `group_slug`, `description`, `parent_id`, `sort_order`, `created_at`, `updated_at`) VALUES
+  ('legislative-archives', 'Legislative Archives', 'legislative', 'Mambabatas — Resolutions, Ordinances, SK Resolutions', NULL, 1, NOW(), NOW()),
+  ('civil-registry', 'Civil Registry Records', 'civil_registry', 'RBI Masterlist, KK Directory', NULL, 2, NOW(), NOW()),
+  ('audit-compliance', 'Audit & Compliance Requirements', 'audit_compliance', 'MOVs / Means of Verification', NULL, 3, NOW(), NOW());
+
+-- PDF Architecture: Repository child categories
+SET @leg_id = (SELECT id FROM document_categories WHERE slug = 'legislative-archives');
+SET @civ_id = (SELECT id FROM document_categories WHERE slug = 'civil-registry');
+SET @aud_id = (SELECT id FROM document_categories WHERE slug = 'audit-compliance');
+
+INSERT INTO `document_categories` (`slug`, `name`, `group_slug`, `description`, `parent_id`, `sort_order`, `created_at`, `updated_at`) VALUES
+  ('brgy-resolutions', 'Barangay Resolutions', 'legislative', 'Mga pinagtibay na Barangay Resolutions', @leg_id, 1, NOW(), NOW()),
+  ('brgy-ordinances', 'Barangay Ordinances', 'legislative', 'Mga naipasang Barangay Ordinances', @leg_id, 2, NOW(), NOW()),
+  ('sk-resolutions', 'SK Resolutions & Ordinances', 'legislative', 'Sub-folder para sa SK Resolutions & Ordinances', @leg_id, 3, NOW(), NOW()),
+  ('rbi-masterlist', 'RBI Masterlist', 'civil_registry', 'Registry of Barangay Inhabitants — protektadong talaan', @civ_id, 1, NOW(), NOW()),
+  ('kk-directory', 'KK Directory', 'civil_registry', 'Katipunan ng Kabataan Directory — edad 15-30', @civ_id, 2, NOW(), NOW()),
+  ('fdp-movs', 'BFDP / SKFDP MOVs', 'audit_compliance', 'Scanned copies ng financial disclosure boards', @aud_id, 1, NOW(), NOW()),
+  ('project-docs', 'Project Documentation', 'audit_compliance', 'Project photos, liquidation attachments, attendance sheets', @aud_id, 2, NOW(), NOW()),
+  ('sglgb-evidence', 'SGLGB Compliance Evidence', 'audit_compliance', 'Folders ng compliance evidence para sa SGLGB', @aud_id, 3, NOW(), NOW());
+
+-- PDF Architecture: 6 Bagwis PPAs (city-level programs)
+INSERT INTO `bagwis_ppas` (`slug`, `name`, `frequency`, `responsible_office`, `description`, `deadline_description`, `is_active`, `sort_order`, `created_at`, `updated_at`) VALUES
+  ('subaybayan', 'Subaybayan (Support to LG)', 'Monthly (Tuwing ika-25)', 'City Portal Focal / Engineering / Planning', 'Monitoring portal para sa mga proyektong pang-imprastraktura ng lungsod.', 'Every 25th of the month', 1, 1, NOW(), NOW()),
+  ('fdp', 'FDP (Full Disclosure Policy - City)', 'Quarterly (Tuwing ika-10)', 'UDD (Urban Development Dept / Accounting)', 'Pagpaskil ng mga opisyal na ulat-pananalapi ng Pamahalaang Lungsod.', 'Every 10th after quarter end', 1, 2, NOW(), NOW()),
+  ('cflga', 'CFLGA (Child-Friendly Audit)', 'Annual', 'MSWD / CHO', 'Pagtatasa sa antas ng lungsod kaugnay ng child-friendly local governance.', 'Annual assessment period', 1, 3, NOW(), NOW()),
+  ('sglgif', 'SGLGIF (SGLG Incentive Fund)', 'Implementation Phase', 'City Planning / Engineering', 'Pagsubaybay sa implementasyon ng mga proyektong pinondohan ng SGLG Incentive Fund.', 'Per project milestone', 1, 4, NOW(), NOW()),
+  ('sglg', 'SGLG (City Level Assessment)', 'Annual', 'DILG Makati Field Office', 'Pangkalahatang estado ng Lungsod ng Makati sa SGLG.', 'Annual DILG assessment', 1, 5, NOW(), NOW()),
+  ('weekly-cleanup', 'Weekly Cleanup (City Consolidation)', 'Weekly', 'DES (Dept. of Environmental Services)', 'Konsolidasyon ng kalinisan at solid waste status sa buong lungsod.', 'Every Monday', 1, 6, NOW(), NOW());
+
+-- 4) Register migrations so php artisan migrate skips them
 INSERT IGNORE INTO `migrations` (`migration`, `batch`) VALUES
-  ('2026_10_14_000001_create_repository_documents_table', 3);
+  ('2026_10_14_000001_create_repository_documents_table', 3),
+  ('2024_01_15_000001_pdf_architecture_update', 4);
 
 SELECT 'Repository tables created and seeded successfully.' AS result;

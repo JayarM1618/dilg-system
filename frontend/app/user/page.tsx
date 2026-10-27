@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { useFetch } from "@/hooks/useFetch";
 import RealtimeAnalyticsSection from "@/components/RealtimeAnalyticsSection";
+import UserProfileModal from "@/components/UserProfileModal";
 
 const focusRing =
   "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7B4DFF]";
@@ -15,8 +17,9 @@ const focusRing =
  */
 export default function BarangayUserHome() {
   const { user } = useAuth();
+  const [showProfile, setShowProfile] = useState(false);
   const { data: reqSummary } = useFetch<{ to_do: number; new: number; overdue: number }>(
-    "/api/requirements/summary",
+    user ? "/api/requirements/summary" : null,
     { pollInterval: 8000 }
   );
 
@@ -44,8 +47,38 @@ export default function BarangayUserHome() {
           </p>
         </div>
 
-        {/* Quick status pill */}
-        <div className="flex items-center gap-3 self-start sm:self-center shrink-0">
+        {/* Quick actions & status pill */}
+        <div className="flex flex-wrap items-center gap-3 self-start sm:self-center shrink-0">
+          <button
+            type="button"
+            onClick={() => setShowProfile(true)}
+            className={`flex items-center gap-3 rounded-2xl border border-[#7B4DFF]/30 hover:border-[#7B4DFF] bg-white/80 dark:bg-white/5 p-2 sm:px-4 sm:py-2.5 shadow-sm hover:shadow-md transition-all text-left ${focusRing}`}
+            title="View and update official profile"
+          >
+            <div className="relative">
+              {user?.profile_photo_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={user.profile_photo_url}
+                  alt={user.name}
+                  className="h-9 w-9 rounded-full object-cover border-2 border-[#7B4DFF]"
+                />
+              ) : (
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#7B4DFF]/20 text-xs font-bold text-[#7B4DFF]">
+                  {user?.name.slice(0, 2).toUpperCase()}
+                </div>
+              )}
+              <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-[#161024]" />
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-bold text-slate-900 dark:text-white">Official Profile</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-purple-100 dark:bg-purple-900/30 text-[#7B4DFF] dark:text-[#CDBBFF] font-semibold">Dossier</span>
+              </div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">View &amp; Edit Details</p>
+            </div>
+          </button>
+
           <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white/70 dark:bg-white/5 p-3.5 shadow-sm text-right">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">DILG Status</p>
             <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">Active Jurisdiction</p>
@@ -256,6 +289,8 @@ export default function BarangayUserHome() {
           </Link>
         </div>
       </section>
+
+      <UserProfileModal isOpen={showProfile} onClose={() => setShowProfile(false)} />
     </div>
   );
 }

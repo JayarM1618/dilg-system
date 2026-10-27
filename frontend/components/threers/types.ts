@@ -30,16 +30,36 @@ export type RepoSubmission = {
   /** Computed by Laravel: pending and past its due date. */
   is_overdue?: boolean;
   barangay?: { id: number; name: string } | null;
-  category?: { id: number; name: string; cycle: string } | null;
+  category?: {
+    id: number;
+    name: string;
+    cycle: string;
+    slug?: string;
+    sector?: string;
+    deadline_description?: string;
+    barangay_action?: string;
+    supervisor_action?: string;
+  } | null;
   latest_file?: SubmissionFileVersion | null;
 };
 
-export type Category = { id: number; name: string; cycle: string };
+export type Category = {
+  id: number;
+  name: string;
+  cycle: string;
+  slug?: string;
+  sector?: string;
+  deadline_description?: string;
+  barangay_action?: string;
+  supervisor_action?: string;
+  sort_order?: number;
+};
 
 export type ResourceItem = {
   id: number;
   title: string;
-  type: "template" | "guideline" | "sop" | "security_advisory" | "other";
+  type: "template" | "guideline" | "sop" | "toolkit" | "citizen_chart" | "drive_link" | "security_advisory" | "other";
+  resource_group: string;
   description: string | null;
   version: string;
   is_current: boolean;
@@ -111,7 +131,40 @@ export type Incident = {
   severity: string;
   description: string;
   status: string;
+  evidence_path?: string | null;
+  reported_by?: number;
+  reporter?: { id: number; name: string; email?: string } | null;
+  acknowledged_by?: number | null;
+  acknowledger?: { id: number; name: string } | null;
+  acknowledged_at?: string | null;
+  resolution_notes?: string | null;
+  resolved_at?: string | null;
   created_at: string;
+};
+
+/* ---------- Bagwis PPAs (city-level programs) ---------- */
+
+export type BagwisPpa = {
+  id: number;
+  name: string;
+  slug: string;
+  frequency: string;
+  responsible_office: string;
+  description: string | null;
+  deadline_description: string | null;
+  sort_order: number;
+};
+
+export type BagwisPpaEntry = {
+  id: number;
+  bagwis_ppa_id: number;
+  period_label: string;
+  status: "pending" | "submitted" | "compliant" | "non_compliant";
+  remarks: string | null;
+  submitted_at: string | null;
+  reviewed_at: string | null;
+  submitter?: { id: number; name: string } | null;
+  reviewer?: { id: number; name: string } | null;
 };
 
 /* ---------- Requirements (DILG sends, barangays comply) ---------- */
@@ -204,7 +257,10 @@ export type DocumentCategory = {
   name: string;
   slug: string;
   description: string | null;
+  parent_id: number | null;
+  group_slug: string | null;
   documents_count?: number;
+  children?: DocumentCategory[];
 };
 
 export type RepositoryDoc = {

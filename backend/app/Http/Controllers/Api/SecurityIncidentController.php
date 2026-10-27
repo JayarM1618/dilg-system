@@ -31,11 +31,13 @@ class SecurityIncidentController extends Controller
             'severity' => ['required', 'in:low,medium,high,critical'],
             'description' => ['required', 'string'],
             'evidence' => ['nullable', 'file', 'max:10240', 'mimes:png,jpg,jpeg,pdf,txt'],
+            'attachment' => ['nullable', 'file', 'max:10240', 'mimes:png,jpg,jpeg,pdf,txt'],
         ]);
 
         $evidencePath = null;
-        if ($request->hasFile('evidence')) {
-            $evidencePath = $request->file('evidence')->store('security-evidence', 'local');
+        $file = $request->file('evidence') ?? $request->file('attachment');
+        if ($file) {
+            $evidencePath = $file->store('security-evidence', 'local');
         }
 
         $incident = SecurityIncident::create([

@@ -480,8 +480,8 @@ function BarangayRepLanding({
   onLogout: () => void;
 }) {
   const { user } = useAuth();
-  const { data: subData } = useApi<Paginated<Submission>>("/api/submissions?per_page=200", { pollInterval: 8000 });
-  const { data: reqSummary } = useFetch<{ to_do: number; new: number; overdue: number }>("/api/requirements/summary", { pollInterval: 8000 });
+  const { data: subData } = useApi<Paginated<Submission>>(user ? "/api/submissions?per_page=200" : null, { pollInterval: 8000 });
+  const { data: reqSummary } = useFetch<{ to_do: number; new: number; overdue: number }>(user ? "/api/requirements/summary" : null, { pollInterval: 8000 });
   const realtime = useRealtimeAnalytics({ barangayId: user?.barangay_id, pollInterval: 8000 });
 
   const submissions = subData?.data ?? [];

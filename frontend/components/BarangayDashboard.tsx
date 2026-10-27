@@ -37,7 +37,7 @@ function groupOf(status: Status): GroupKey {
 export default function BarangayDashboard() {
   const { user } = useAuth();
   // per_page=200 is the API maximum; one page is enough to cover a barangay's whole year.
-  const { data, loading, error, retry } = useApi<Paginated<Submission>>("/api/submissions?per_page=200", { pollInterval: 8000 });
+  const { data, loading, error, retry } = useApi<Paginated<Submission>>(user ? "/api/submissions?per_page=200" : null, { pollInterval: 8000 });
   const submissions = data?.data ?? [];
 
   const counts: Record<GroupKey, number> = { compliant: 0, review: 0, pending: 0, fix: 0 };
@@ -178,7 +178,8 @@ const RESOURCE_LABEL: Record<string, string> = {
 /** Latest forms, guidelines and advisories DILG Makati published. Laravel only returns the live versions. */
 /** What DILG has sent that this barangay still has to act on. */
 function RequirementsCard() {
-  const { data } = useFetch<{ to_do: number; new: number; overdue: number }>("/api/requirements/summary");
+  const { user } = useAuth();
+  const { data } = useFetch<{ to_do: number; new: number; overdue: number }>(user ? "/api/requirements/summary" : null);
   if (!data) return null;
   return (
     <section className="mt-5 flex flex-col gap-3 rounded-3xl bg-[#F1EBFF] dark:bg-[#241A3F]/70 dark:border dark:border-[#7B4DFF]/25 p-6 sm:flex-row sm:items-center sm:justify-between" aria-label="Requirements from DILG">
@@ -198,7 +199,8 @@ function RequirementsCard() {
 }
 
 function DilgFeedCard() {
-  const { data } = useApi<{ data: { id: number; title: string; type: string; version: string; description: string | null; created_at: string; category?: { name: string } | null }[] }>("/api/resources/library");
+  const { user } = useAuth();
+  const { data } = useApi<{ data: { id: number; title: string; type: string; version: string; description: string | null; created_at: string; category?: { name: string } | null }[] }>(user ? "/api/resources/library" : null);
   const items = [...(data?.data ?? [])].sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 5);
 
   return (

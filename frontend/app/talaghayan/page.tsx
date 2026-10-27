@@ -41,15 +41,15 @@ export default function TalaghayanHome() {
   const { user } = useAuth();
 
   // City-wide compliance metrics
-  const totals = useApi<DashboardSummary>("/api/dashboard/summary", { pollInterval: 8000 });
+  const totals = useApi<DashboardSummary>(user ? "/api/dashboard/summary" : null, { pollInterval: 8000 });
   // Directives review counts
   const reqSummary = useFetch<{ awaiting_review: number; to_do: number }>(
-    "/api/requirements/summary",
+    user ? "/api/requirements/summary" : null,
     { pollInterval: 8000 }
   );
   // Monitoring & account metrics
-  const monitoring = useApi<MonitoringSummary>("/api/monitoring/summary", { pollInterval: 10000 });
-  const usersList = useApi<{ data: User[] }>("/api/users", { pollInterval: 12000 });
+  const monitoring = useApi<MonitoringSummary>(user ? "/api/monitoring/summary" : null, { pollInterval: 10000 });
+  const usersList = useApi<{ data: User[] }>(user ? "/api/users" : null, { pollInterval: 12000 });
 
 
   const summary = totals.data;

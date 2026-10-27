@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { useFetch } from "@/hooks/useFetch";
 import { apiSend } from "@/lib/http";
 import { Notice, btn, btnGhost, field } from "@/components/threers/ui";
@@ -9,7 +10,8 @@ type Row = { id: number; name: string; code: string; is_active: boolean };
 
 /** Super admin only: add barangays, rename them, switch them on or off. */
 export default function BarangaysPage() {
-  const { data, loading, error, reload } = useFetch<Row[]>("/api/barangays");
+  const { user } = useAuth();
+  const { data, loading, error, reload } = useFetch<Row[]>(user ? "/api/barangays" : null);
   const [flash, setFlash] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
   const [name, setName] = useState("");
   const [code, setCode] = useState("");

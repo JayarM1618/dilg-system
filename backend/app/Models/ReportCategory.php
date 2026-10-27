@@ -8,8 +8,15 @@ class ReportCategory extends Model
 {
     protected $fillable = [
         'name',
+        'slug',
         'cycle',
         'description',
+        'sector',
+        'scope',
+        'deadline_description',
+        'barangay_action',
+        'supervisor_action',
+        'sort_order',
     ];
 
     public function resources()

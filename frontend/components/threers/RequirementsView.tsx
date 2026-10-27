@@ -75,8 +75,8 @@ export default function RequirementsView() {
 function OfficeSide({ canDelete }: { canDelete: boolean }) {
   const { user } = useAuth();
   const isSupervisor = user?.role === "office_supervisor";
-  const list = useFetch<{ data: RequirementItem[] }>("/api/requirements");
-  const tracker = useFetch<{ data: TrackerRow[] }>("/api/requirements/tracker");
+  const list = useFetch<{ data: RequirementItem[] }>(user ? "/api/requirements" : null);
+  const tracker = useFetch<{ data: TrackerRow[] }>(user ? "/api/requirements/tracker" : null);
   const [flash, setFlash] = useState<Flash>(null);
   const [view, setView] = useState<"sent" | "tracker">(isSupervisor ? "sent" : "tracker");
 
@@ -489,7 +489,8 @@ function SendForm({ onDone, onError }: { onDone: (t: string) => void; onError: (
 /* ===================================================================== */
 
 function BarangaySide() {
-  const inbox = useFetch<{ data: InboxItem[] }>("/api/requirements");
+  const { user } = useAuth();
+  const inbox = useFetch<{ data: InboxItem[] }>(user ? "/api/requirements" : null);
   const [flash, setFlash] = useState<Flash>(null);
   const items = inbox.data?.data ?? [];
   const todo = items.filter((i) => ["pending", "received", "revision"].includes(i.status) && i.requirement.status === "open");

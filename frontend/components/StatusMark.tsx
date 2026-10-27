@@ -6,6 +6,10 @@ const COLORS: Record<SubmissionStatus, string> = {
   under_review: "text-amber-300",
   compliant: "text-emerald-400",
   non_compliant: "text-red-400",
+  draft: "text-slate-400",
+  approved: "text-emerald-400",
+  returned: "text-amber-400",
+  overdue: "text-rose-400",
 };
 
 /** Small decorative status icon. Decorative only: pair it with visible text. */

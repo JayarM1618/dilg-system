@@ -4,13 +4,18 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Mail\AccountActivation;
+use App\Mail\AccountVerified;
+use App\Mail\AccountRejected;
 use App\Models\ActivityLog;
 use App\Models\User;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -25,7 +30,10 @@ class UserController extends Controller
     public function index()
     {
         return response()->json([
-            'data' => User::with('barangay:id,name,code')->orderBy('name')->get(),
+            'data' => User::with('barangay:id,name,code')
+                ->with('verifier:id,name')
+                ->orderBy('name')
+                ->get(),
         ]);
     }
 
@@ -56,6 +64,7 @@ class UserController extends Controller
             'barangay_id' => $data['barangay_id'],
             'is_active' => true,
             'password' => Str::random(40), // unusable until the owner chooses their own
+            'verification_status' => 'unverified', // will become 'pending' after activation
         ]);
         $user->created_by = $request->user()->id;
         $user->save();
@@ -148,7 +157,21 @@ class UserController extends Controller
         }
 
         if ($wasActive) {
-            $user->forceFill(['password' => Hash::make(Str::random(40)), 'activated_at' => null, 'remember_token' => null])->save();
+            $user->forceFill([
+                'password' => Hash::make(Str::random(40)),
+                'activated_at' => null,
+                'remember_token' => null,
+                'verification_status' => 'unverified',
+                'verified_at' => null,
+                'verified_by' => null,
+                'terms_accepted_at' => null,
+                'profile_photo_path' => null,
+                'first_name' => null,
+                'last_name' => null,
+                'contact_number' => null,
+                'position' => null,
+                'rejection_reason' => null,
+            ])->save();
         }
 
         $link = $this->issueActivation($user);
@@ -162,6 +185,190 @@ class UserController extends Controller
             'activation_link' => $link,
             'emailed' => $emailed,
             'email_error' => $emailError,
+        ]);
+    }
+
+    /** Admin verifies (approves) a user's account after reviewing their profile + photo. */
+    public function verify(Request $request, User $user)
+    {
+        if ($user->verification_status !== 'pending') {
+            return response()->json([
+                'message' => 'This account is not pending verification.',
+            ], 422);
+        }
+
+        $user->forceFill([
+            'verification_status' => 'verified',
+            'verified_at' => now(),
+            'verified_by' => $request->user()->id,
+            'rejection_reason' => null,
+        ])->save();
+
+        ActivityLog::record('account.verified', $user, [
+            'email' => $user->email,
+            'verified_by' => $request->user()->email,
+        ]);
+
+        // Notify the user their account is verified
+        NotificationService::send(
+            $user,
+            'account.verified',
+            'Your account has been verified!',
+            'Your Talaghayan account has been verified by a DILG administrator. You now have full access to the system.',
+            '/',
+            $request->user(),
+        );
+
+        // Send email notification
+        try {
+            Mail::to($user->email)->send(new AccountVerified($user));
+        } catch (\Throwable $e) {
+            Log::warning('Verification email failed for ' . $user->email . ': ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'user' => $user->fresh()->load('barangay:id,name,code', 'verifier:id,name'),
+            'message' => 'Account verified successfully.',
+        ]);
+    }
+
+    /** Admin rejects a user's account (they need to re-activate or contact DILG). */
+    public function reject(Request $request, User $user)
+    {
+        $data = $request->validate([
+            'reason' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        if ($user->verification_status !== 'pending') {
+            return response()->json([
+                'message' => 'This account is not pending verification.',
+            ], 422);
+        }
+
+        $user->forceFill([
+            'verification_status' => 'rejected',
+            'rejection_reason' => $data['reason'] ?? null,
+        ])->save();
+
+        ActivityLog::record('account.rejected', $user, [
+            'email' => $user->email,
+            'reason' => $data['reason'] ?? 'No reason provided',
+            'rejected_by' => $request->user()->email,
+        ]);
+
+        // Notify the user
+        NotificationService::send(
+            $user,
+            'account.rejected',
+            'Your account verification was rejected',
+            'Your Talaghayan account verification was not approved. Reason: ' . ($data['reason'] ?? 'No reason provided.') . ' Contact the DILG office for assistance.',
+            '/',
+            $request->user(),
+        );
+
+        // Send email notification
+        try {
+            Mail::to($user->email)->send(new AccountRejected($user, $data['reason'] ?? null));
+        } catch (\Throwable $e) {
+            Log::warning('Rejection email failed for ' . $user->email . ': ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'user' => $user->fresh()->load('barangay:id,name,code'),
+            'message' => 'Account rejected.',
+        ]);
+    }
+
+    /** Permanent deletion directly from the database (super admin only). */
+    public function destroy(Request $request, User $user)
+    {
+        if ($user->id === $request->user()->id) {
+            return response()->json(['message' => 'You cannot delete your own account.'], 422);
+        }
+
+        $adminId = $request->user()->id;
+        $userName = $user->name;
+        $userEmail = $user->email;
+
+        DB::transaction(function () use ($user, $adminId, $userName, $userEmail, $request) {
+            // 1. Delete associated sessions/tokens if tables exist
+            if (Schema::hasTable('personal_access_tokens')) {
+                DB::table('personal_access_tokens')->where('tokenable_type', User::class)->where('tokenable_id', $user->id)->delete();
+            }
+            if (Schema::hasTable('sessions')) {
+                DB::table('sessions')->where('user_id', $user->id)->delete();
+            }
+
+            // 2. Remove notifications directed to this user or nullify actor
+            if (Schema::hasTable('notifications')) {
+                DB::table('notifications')->where('user_id', $user->id)->delete();
+                DB::table('notifications')->where('actor_id', $user->id)->update(['actor_id' => null]);
+            }
+
+            // 3. Reassign non-nullable author/uploader foreign keys to the deleting admin
+            if (Schema::hasTable('repository_documents')) {
+                DB::table('repository_documents')->where('uploaded_by', $user->id)->update(['uploaded_by' => $adminId]);
+            }
+            if (Schema::hasTable('requirement_responses')) {
+                DB::table('requirement_responses')->where('uploaded_by', $user->id)->update(['uploaded_by' => $adminId]);
+            }
+            if (Schema::hasTable('requirements')) {
+                DB::table('requirements')->where('created_by', $user->id)->update(['created_by' => $adminId]);
+            }
+            if (Schema::hasTable('resources')) {
+                DB::table('resources')->where('uploaded_by', $user->id)->update(['uploaded_by' => $adminId]);
+            }
+            if (Schema::hasTable('security_incidents')) {
+                DB::table('security_incidents')->where('reported_by', $user->id)->update(['reported_by' => $adminId]);
+                DB::table('security_incidents')->where('acknowledged_by', $user->id)->update(['acknowledged_by' => null]);
+            }
+
+            // 4. Nullify nullable references
+            if (Schema::hasTable('activity_logs')) {
+                DB::table('activity_logs')->where('user_id', $user->id)->update(['user_id' => null]);
+            }
+            if (Schema::hasTable('bagwis_ppa_entries')) {
+                DB::table('bagwis_ppa_entries')->where('submitted_by', $user->id)->update(['submitted_by' => null]);
+                DB::table('bagwis_ppa_entries')->where('reviewed_by', $user->id)->update(['reviewed_by' => null]);
+            }
+            if (Schema::hasTable('barangay_announcements')) {
+                DB::table('barangay_announcements')->where('created_by', $user->id)->update(['created_by' => null]);
+            }
+            if (Schema::hasTable('barangay_programs')) {
+                DB::table('barangay_programs')->where('created_by', $user->id)->update(['created_by' => null]);
+            }
+            if (Schema::hasTable('requirement_assignments')) {
+                DB::table('requirement_assignments')->where('reviewed_by', $user->id)->update(['reviewed_by' => null]);
+            }
+            if (Schema::hasTable('submission_files')) {
+                DB::table('submission_files')->where('uploaded_by', $user->id)->update(['uploaded_by' => null]);
+            }
+            if (Schema::hasTable('submissions')) {
+                DB::table('submissions')->where('submitted_by', $user->id)->update(['submitted_by' => null]);
+                DB::table('submissions')->where('reviewed_by', $user->id)->update(['reviewed_by' => null]);
+            }
+            DB::table('users')->where('created_by', $user->id)->update(['created_by' => null]);
+            DB::table('users')->where('verified_by', $user->id)->update(['verified_by' => null]);
+
+            // 5. Delete profile photo if stored on disk
+            if ($user->profile_photo_path) {
+                Storage::disk('public')->delete($user->profile_photo_path);
+            }
+
+            // 6. Record activity log
+            ActivityLog::record('account.deleted', null, [
+                'deleted_user_id' => $user->id,
+                'deleted_user_name' => $userName,
+                'deleted_user_email' => $userEmail,
+                'deleted_by' => $request->user()->email,
+            ]);
+
+            // 7. Delete directly from the database
+            $user->delete();
+        });
+
+        return response()->json([
+            'message' => "Account {$userName} ({$userEmail}) was permanently deleted from the database.",
         ]);
     }
 

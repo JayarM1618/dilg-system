@@ -62,8 +62,8 @@ export function UploadButton({
   async function onPick(file: File | undefined) {
     if (!file) return;
     const ext = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
-    if (![".pdf", ".doc", ".docx", ".xls", ".xlsx"].includes(ext))
-      return onFlash({ kind: "error", text: "Only PDF, Word or Excel files are accepted." });
+    if (![".pdf", ".doc", ".docx", ".xls", ".xlsx", ".jpg", ".jpeg", ".png"].includes(ext))
+      return onFlash({ kind: "error", text: "Only PDF, Word, Excel, or image files are accepted." });
     if (file.size > MAX_BYTES)
       return onFlash({ kind: "error", text: "That file is larger than 10 MB." });
 
@@ -90,7 +90,7 @@ export function UploadButton({
       <input
         ref={input}
         type="file"
-        accept=".pdf,.doc,.docx,.xls,.xlsx"
+        accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
         className="sr-only"
         aria-label={`${label}: ${submission.category?.name ?? "report"} ${submission.period_label}`}
         onChange={(e) => onPick(e.target.files?.[0])}
@@ -102,6 +102,28 @@ export function UploadButton({
     </>
   );
 }
+
+/* ================================================================== */
+/* PDF Architecture Group Labels                                       */
+/* ================================================================== */
+
+const GROUP_META: Record<string, { label: string; description: string; icon: string }> = {
+  legislative: {
+    label: "Legislative Archives",
+    description: "Barangay Resolutions, Ordinances, and SK Resolutions & Ordinances",
+    icon: "📜",
+  },
+  civil_registry: {
+    label: "Civil Registry Records",
+    description: "RBI Masterlist and KK Directory",
+    icon: "📋",
+  },
+  audit_compliance: {
+    label: "Audit & Compliance Requirements",
+    description: "MOVs — BFDP/SKFDP, project photos, liquidation, attendance, SGLGB evidence",
+    icon: "✅",
+  },
+};
 
 /* ================================================================== */
 /* Main view                                                           */
@@ -117,8 +139,10 @@ export default function RepositoryView() {
         title="Repository"
         subtitle={
           user.role === "super_admin"
-            ? "Governance & audit archive: inspect, review, and manage official records across all barangays and DILG."
-            : "Centralized document storage for official records, policies, compliance documents, and barangay files."
+            ? "Global archive view: inspect, review, and manage official records across all barangays and DILG."
+            : user.role === "office_supervisor"
+            ? "Verification & audit view: review barangay document submissions and compliance evidence."
+            : "Manage & upload your barangay and SK files — resolutions, ordinances, civil registry, and compliance records."
         }
       />
       <ThreeRsTabs />
@@ -128,7 +152,7 @@ export default function RepositoryView() {
 }
 
 /* ------------------------------------------------------------------ */
-/* Dashboard: summary cards + document list                            */
+/* Dashboard: category groups + document list                          */
 /* ------------------------------------------------------------------ */
 
 function RepositoryDashboard() {
@@ -139,6 +163,7 @@ function RepositoryDashboard() {
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [groupFilter, setGroupFilter] = useState("");
   const [flash, setFlash] = useState<Flash>(null);
   const [showUpload, setShowUpload] = useState(false);
 
@@ -147,12 +172,21 @@ function RepositoryDashboard() {
   if (search) qs.set("search", search);
   if (categoryFilter) qs.set("category_id", categoryFilter);
 
-  const { data, loading, error, reload } = useFetch<Paged<RepositoryDoc>>(`/api/repository?${qs}`);
-  const summary = useFetch<RepositorySummary>("/api/repository/summary");
-  const categories = useFetch<DocumentCategory[]>("/api/repository/categories");
+  const { data, loading, error, reload } = useFetch<Paged<RepositoryDoc>>(user ? `/api/repository?${qs}` : null);
+  const summary = useFetch<RepositorySummary>(user ? "/api/repository/summary" : null);
+  const categories = useFetch<DocumentCategory[]>(user ? "/api/repository/categories" : null);
 
   const rows = data?.data ?? [];
   const cats = categories.data ?? [];
+
+  // Build tree: parent categories with children
+  const parentCats = cats.filter((c) => !c.parent_id);
+  const childrenOf = (parentId: number) => cats.filter((c) => c.parent_id === parentId);
+
+  // Filter categories by group
+  const filteredCats = groupFilter
+    ? cats.filter((c) => c.group_slug === groupFilter || parentCats.find((p) => p.id === c.parent_id && p.group_slug === groupFilter))
+    : cats;
 
   function applyFilter(set: (v: string) => void) {
     return (e: { target: { value: string } }) => {
@@ -175,18 +209,55 @@ function RepositoryDashboard() {
         </Notice>
       )}
 
-      {/* ---- Summary cards ---- */}
-      <div className="mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        <SummaryCard label="Total Documents" value={summary.data?.total ?? 0} icon={DocIcon} />
-        {(summary.data?.by_category ?? []).slice(0, 4).map((c) => (
-          <SummaryCard
-            key={c.id}
-            label={c.name}
-            value={c.documents_count ?? 0}
-            icon={FolderIcon}
-            onClick={() => { setCategoryFilter(String(c.id)); setPage(1); }}
-          />
-        ))}
+      {/* ---- Category Group Cards (PDF Architecture) ---- */}
+      <div className="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {parentCats.map((parent) => {
+          const children = childrenOf(parent.id);
+          const totalDocs = (parent.documents_count ?? 0) + children.reduce((s, c) => s + (c.documents_count ?? 0), 0);
+          const meta = GROUP_META[parent.group_slug ?? ""] ?? { label: parent.name, description: parent.description ?? "", icon: "📁" };
+
+          return (
+            <button
+              key={parent.id}
+              type="button"
+              onClick={() => {
+                setGroupFilter(groupFilter === parent.group_slug ? "" : (parent.group_slug ?? ""));
+                setCategoryFilter("");
+                setPage(1);
+              }}
+              className={`text-left rounded-2xl border p-4 sm:p-5 shadow-sm transition-all ${
+                groupFilter === parent.group_slug
+                  ? "border-[#7B4DFF]/50 bg-[#7B4DFF]/5 dark:bg-[#7B4DFF]/10 ring-2 ring-[#7B4DFF]/20"
+                  : "border-slate-200/80 dark:border-white/10 bg-white/70 dark:bg-white/5 hover:border-[#7B4DFF]/30 hover:shadow-md"
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xl">{meta.icon}</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{meta.label}</span>
+              </div>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums">{totalDocs}</p>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 line-clamp-2">{meta.description}</p>
+              {children.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {children.map((child) => (
+                    <span key={child.id} className="rounded-full bg-slate-100 dark:bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
+                      {child.name} ({child.documents_count ?? 0})
+                    </span>
+                  ))}
+                </div>
+              )}
+            </button>
+          );
+        })}
+        {/* Legacy summary card for total */}
+        <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/70 dark:bg-white/5 p-4 sm:p-5 shadow-sm sm:col-span-3 lg:col-span-1">
+          <div className="flex items-center gap-2 mb-2 text-slate-500 dark:text-slate-400">
+            <DocIcon />
+            <span className="text-xs font-bold uppercase tracking-wider">Total Documents</span>
+          </div>
+          <p className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums">{summary.data?.total ?? 0}</p>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Across all categories</p>
+        </div>
       </div>
 
       {/* ---- Actions & Filters ---- */}
@@ -218,17 +289,40 @@ function RepositoryDashboard() {
           <span className="mb-1 block text-muted dark:text-slate-400">Category</span>
           <select className={`${field} w-full sm:w-auto`} value={categoryFilter} onChange={applyFilter(setCategoryFilter)}>
             <option value="" className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">All categories</option>
-            {cats.map((c) => (
+            {parentCats.map((parent) => {
+              const children = childrenOf(parent.id);
+              return (
+                <optgroup key={parent.id} label={parent.name}>
+                  <option value={parent.id} className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">{parent.name} (All)</option>
+                  {children.map((c) => (
+                    <option key={c.id} value={c.id} className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">&nbsp;&nbsp;{c.name}</option>
+                  ))}
+                </optgroup>
+              );
+            })}
+            {/* Flat categories without parent */}
+            {cats.filter((c) => !c.parent_id && !parentCats.some((p) => p.id === c.id)).map((c) => (
               <option key={c.id} value={c.id} className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">{c.name}</option>
             ))}
           </select>
         </label>
+
+        {groupFilter && (
+          <button
+            className={`${btnGhost} text-[#7B4DFF] dark:text-[#CDBBFF]`}
+            onClick={() => { setGroupFilter(""); setCategoryFilter(""); setPage(1); }}
+          >
+            Clear group filter
+          </button>
+        )}
       </div>
 
       {/* ---- Upload form (collapsible, not available to super_admin) ---- */}
       {user?.role !== "super_admin" && showUpload && (
         <UploadDocumentForm
           categories={cats}
+          parentCategories={parentCats}
+          childrenOf={childrenOf}
           isOffice={isOffice}
           onFlash={setFlash}
           onDone={() => { reload(); summary.reload(); setShowUpload(false); }}
@@ -242,7 +336,7 @@ function RepositoryDashboard() {
           <div>
             <h2 className="text-base font-bold text-slate-900 dark:text-white">Documents</h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              {search ? `Results for "${search}"` : categoryFilter ? `Filtered by category` : "All documents you have access to"}
+              {search ? `Results for "${search}"` : groupFilter ? `Filtered by: ${GROUP_META[groupFilter]?.label ?? groupFilter}` : categoryFilter ? "Filtered by category" : "All documents you have access to"}
             </p>
           </div>
           {data && (
@@ -275,7 +369,7 @@ function RepositoryDashboard() {
                 </EmptyRow>
               ) : rows.length === 0 ? (
                 <EmptyRow cols={6}>
-                  {search || categoryFilter
+                  {search || categoryFilter || groupFilter
                     ? "No documents match your filters."
                     : "No documents yet. Click \"Upload Document\" to add the first one."}
                 </EmptyRow>
@@ -299,7 +393,7 @@ function RepositoryDashboard() {
       {data && <Pager page={data.current_page} last={data.last_page} total={data.total} onPage={setPage} />}
 
       {/* ---- Recent uploads (summary) ---- */}
-      {!search && !categoryFilter && (summary.data?.recent?.length ?? 0) > 0 && (
+      {!search && !categoryFilter && !groupFilter && (summary.data?.recent?.length ?? 0) > 0 && (
         <div className="mt-8">
           <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3">Recently Added</h3>
           <div className="grid gap-2">
@@ -334,12 +428,16 @@ function RepositoryDashboard() {
 
 function UploadDocumentForm({
   categories,
+  parentCategories,
+  childrenOf,
   isOffice,
   onFlash,
   onDone,
   onCancel,
 }: {
   categories: DocumentCategory[];
+  parentCategories: DocumentCategory[];
+  childrenOf: (id: number) => DocumentCategory[];
   isOffice: boolean;
   onFlash: (f: Flash) => void;
   onDone: () => void;
@@ -391,7 +489,7 @@ function UploadDocumentForm({
               maxLength={255}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Barangay Annual Report 2024"
+              placeholder="e.g. Barangay Resolution No. 2024-001"
             />
           </label>
 
@@ -399,9 +497,21 @@ function UploadDocumentForm({
             <span className="mb-1 block font-medium text-slate-700 dark:text-slate-300">Category <span className="text-rose-500">*</span></span>
             <select className={`${field} w-full`} required value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
               <option value="" className="bg-white dark:bg-[#2B2542]">Select a category</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id} className="bg-white dark:bg-[#2B2542]">{c.name}</option>
-              ))}
+              {parentCategories.map((parent) => {
+                const children = childrenOf(parent.id);
+                if (children.length > 0) {
+                  return (
+                    <optgroup key={parent.id} label={parent.name}>
+                      {children.map((c) => (
+                        <option key={c.id} value={c.id} className="bg-white dark:bg-[#2B2542]">{c.name}</option>
+                      ))}
+                    </optgroup>
+                  );
+                }
+                return (
+                  <option key={parent.id} value={parent.id} className="bg-white dark:bg-[#2B2542]">{parent.name}</option>
+                );
+              })}
             </select>
           </label>
         </div>
@@ -580,12 +690,6 @@ function DocumentRow({
 /* ------------------------------------------------------------------ */
 
 function DocumentDetail({ doc }: { doc: RepositoryDoc }) {
-  const accessLabels: Record<string, string> = {
-    public: "Everyone",
-    office: "DILG Office only",
-    barangay: "Barangay only",
-  };
-
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm">
       <div>
@@ -628,33 +732,6 @@ function DocumentDetail({ doc }: { doc: RepositoryDoc }) {
 /* ------------------------------------------------------------------ */
 /* Small UI pieces                                                     */
 /* ------------------------------------------------------------------ */
-
-function SummaryCard({
-  label,
-  value,
-  icon: Icon,
-  onClick,
-}: {
-  label: string;
-  value: number;
-  icon: React.ComponentType;
-  onClick?: () => void;
-}) {
-  const Wrapper = onClick ? "button" : "div";
-  return (
-    <Wrapper
-      onClick={onClick}
-      className={`rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] px-4 py-4 text-left shadow-sm ${onClick ? "cursor-pointer hover:border-[#7B4DFF]/40 hover:shadow-md transition" : ""
-        }`}
-    >
-      <div className="flex items-center gap-2 mb-2 text-slate-500 dark:text-slate-400">
-        <Icon />
-        <span className="text-xs font-semibold uppercase tracking-wider truncate">{label}</span>
-      </div>
-      <p className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums">{value}</p>
-    </Wrapper>
-  );
-}
 
 function AccessBadge({ level }: { level: string }) {
   const colors: Record<string, string> = {
@@ -721,14 +798,6 @@ function DocIcon() {
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
       <polyline points="14 2 14 8 20 8" />
-    </svg>
-  );
-}
-
-function FolderIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
     </svg>
   );
 }

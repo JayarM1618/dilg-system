@@ -9,11 +9,13 @@ import "@fontsource/metropolis/700.css";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  preload: false,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -24,6 +26,7 @@ export const metadata: Metadata = {
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ConfirmProvider } from "@/components/ConfirmModal";
+import { DevToolsGuard } from "@/components/DevToolsGuard";
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
@@ -45,6 +48,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           defaultTheme="system"
           enableSystem
         >
+          <DevToolsGuard />
           <ConfirmProvider>
             {children}
             <ThemeToggle />

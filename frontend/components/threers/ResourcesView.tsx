@@ -1,20 +1,22 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useMemo, type FormEvent } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useFetch } from "@/hooks/useFetch";
 import { apiSend, apiUrl } from "@/lib/http";
 import { formatDate } from "@/lib/format";
 import { useConfirm } from "@/components/ConfirmModal";
 import ThreeRsTabs from "./ThreeRsTabs";
-import { Notice, PageTitle, TYPE_LABEL, btn, btnGhost, field } from "./ui";
+import { Notice, PageTitle, TYPE_LABEL, RESOURCE_GROUP_LABEL, btn, btnGhost, field } from "./ui";
 import type { Category, ResourceItem } from "./types";
 
-const TYPES = ["template", "guideline", "sop", "security_advisory", "other"] as const;
+const RESOURCE_GROUPS = ["standard_formats", "sectoral_toolkits", "citizen_charts", "drive_links"] as const;
+const TYPES = ["template", "guideline", "sop", "toolkit", "citizen_chart", "drive_link", "security_advisory", "other"] as const;
 
 export default function ResourcesView() {
   const { user } = useAuth();
   const confirm = useConfirm();
+  const [activeGroup, setActiveGroup] = useState<string>("all");
   const [type, setType] = useState("");
   const [history, setHistory] = useState(false);
   const [flash, setFlash] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
@@ -30,10 +32,29 @@ export default function ResourcesView() {
   );
   const categories = useFetch<Category[]>(user ? "/api/resources" : null);
 
-  if (!user) return null;
-
   const items = data?.data ?? [];
-  const groups = TYPES.map((t) => ({ type: t, items: items.filter((i) => i.type === t) })).filter((g) => g.items.length > 0);
+
+  // Group items by resource_group from the PDF architecture
+  const groupedBySection = useMemo(() => {
+    if (activeGroup === "all") {
+      return RESOURCE_GROUPS.map((g) => ({
+        group: g,
+        label: RESOURCE_GROUP_LABEL[g] || g,
+        items: items.filter((i) => i.resource_group === g),
+      })).filter((g) => g.items.length > 0);
+    }
+    return [{
+      group: activeGroup,
+      label: RESOURCE_GROUP_LABEL[activeGroup] || activeGroup,
+      items: items.filter((i) => i.resource_group === activeGroup),
+    }].filter((g) => g.items.length > 0);
+  }, [items, activeGroup]);
+
+  // Fallback: items that don't match any group (legacy data)
+  const ungrouped = useMemo(() => {
+    const knownGroups = new Set(RESOURCE_GROUPS as readonly string[]);
+    return items.filter((i) => !knownGroups.has(i.resource_group ?? ""));
+  }, [items]);
 
   async function archive(r: ResourceItem) {
     const ok = await confirm(`Withdraw "${r.title}" v${r.version}? Barangays will no longer see it.`);
@@ -47,14 +68,16 @@ export default function ResourcesView() {
     }
   }
 
+  if (!user) return null;
+
   return (
     <>
       <PageTitle
         title="Resources"
         subtitle={
           user?.role === "super_admin"
-            ? "Resource lifecycle oversight: monitor official guidelines, forms, and templates issued by DILG Makati."
-            : "The official templates, guidelines and procedures. This is the only place to get the current version."
+            ? "Kagamitan, Gabay, at Sanggunian — resource lifecycle oversight for DILG Makati."
+            : "Standard Formats & Templates, Sectoral Toolkits, Makati Citizen Charts, and shared Google Drive links."
         }
       />
       <ThreeRsTabs />
@@ -65,6 +88,7 @@ export default function ResourcesView() {
         </Notice>
       )}
 
+      {/* Upload Form (office_supervisor) */}
       {user?.role === "office_supervisor" && (
         <UploadForm
           categories={categories.data ?? []}
@@ -76,6 +100,36 @@ export default function ResourcesView() {
         />
       )}
 
+      {/* ── Section Navigation (PDF architecture groups) ── */}
+      <nav className="mb-4 flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => setActiveGroup("all")}
+          className={`rounded-xl px-3.5 py-2 text-xs font-semibold transition-all ${
+            activeGroup === "all"
+              ? "bg-[#7B4DFF] text-white shadow-sm"
+              : "bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/15"
+          }`}
+        >
+          All Resources
+        </button>
+        {RESOURCE_GROUPS.map((g) => (
+          <button
+            key={g}
+            type="button"
+            onClick={() => setActiveGroup(g)}
+            className={`rounded-xl px-3.5 py-2 text-xs font-semibold transition-all ${
+              activeGroup === g
+                ? "bg-[#7B4DFF] text-white shadow-sm"
+                : "bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/15"
+            }`}
+          >
+            {RESOURCE_GROUP_LABEL[g]}
+          </button>
+        ))}
+      </nav>
+
+      {/* ── Filters ── */}
       <div className="mb-4 flex flex-col sm:flex-row sm:items-end gap-3 sm:gap-4">
         <label className="text-sm w-full sm:w-auto">
           <span className="mb-1 block text-muted dark:text-slate-400">Type</span>
@@ -94,6 +148,7 @@ export default function ResourcesView() {
         )}
       </div>
 
+      {/* ── Content ── */}
       {loading && items.length === 0 ? (
         <p className="py-10 text-center text-slate-500 dark:text-slate-400">Loading resources...</p>
       ) : error ? (
@@ -101,81 +156,127 @@ export default function ResourcesView() {
           {error}{" "}
           <button onClick={reload} className="underline underline-offset-4">Try again</button>
         </p>
-      ) : groups.length === 0 ? (
+      ) : groupedBySection.length === 0 && ungrouped.length === 0 ? (
         <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] py-12 text-center text-slate-500 dark:text-slate-400">
-          {isOffice ? "Nothing has been uploaded yet. Use the form above to add the first template." : "No resources have been published yet."}
+          {isOffice ? "Nothing has been uploaded yet. Use the form above to add the first resource." : "No resources have been published yet."}
         </div>
       ) : (
         <div className="space-y-6">
-          {groups.map((g) => (
-            <section key={g.type} aria-labelledby={`h-${g.type}`} className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] shadow-sm overflow-hidden">
-              <div className="border-b border-slate-100 dark:border-white/10 px-6 py-4 flex items-center justify-between">
-                <h2 id={`h-${g.type}`} className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-[#7B4DFF]" />
-                  {TYPE_LABEL[g.type]}
-                </h2>
-                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/10 px-2.5 py-0.5 rounded-full">
-                  {g.items.length} {g.items.length === 1 ? "document" : "documents"}
-                </span>
-              </div>
-              <ul className="divide-y divide-slate-100 dark:divide-white/10">
-                {g.items.map((r) => {
-                  const state = r.archived_at ? "Withdrawn" : r.is_current ? "Current Active" : "Superseded Version";
-                  return (
-                    <li key={r.id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 px-6 py-4 hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
-                      <div className="min-w-0">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <p className="font-bold text-sm text-slate-900 dark:text-white">
-                            {r.title}
-                          </p>
-                          <span className="text-xs font-mono font-semibold text-slate-500 dark:text-slate-400">v{r.version}</span>
-                          <span
-                            className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
-                              r.is_current && !r.archived_at
-                                ? "bg-[#E6FBF3] text-[#0B6B52] dark:bg-[#0E352B] dark:text-[#84DEBD]"
-                                : "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-400"
-                            }`}
-                          >
-                            {state}
-                          </span>
-                        </div>
-                        {r.category && (
-                          <p className="mt-1 text-xs font-medium text-[#7B4DFF] dark:text-[#CDBBFF]">
-                            Mandatory for: {r.category.name} ({r.category.cycle})
-                          </p>
-                        )}
-                        {r.description && <p className="mt-1 max-w-prose text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{r.description}</p>}
-                        <p className="mt-1.5 text-[11px] text-slate-400 dark:text-slate-500">
-                          {r.effective_date ? `Effective ${formatDate(r.effective_date)} &bull; ` : ""}
-                          Published {formatDate(r.created_at)}
-                          {r.uploader ? ` by ${r.uploader.name}` : ""}
-                        </p>
-                      </div>
-                      <div className="flex gap-2 w-full sm:w-auto shrink-0 pt-1">
-                        <a className={`${btn} flex-1 sm:flex-initial text-center`} href={apiUrl(`/api/resources/${r.id}/download`)}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                            <polyline points="7 10 12 15 17 10" />
-                            <line x1="12" y1="15" x2="12" y2="3" />
-                          </svg>
-                          Download Form
-                        </a>
-                        {isOffice && !r.archived_at && (
-                          <button className={`${btnGhost} flex-1 sm:flex-initial text-center`} onClick={() => archive(r)}>Withdraw</button>
-                        )}
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
+          {groupedBySection.map((section) => (
+            <ResourceSection
+              key={section.group}
+              title={section.label}
+              items={section.items}
+              isOffice={isOffice}
+              onArchive={archive}
+            />
           ))}
+          {ungrouped.length > 0 && activeGroup === "all" && (
+            <ResourceSection
+              title="Other Resources"
+              items={ungrouped}
+              isOffice={isOffice}
+              onArchive={archive}
+            />
+          )}
         </div>
       )}
     </>
   );
 }
 
+/* ─── Resource Section (grouped card) ─── */
+function ResourceSection({
+  title,
+  items,
+  isOffice,
+  onArchive,
+}: {
+  title: string;
+  items: ResourceItem[];
+  isOffice: boolean;
+  onArchive: (r: ResourceItem) => void;
+}) {
+  return (
+    <section className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] shadow-sm overflow-hidden">
+      <div className="border-b border-slate-100 dark:border-white/10 px-6 py-4 flex items-center justify-between">
+        <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <span className="h-2 w-2 rounded-full bg-[#7B4DFF]" />
+          {title}
+        </h2>
+        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/10 px-2.5 py-0.5 rounded-full">
+          {items.length} {items.length === 1 ? "document" : "documents"}
+        </span>
+      </div>
+      <ul className="divide-y divide-slate-100 dark:divide-white/10">
+        {items.map((r) => {
+          const state = r.archived_at ? "Withdrawn" : r.is_current ? "Current Active" : "Superseded Version";
+          return (
+            <li key={r.id} className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 px-6 py-4 hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-bold text-sm text-slate-900 dark:text-white">
+                    {r.title}
+                  </p>
+                  <span className="text-xs font-mono font-semibold text-slate-500 dark:text-slate-400">v{r.version}</span>
+                  <span className="rounded-full px-2 py-0.5 text-[10px] font-bold bg-[#7B4DFF]/10 text-[#7B4DFF] dark:bg-[#7B4DFF]/20 dark:text-[#CDBBFF]">
+                    {TYPE_LABEL[r.type] ?? r.type}
+                  </span>
+                  <span
+                    className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                      r.is_current && !r.archived_at
+                        ? "bg-[#E6FBF3] text-[#0B6B52] dark:bg-[#0E352B] dark:text-[#84DEBD]"
+                        : "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-400"
+                    }`}
+                  >
+                    {state}
+                  </span>
+                </div>
+                {r.category && (
+                  <p className="mt-1 text-xs font-medium text-[#7B4DFF] dark:text-[#CDBBFF]">
+                    Mandatory for: {r.category.name} ({r.category.cycle})
+                  </p>
+                )}
+                {r.description && <p className="mt-1 max-w-prose text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{r.description}</p>}
+                <p className="mt-1.5 text-[11px] text-slate-400 dark:text-slate-500">
+                  {r.effective_date ? `Effective ${formatDate(r.effective_date)} · ` : ""}
+                  Published {formatDate(r.created_at)}
+                  {r.uploader ? ` by ${r.uploader.name}` : ""}
+                </p>
+              </div>
+              <div className="flex gap-2 w-full sm:w-auto shrink-0 pt-1">
+                {r.type === "drive_link" ? (
+                  <a className={`${btn} flex-1 sm:flex-initial text-center`} href={r.description ?? "#"} target="_blank" rel="noopener noreferrer">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                      <polyline points="15 3 21 3 21 9" />
+                      <line x1="10" y1="14" x2="21" y2="3" />
+                    </svg>
+                    Open in Drive
+                  </a>
+                ) : (
+                  <a className={`${btn} flex-1 sm:flex-initial text-center`} href={apiUrl(`/api/resources/${r.id}/download`)}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Download
+                  </a>
+                )}
+                {isOffice && !r.archived_at && (
+                  <button className={`${btnGhost} flex-1 sm:flex-initial text-center`} onClick={() => onArchive(r)}>Withdraw</button>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+/* ─── Upload Form (office_supervisor only) ─── */
 function UploadForm({
   categories,
   onDone,
@@ -186,6 +287,7 @@ function UploadForm({
   onError: (text: string) => void;
 }) {
   const [type, setType] = useState<(typeof TYPES)[number]>("template");
+  const [resourceGroup, setResourceGroup] = useState<string>("standard_formats");
   const [busy, setBusy] = useState(false);
 
   async function submit(e: FormEvent<HTMLFormElement>) {
@@ -194,12 +296,14 @@ function UploadForm({
     const body = new FormData(form);
     if (type !== "template") body.delete("report_category_id");
     if (!body.get("effective_date")) body.delete("effective_date");
+    body.set("resource_group", resourceGroup);
 
     setBusy(true);
     try {
       await apiSend("/api/resources", "POST", body);
       form.reset();
       setType("template");
+      setResourceGroup("standard_formats");
       onDone(`"${String(body.get("title"))}" v${String(body.get("version"))} is now the current version.`);
     } catch (err) {
       onError(err instanceof Error ? err.message : "Upload failed.");
@@ -211,12 +315,23 @@ function UploadForm({
   return (
     <details open className="mb-6 rounded-lg border border-line dark:border-white/10 bg-white dark:bg-white/5">
       <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-navy-800 dark:text-[#D1C4F9]">
-        Publish a form, guideline or advisory for the barangays
+        Publish a form, guideline, toolkit, or citizen chart for the barangays
       </summary>
       <form onSubmit={submit} className="grid gap-4 border-t border-line dark:border-white/10 p-4 sm:grid-cols-2">
         <label className="text-sm">
           <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">Title</span>
-          <input name="title" required maxLength={255} className={`${field} w-full`} placeholder="e.g. Monthly Accomplishment Report form" />
+          <input name="title" required maxLength={255} className={`${field} w-full`} placeholder="e.g. BaRCO Monthly Form" />
+        </label>
+
+        <label className="text-sm">
+          <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">Resource Group</span>
+          <select className={`${field} w-full`} value={resourceGroup} onChange={(e) => setResourceGroup(e.target.value)}>
+            {RESOURCE_GROUPS.map((g) => (
+              <option key={g} value={g} className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">
+                {RESOURCE_GROUP_LABEL[g]}
+              </option>
+            ))}
+          </select>
         </label>
 
         <label className="text-sm">
@@ -251,14 +366,20 @@ function UploadForm({
         </label>
 
         <label className="text-sm sm:col-span-2">
-          <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">Short description (optional)</span>
-          <textarea name="description" rows={2} maxLength={2000} className={`${field} w-full`} />
+          <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">
+            {type === "drive_link" ? "Google Drive URL" : "Short description (optional)"}
+          </span>
+          <textarea name="description" rows={2} maxLength={2000} className={`${field} w-full`}
+            placeholder={type === "drive_link" ? "https://drive.google.com/drive/folders/..." : ""}
+          />
         </label>
 
-        <label className="text-sm sm:col-span-2">
-          <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">File (PDF, Word, Excel or PowerPoint, up to 10 MB)</span>
-          <input name="file" type="file" required accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" className="block w-full text-sm text-slate-700 dark:text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#7B4DFF]/10 file:text-[#7B4DFF] dark:file:bg-[#7B4DFF]/20 dark:file:text-[#CDBBFF]" />
-        </label>
+        {type !== "drive_link" && (
+          <label className="text-sm sm:col-span-2">
+            <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">File (PDF, Word, Excel or PowerPoint, up to 10 MB)</span>
+            <input name="file" type="file" required accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" className="block w-full text-sm text-slate-700 dark:text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#7B4DFF]/10 file:text-[#7B4DFF] dark:file:bg-[#7B4DFF]/20 dark:file:text-[#CDBBFF]" />
+          </label>
+        )}
 
         <div className="sm:col-span-2">
           <button className={`${btn} w-full sm:w-auto`} disabled={busy} type="submit">{busy ? "Uploading..." : "Publish"}</button>

@@ -10,7 +10,9 @@ use Illuminate\Support\Str;
 /**
  * Optional "Continue with Google". Nobody can register with Google: the email Google returns
  * must already belong to an account the DILG super admin issued. If that account is still waiting
- * to be activated, Google proving the owner controls the email activates it (no password needed).
+ * to be activated, Google proving the owner controls the email activates it (no password needed)
+ * but the user still needs to complete the activation flow (T&C, profile, photo) before being
+ * verified.
  *
  * Needs:  composer require laravel/socialite   and the GOOGLE_* values in .env
  */
@@ -64,11 +66,24 @@ class GoogleAuthController extends Controller
 
         $wasPending = $user->isPending();
         if ($wasPending) {
+            // Google proves they own the email, but they still need to complete
+            // the activation flow (T&C, profile, photo). We redirect them there
+            // if an activation token exists.
+            if ($user->activation_token) {
+                return redirect(
+                    rtrim(env('FRONTEND_URL', 'http://localhost:3000'), '/')
+                    . '/activate?token=' . $user->activation_token
+                    . '&via=google'
+                );
+            }
+
+            // No token (edge case) - activate directly but set pending verification
             $user->forceFill([
                 'activated_at' => now(),
                 'email_verified_at' => now(),
                 'activation_token' => null,
                 'activation_expires_at' => null,
+                'verification_status' => 'pending',
             ])->save();
             ActivityLog::record('account.activated', $user, ['email' => $user->email, 'via' => 'google'], $user->id);
         }

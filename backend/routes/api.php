@@ -2,11 +2,13 @@
 
 use App\Http\Controllers\Api\ActivationController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BagwisPpaController;
 use App\Http\Controllers\Api\BarangayContentController;
 use App\Http\Controllers\Api\BarangayController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\MonitoringController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\PasswordController;
 use App\Http\Controllers\Api\PublicController;
 use App\Http\Controllers\Api\ReportCategoryController;
 use App\Http\Controllers\Api\RepositoryController;
@@ -15,6 +17,7 @@ use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\ResourceController;
 use App\Http\Controllers\Api\SecurityIncidentController;
 use App\Http\Controllers\Api\SubmissionController;
+use App\Http\Controllers\Api\TwoFactorController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,20 +32,43 @@ Route::get('/public/analytics', [PublicController::class, 'analytics']);
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::get('/auth/providers', [AuthController::class, 'providers']);
 
-// Account activation (DILG-issued accounts): open the emailed link, choose a password.
+// 2FA verification during login (unauthenticated — user passed credentials but not yet logged in)
+Route::post('/two-factor/verify', [TwoFactorController::class, 'verify']);
+
+// Account activation: multi-step flow (T&C → profile → photo → complete)
 Route::middleware('throttle:20,1')->group(function () {
     Route::get('/activate/{token}', [ActivationController::class, 'show']);
+    Route::post('/activate/terms', [ActivationController::class, 'acceptTerms']);
+    Route::post('/activate/profile', [ActivationController::class, 'saveProfile']);
+    Route::post('/activate/photo', [ActivationController::class, 'uploadPhoto']);
+    Route::post('/activate/complete', [ActivationController::class, 'complete']);
+    // Legacy single-step (backward compat)
     Route::post('/activate', [ActivationController::class, 'activate']);
 });
 
 Route::get('/me', [AuthController::class, 'me']);
+Route::patch('/me', [AuthController::class, 'updateProfile'])->middleware('auth:sanctum');
 Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
 Route::post('/logout', [AuthController::class, 'logout']);
 Route::get('/reports/periods', [ReportController::class, 'periods']);
 Route::get('/reports/compliance', [ReportController::class, 'compliance']);
 
 // --- Authenticated (any active role) ---
-Route::middleware('auth:sanctum')->group(function () {
+// The 'verified' middleware blocks pending/rejected accounts from doing anything
+// except viewing their own status, notifications, and logging out.
+// The 'password.expired' middleware forces users with expired passwords to change them
+// before doing anything else — it allows /me, /logout, /password/force-change, etc.
+Route::middleware(['auth:sanctum', 'verified', 'password.expired'])->group(function () {
+
+    // ──── Password Force Change (allowed even when password is expired) ────
+    // Note: CheckPasswordExpiry middleware whitelists this route
+    Route::post('/password/force-change', [PasswordController::class, 'forceChange']);
+
+    // ──── Two-Factor Authentication Management ────
+    Route::post('/two-factor/enable', [TwoFactorController::class, 'enable']);
+    Route::post('/two-factor/confirm', [TwoFactorController::class, 'confirm']);
+    Route::post('/two-factor/disable', [TwoFactorController::class, 'disable']);
+    Route::get('/two-factor/status', [TwoFactorController::class, 'status']);
 
     // ──── Notifications ────
     Route::get('/notifications', [NotificationController::class, 'index']);
@@ -95,7 +121,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // Security incident reporting - open to all roles, formalizing what used to be
     // informal email forwarding to ICTO
     Route::get('/security-incidents', [SecurityIncidentController::class, 'index']);
+    Route::get('/security/incidents', [SecurityIncidentController::class, 'index']);
     Route::post('/security-incidents', [SecurityIncidentController::class, 'store']);
+    Route::post('/security/incidents', [SecurityIncidentController::class, 'store']);
+
+    // Report categories catalogue (accessible to all authenticated users)
+    Route::get('/report-categories', [ReportCategoryController::class, 'index']);
 
     // --- Bagwis: city-level read-only for barangay reps, full for office ---
     // These GET endpoints power the Bagwis sub-system dashboard. Office staff
@@ -103,7 +134,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // blocks POST/PATCH/DELETE for them).
     Route::middleware('bagwis.readonly')->group(function () {
         Route::get('/dashboard/talaghayan', [DashboardController::class, 'talaghayan']);
+        Route::get('/bagwis/compliance-grid', [DashboardController::class, 'talaghayan']);
         Route::get('/dashboard/summary', [DashboardController::class, 'summary']);
+        Route::get('/bagwis/totals', [DashboardController::class, 'summary']);
+        Route::get('/bagwis/ppas', [BagwisPpaController::class, 'index']);
+        Route::get('/bagwis/ppas/{ppa}/entries', [BagwisPpaController::class, 'entries']);
         Route::get('/reports/compliance/export', [ReportController::class, 'exportCompliance']);
         Route::get('/reports/security', [ReportController::class, 'security']);
         Route::get('/barangays', [BarangayController::class, 'index']);
@@ -131,6 +166,10 @@ Route::middleware('auth:sanctum')->group(function () {
         // Resources management (templates, guidelines, SOPs)
         Route::post('/resources', [ResourceController::class, 'store']);
         Route::patch('/resources/{resource}/archive', [ResourceController::class, 'archive']);
+
+        // Bagwis PPAs management
+        Route::post('/bagwis/ppas/{ppa}/entries', [BagwisPpaController::class, 'storeEntry']);
+        Route::patch('/bagwis/ppa-entries/{entry}/review', [BagwisPpaController::class, 'reviewEntry']);
     });
 
     // --- Super admin only ---
@@ -150,7 +189,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);
         Route::patch('/users/{user}', [UserController::class, 'update']);
+        Route::delete('/users/{user}', [UserController::class, 'destroy']);
         Route::post('/users/{user}/invite', [UserController::class, 'invite']);
+
+        // Account verification (admin reviews profile + photo)
+        Route::post('/users/{user}/verify', [UserController::class, 'verify']);
+        Route::post('/users/{user}/reject', [UserController::class, 'reject']);
 
         // Monitoring: everything the DILG admins and barangay representatives do
         Route::get('/monitoring/summary', [MonitoringController::class, 'summary']);

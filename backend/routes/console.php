@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 // REPORTS: open the current period for every barangay each day (idempotent).
 // On the server add one cron line:  * * * * * php /path/to/backend/artisan schedule:run
 Illuminate\Support\Facades\Schedule::command('submissions:open-periods')->dailyAt('00:05');
+
+// SECURITY: flag passwords older than 7 days for barangay reps and office supervisors.
+Illuminate\Support\Facades\Schedule::command('passwords:check-expiry')->dailyAt('01:00');

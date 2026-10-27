@@ -27,11 +27,15 @@ export function useApi<T>(path: string | null, options: UseApiOptions = {}): Use
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
-  const isInitialRef = useRef(true);
+  const pausedRef = useRef(false);
+
+  useEffect(() => {
+    pausedRef.current = false;
+  }, [path, attempt]);
 
   const fetchData = useCallback(
     async (isBackground = false) => {
-      if (path === null) return;
+      if (path === null || pausedRef.current) return;
       if (typeof document !== "undefined" && document.visibilityState === "hidden") {
         return;
       }
@@ -42,10 +46,23 @@ export function useApi<T>(path: string | null, options: UseApiOptions = {}): Use
 
       try {
         const res = await api.get<T>(path, { silent401: true });
+        if (res === null) {
+          // 401 unauthenticated -> stop further background polling
+          pausedRef.current = true;
+          setData(null);
+          setError(null);
+          return;
+        }
         setData(res);
         setError(null);
         setLastUpdated(new Date());
       } catch (err: unknown) {
+        if (err instanceof ApiError && err.status === 401) {
+          pausedRef.current = true;
+          setData(null);
+          setError(null);
+          return;
+        }
         if (!isBackground) {
           setError(
             err instanceof ApiError ? err.message : "Could not reach the server. Please try again.",

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, type FormEvent } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { useFetch } from "@/hooks/useFetch";
 import { apiSend, apiUrl } from "@/lib/http";
 import { formatDate } from "@/lib/format";
@@ -32,7 +33,8 @@ const STATUS_NOTE: Record<string, string> = {
  * Laravel works out the period and due date and creates the record, so nothing has to be opened first.
  */
 export default function SubmitReport({ onFlash, onDone }: { onFlash: (f: Flash) => void; onDone: () => void }) {
-  const { data, loading, error, reload } = useFetch<{ data: Option[] }>("/api/submissions/options");
+  const { user } = useAuth();
+  const { data, loading, error, reload } = useFetch<{ data: Option[] }>(user ? "/api/submissions/options" : null);
   const options = useMemo(() => data?.data ?? [], [data]);
 
   const [categoryId, setCategoryId] = useState("");

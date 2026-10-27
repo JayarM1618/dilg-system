@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
+use App\Models\PasswordHistory;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -54,6 +55,16 @@ class AuthController extends Controller
 
             throw ValidationException::withMessages([
                 'email' => ["This account belongs to Barangay {$own}. Close this window and pick your own barangay."],
+            ]);
+        }
+
+        // ── 2FA Check ──
+        // If user has confirmed 2FA, do NOT log them in yet.
+        // Return a flag so the frontend shows the TOTP code entry step.
+        if ($user->two_factor_enabled && $user->two_factor_confirmed_at) {
+            return response()->json([
+                'requires_2fa' => true,
+                'user_id' => $user->id,
             ]);
         }
 
@@ -119,6 +130,78 @@ class AuthController extends Controller
         return response()->json([
             'user'       => $user->load('barangay'),
             'subsystems' => $subsystems,
+            // Verification info for the frontend to show appropriate UI
+            'verification' => [
+                'status' => $user->verification_status ?? 'unverified',
+                'is_pending' => $user->isPendingVerification(),
+                'is_verified' => $user->isVerified(),
+                'is_rejected' => $user->isRejected(),
+                'rejection_reason' => $user->rejection_reason,
+                'verified_at' => $user->verified_at?->toISOString(),
+            ],
+            // Security info for the frontend
+            'security' => [
+                'password_expired' => $user->isPasswordExpired(),
+                'force_password_change' => (bool) $user->force_password_change,
+                'password_changed_at' => $user->password_changed_at?->toISOString(),
+                'password_expires_at' => $user->password_expires_at?->toISOString(),
+                'two_factor_enabled' => (bool) $user->two_factor_enabled,
+                'two_factor_confirmed_at' => $user->two_factor_confirmed_at?->toISOString(),
+            ],
+        ]);
+    }
+
+    /** Update allowed profile details (contact number, position, password). */
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        $data = $request->validate([
+            'contact_number' => ['nullable', 'string', 'max:30'],
+            'position' => ['nullable', 'string', 'max:100'],
+            'current_password' => ['nullable', 'string'],
+            'new_password' => ['nullable', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        if (!empty($data['new_password'])) {
+            if (empty($data['current_password']) || !Hash::check($data['current_password'], $user->password)) {
+                return response()->json([
+                    'message' => 'Your current password is incorrect.',
+                    'errors' => ['current_password' => ['Your current password is incorrect.']],
+                ], 422);
+            }
+
+            // Save old password to history before changing
+            PasswordHistory::create([
+                'user_id' => $user->id,
+                'password' => $user->password,
+                'created_at' => now(),
+            ]);
+
+            $user->password = $data['new_password'];
+            $user->password_changed_at = now();
+            $user->password_expires_at = now()->addDays(7);
+            $user->force_password_change = false;
+        }
+
+        if (array_key_exists('contact_number', $data)) {
+            $user->contact_number = $data['contact_number'] ? trim($data['contact_number']) : null;
+        }
+
+        if (array_key_exists('position', $data)) {
+            $user->position = $data['position'] ? trim($data['position']) : null;
+        }
+
+        $user->save();
+
+        ActivityLog::record('profile.updated', $user, [
+            'contact_number' => $user->contact_number,
+            'position' => $user->position,
+        ], $user->id);
+
+        return response()->json([
+            'message' => 'Profile updated successfully.',
+            'user' => $user->load('barangay'),
         ]);
     }
 }
