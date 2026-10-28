@@ -48,6 +48,9 @@ class SubmissionController extends Controller
         if ($categoryId = $request->query('report_category_id')) {
             $query->where('report_category_id', $categoryId);
         }
+        if ($sector = $request->query('sector')) {
+            $query->whereHas('category', fn ($q) => $q->where('sector', $sector));
+        }
         if ($period = $request->query('period_label')) {
             $query->where('period_label', $period);
         }

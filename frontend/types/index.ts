@@ -11,7 +11,9 @@ export type SubmissionStatus =
   | "draft"
   | "approved"
   | "returned"
-  | "overdue";
+  | "overdue"
+  | "rejected"
+  | "revision";
 
 export type VerificationStatus = "unverified" | "pending" | "verified" | "rejected";
 

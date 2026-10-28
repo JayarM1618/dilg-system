@@ -47,14 +47,18 @@ type CycleKey = "weekly" | "monthly" | "quarterly" | "semestral" | "annual";
 /* Main Component                                                      */
 /* ================================================================== */
 
-export default function BarangayReports() {
+interface BarangayReportsProps {
+  sectorFilter?: string;
+}
+
+export default function BarangayReports({ sectorFilter }: BarangayReportsProps = {}) {
   const { user } = useAuth();
   const [flash, setFlash] = useState<Flash>(null);
   const [page, setPage] = useState(1);
   const [cycleFilter, setCycleFilter] = useState<CycleKey | "">("");
 
   const { data: submissionsData, loading, reload } = useFetch<Paged<RepoSubmission>>(
-    user ? `/api/submissions?page=${page}${cycleFilter ? `&cycle=${cycleFilter}` : ""}` : null
+    user ? `/api/submissions?page=${page}${cycleFilter ? `&cycle=${cycleFilter}` : ""}${sectorFilter ? `&sector=${sectorFilter}` : ""}` : null
   );
   const filings = submissionsData?.data ?? [];
 
@@ -226,7 +230,7 @@ function FilingsTable({
                         </p>
                         {sub.category?.deadline_description && (
                           <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate max-w-[240px]">
-                            📅 {sub.category.deadline_description}
+                            {sub.category.deadline_description}
                           </p>
                         )}
                       </div>
@@ -245,7 +249,7 @@ function FilingsTable({
                     <td className="px-5 py-3 text-xs tabular-nums text-slate-600 dark:text-slate-300">
                       <span className={sub.is_overdue ? "text-rose-600 dark:text-rose-400 font-semibold" : ""}>
                         {formatDate(sub.due_date)}
-                        {sub.is_overdue && " ⚠️"}
+                        {sub.is_overdue && " (Overdue)"}
                       </span>
                     </td>
                     <td className="px-5 py-3">
@@ -354,7 +358,7 @@ function IncidentSection({ onFlash }: { onFlash: (f: Flash) => void }) {
   return (
     <div className="mt-8">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-bold text-slate-900 dark:text-white">🔒 Security Concerns</h3>
+        <h3 className="text-sm font-bold text-slate-900 dark:text-white">Security Concerns</h3>
         <button
           className={btn}
           onClick={() => setShowForm(!showForm)}

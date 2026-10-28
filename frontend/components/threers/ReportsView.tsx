@@ -6,6 +6,7 @@ import { useFetch } from "@/hooks/useFetch";
 import { apiSend, apiUrl } from "@/lib/http";
 import ThreeRsTabs from "./ThreeRsTabs";
 import BarangayReports from "./BarangayReports";
+import SKReportsView from "./SKReportsView";
 import ReportSetup from "./ReportSetup";
 import {
   PageTitle,
@@ -34,6 +35,8 @@ import type {
 
 export default function ReportsView() {
   const { user } = useAuth();
+  const [sector, setSector] = useState<"all" | "barangay" | "sk" | "katarungang_pambarangay">("all");
+
   if (!user) return null;
 
   /* Barangay reps see their own filing dashboard */
@@ -45,7 +48,36 @@ export default function ReportsView() {
           subtitle="Submit your barangay's periodic reports, track filing deadlines, and monitor compliance status."
         />
         <ThreeRsTabs />
-        <BarangayReports />
+
+        {/* Sector filter tabs */}
+        <div className="flex gap-1 rounded-full bg-slate-100 dark:bg-white/5 p-1 mb-6 overflow-x-auto">
+          {([
+            { key: "all", label: "All Reports", icon: "📋" },
+            { key: "barangay", label: "Barangay", icon: "🏘️" },
+            { key: "sk", label: "SK", icon: "🧑‍🤝‍🧑" },
+            { key: "katarungang_pambarangay", label: "KP", icon: "⚖️" },
+          ] as { key: typeof sector; label: string; icon: string }[]).map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setSector(t.key)}
+              className={`flex-1 min-w-fit flex items-center justify-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                sector === t.key
+                  ? "bg-[#7B4DFF] text-white shadow-sm"
+                  : "text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-white/10"
+              }`}
+            >
+              <span>{t.icon}</span>
+              <span>{t.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* SK view or standard Barangay filings */}
+        {sector === "sk" ? (
+          <SKReportsView />
+        ) : (
+          <BarangayReports sectorFilter={sector === "all" ? undefined : sector} />
+        )}
       </>
     );
   }

@@ -123,6 +123,36 @@ const GROUP_META: Record<string, { label: string; description: string; icon: str
     description: "MOVs — BFDP/SKFDP, project photos, liquidation, attendance, SGLGB evidence",
     icon: "✅",
   },
+  katarungang_pambarangay: {
+    label: "Katarungang Pambarangay",
+    description: "KP case records, mediation agreements, and CTFAs",
+    icon: "⚖️",
+  },
+  peace_order: {
+    label: "Peace & Order / Anti-Illegal Drugs",
+    description: "Peace & order reports, BADAC, and tanod duty records",
+    icon: "🛡️",
+  },
+  gad: {
+    label: "Gender & Development (GAD)",
+    description: "GAD plans, budgets, and accomplishment reports",
+    icon: "🤝",
+  },
+  vulnerable_sectors: {
+    label: "Vulnerable Sectors",
+    description: "PWD, senior citizens, and solo parent records",
+    icon: "🫶",
+  },
+  sk: {
+    label: "Sangguniang Kabataan (SK)",
+    description: "SK plans, programs, financial and activity reports",
+    icon: "🧑‍🤝‍🧑",
+  },
+  environment: {
+    label: "Environment / Solid Waste",
+    description: "SWM plans, environmental reports, and cleanup documentation",
+    icon: "🌱",
+  },
 };
 
 /* ================================================================== */

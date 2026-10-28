@@ -10,6 +10,8 @@ const STYLES: Record<SubmissionStatus, string> = {
   approved: "bg-green-100 text-green-700 dark:bg-emerald-500/20 dark:text-emerald-300",
   returned: "bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300",
   overdue: "bg-red-100 text-red-700 dark:bg-rose-500/20 dark:text-rose-300",
+  rejected: "bg-red-100 text-red-700 dark:bg-rose-500/20 dark:text-rose-300",
+  revision: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300",
 };
 
 const LABELS: Record<SubmissionStatus, string> = {
@@ -22,6 +24,8 @@ const LABELS: Record<SubmissionStatus, string> = {
   approved: "Approved",
   returned: "Returned",
   overdue: "Overdue",
+  rejected: "Rejected",
+  revision: "Needs Revision",
 };
 
 export function StatusBadge({

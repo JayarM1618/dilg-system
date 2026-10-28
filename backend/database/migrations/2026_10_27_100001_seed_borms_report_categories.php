@@ -1,0 +1,263 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+
+return new class extends Migration
+{
+    /**
+     * Seeds the official BORMS report categories including SK reports (SKFDP, KK Assembly, SKMT).
+     */
+    public function up(): void
+    {
+        $now = now();
+
+        $categories = [
+            [
+                'id' => 1,
+                'slug' => 'monthly-accomplishment',
+                'name' => 'Monthly Accomplishment Report',
+                'cycle' => 'monthly',
+                'description' => 'Summary of barangay programs, projects and activities accomplished during the month.',
+                'sector' => 'barangay',
+                'deadline_description' => 'Tuwing ika-5 ng sumunod na buwan',
+                'barangay_action' => 'Submit monthly accomplishment report',
+                'supervisor_action' => 'Review & Endorse',
+                'sort_order' => 1,
+            ],
+            [
+                'id' => 2,
+                'slug' => 'weekly-peace-order',
+                'name' => 'Weekly Peace and Order Situation Report',
+                'cycle' => 'weekly',
+                'description' => 'Weekly peace and order, blotter and incident summary.',
+                'sector' => 'peace_order',
+                'deadline_description' => 'Tuwing Lunes',
+                'barangay_action' => 'Submit blotter & patrol summary',
+                'supervisor_action' => 'Review & Consolidate',
+                'sort_order' => 2,
+            ],
+            [
+                'id' => 3,
+                'slug' => 'quarterly-financial',
+                'name' => 'Quarterly Barangay Financial Report',
+                'cycle' => 'quarterly',
+                'description' => 'Statement of income and expenditures for the quarter.',
+                'sector' => 'audit_compliance',
+                'deadline_description' => 'Ika-10 ng Apr, Jul, Oct, Jan',
+                'barangay_action' => 'Submit financial statement & receipts',
+                'supervisor_action' => 'Audit & Validate',
+                'sort_order' => 3,
+            ],
+            [
+                'id' => 4,
+                'slug' => 'semestral-bdp',
+                'name' => 'Semestral Barangay Development Plan Update',
+                'cycle' => 'semestral',
+                'description' => 'Progress update on the Barangay Development Plan.',
+                'sector' => 'barangay',
+                'deadline_description' => 'Kada Semestre (Hunyo & Disyembre)',
+                'barangay_action' => 'Submit BDP progress update',
+                'supervisor_action' => 'Review & Monitor',
+                'sort_order' => 4,
+            ],
+            [
+                'id' => 5,
+                'slug' => 'annual-profile',
+                'name' => 'Annual Barangay Profile',
+                'cycle' => 'annual',
+                'description' => 'Yearly update of the barangay profile and demographic data.',
+                'sector' => 'civil_registry',
+                'deadline_description' => 'Katapusan ng Taon (Disyembre)',
+                'barangay_action' => 'Submit updated demographic profile',
+                'supervisor_action' => 'Validate & Archive',
+                'sort_order' => 5,
+            ],
+            [
+                'id' => 6,
+                'slug' => 'cleanup-barkada',
+                'name' => 'Clean-Up (BARKADA Report)',
+                'cycle' => 'weekly',
+                'description' => 'Barangay Kalinisan Day — lingguhang paglilinis at clean-up drive sa bawat barangay.',
+                'sector' => 'barangay',
+                'deadline_description' => 'Tuwing Lunes',
+                'barangay_action' => 'Submit photo docs & attendance',
+                'supervisor_action' => 'Review / Validate',
+                'sort_order' => 6,
+            ],
+            [
+                'id' => 7,
+                'slug' => 'barco',
+                'name' => 'BaRCO (Road Clearing)',
+                'cycle' => 'monthly',
+                'description' => 'Barangay Road Clearing Operations — buwanang pag-uulat ng paglilinis ng mga kalsada at bangketa.',
+                'sector' => 'barangay',
+                'deadline_description' => 'Tuwing ika-20 ng buwan',
+                'barangay_action' => 'Submit road clearing form',
+                'supervisor_action' => 'Review / Validate',
+                'sort_order' => 7,
+            ],
+            [
+                'id' => 8,
+                'slug' => 'eca',
+                'name' => 'ECA (Compliance Assessment)',
+                'cycle' => 'monthly',
+                'description' => 'Enhanced Compliance Assessment — pagsusuri sa pagsunod ng lokal na pamahalaan sa environmental laws at ecological sanitation.',
+                'sector' => 'barangay',
+                'deadline_description' => 'Regular Monthly',
+                'barangay_action' => 'Submit compliance checklist',
+                'supervisor_action' => 'Review / Validate',
+                'sort_order' => 8,
+            ],
+            [
+                'id' => 9,
+                'slug' => 'vaw-desk',
+                'name' => 'VAW Desk Report',
+                'cycle' => 'quarterly',
+                'description' => 'Violence Against Women — ulat ng mga kaso at aksyon mula sa Barangay VAW Desk.',
+                'sector' => 'gad',
+                'deadline_description' => 'Ika-5 ng Apr, Jul, Oct, Dec',
+                'barangay_action' => 'Submit quarterly cases log',
+                'supervisor_action' => 'Review / Validate',
+                'sort_order' => 9,
+            ],
+            [
+                'id' => 10,
+                'slug' => 'vac-report',
+                'name' => 'VAC Report (Child Protection)',
+                'cycle' => 'quarterly',
+                'description' => 'Violence Against Children — ulat ng mga kasong naaksyunan para sa proteksyon ng kabataan.',
+                'sector' => 'vulnerable_sectors',
+                'deadline_description' => 'Ika-5 ng Apr, Jul, Oct, Dec',
+                'barangay_action' => 'Submit quarterly cases log',
+                'supervisor_action' => 'Review / Validate',
+                'sort_order' => 10,
+            ],
+            [
+                'id' => 11,
+                'slug' => 'kp-report',
+                'name' => 'KP Report (Katarungang Pambarangay)',
+                'cycle' => 'quarterly',
+                'description' => 'Katarungang Pambarangay — submit Lupon cases summary.',
+                'sector' => 'katarungang_pambarangay',
+                'deadline_description' => 'Ika-5 ng Apr, Jul, Oct, Dec',
+                'barangay_action' => 'Submit Lupon cases summary',
+                'supervisor_action' => 'Review / Validate',
+                'sort_order' => 11,
+            ],
+            [
+                'id' => 12,
+                'slug' => 'bfdp',
+                'name' => 'BFDP (Brgy Full Disclosure Policy)',
+                'cycle' => 'quarterly',
+                'description' => 'Barangay Full Disclosure Policy — upload photos of 3 transparency boards & financial docs.',
+                'sector' => 'audit_compliance',
+                'deadline_description' => 'Ika-10 ng Apr, Jul, Oct, Dec',
+                'barangay_action' => 'Upload photos of 3 boards & financial docs',
+                'supervisor_action' => 'Review / Audit Compliance',
+                'sort_order' => 12,
+            ],
+            [
+                'id' => 13,
+                'slug' => 'skfdp',
+                'name' => 'SKFDP (SK Full Disclosure Policy)',
+                'cycle' => 'quarterly',
+                'description' => 'Sangguniang Kabataan Full Disclosure Policy — upload SK financial postings & budget.',
+                'sector' => 'sk',
+                'deadline_description' => 'Ika-10 ng Apr, Jul, Oct, Dec',
+                'barangay_action' => 'Upload SK financial postings & budget',
+                'supervisor_action' => 'Review / Audit Compliance',
+                'sort_order' => 13,
+            ],
+            [
+                'id' => 14,
+                'slug' => 'ba-soba',
+                'name' => 'Barangay Assembly (BA / SOBA)',
+                'cycle' => 'semestral',
+                'description' => 'State of the Barangay Address / Barangay Assembly — upload post-assembly docs & minutes.',
+                'sector' => 'barangay',
+                'deadline_description' => 'Pagkatapos ng Assembly (Mar & Oct)',
+                'barangay_action' => 'Upload post-assembly docs & minutes',
+                'supervisor_action' => 'Review / Validate',
+                'sort_order' => 14,
+            ],
+            [
+                'id' => 15,
+                'slug' => 'rbi',
+                'name' => 'RBI (Registry of Inhabitants)',
+                'cycle' => 'semestral',
+                'description' => 'Registry of Barangay Inhabitants — upload updated population summary.',
+                'sector' => 'civil_registry',
+                'deadline_description' => 'Kada Semestre',
+                'barangay_action' => 'Upload updated population summary',
+                'supervisor_action' => 'Review / Validate',
+                'sort_order' => 15,
+            ],
+            [
+                'id' => 16,
+                'slug' => 'kk-assembly',
+                'name' => 'KK Assembly (Katipunan ng Kabataan)',
+                'cycle' => 'semestral',
+                'description' => 'Katipunan ng Kabataan Assembly — upload youth assembly documentation.',
+                'sector' => 'sk',
+                'deadline_description' => 'Kada Semestre',
+                'barangay_action' => 'Upload youth assembly documentation',
+                'supervisor_action' => 'Review / Validate',
+                'sort_order' => 16,
+            ],
+            [
+                'id' => 17,
+                'slug' => 'skmt-sk-concerns',
+                'name' => 'SKMT / SK Concerns',
+                'cycle' => 'annual',
+                'description' => 'Sangguniang Kabataan Mandatory Training — upload SK training completion documents.',
+                'sector' => 'sk',
+                'deadline_description' => 'Depende sa Training/Election Cycle',
+                'barangay_action' => 'Upload SK training completion',
+                'supervisor_action' => 'Review / Validate',
+                'sort_order' => 17,
+            ],
+            [
+                'id' => 18,
+                'slug' => 'accomplishment-report',
+                'name' => 'Barangay Accomplishment Report',
+                'cycle' => 'annual',
+                'description' => 'Annual accomplishment report ng barangay.',
+                'sector' => 'barangay',
+                'deadline_description' => 'Katapusan ng Taon',
+                'barangay_action' => 'Submit annual accomplishment report',
+                'supervisor_action' => 'Review / Final Sign-off',
+                'sort_order' => 18,
+            ],
+            [
+                'id' => 19,
+                'slug' => 'sglgb-self-audit',
+                'name' => 'SGLGB Self-Audit Assessment',
+                'cycle' => 'annual',
+                'description' => 'Seal of Good Local Governance for Barangay — fill-out self-assessment & attach MOVs.',
+                'sector' => 'barangay',
+                'deadline_description' => 'DILG Audit Period',
+                'barangay_action' => 'Fill-out self-assessment & attach MOVs',
+                'supervisor_action' => 'Validate & On-site Audit',
+                'sort_order' => 19,
+            ],
+        ];
+
+        foreach ($categories as $cat) {
+            $catId = $cat['id'];
+            unset($cat['id']);
+            DB::table('report_categories')->updateOrInsert(
+                ['id' => $catId],
+                array_merge($cat, [
+                    'updated_at' => $now,
+                    'created_at' => $now,
+                ])
+            );
+        }
+    }
+
+    public function down(): void
+    {
+        // Keep categories on rollback to avoid breaking historical submissions
+    }
+};

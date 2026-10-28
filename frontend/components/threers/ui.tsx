@@ -108,6 +108,10 @@ export const RESOURCE_GROUP_LABEL: Record<string, string> = {
   sectoral_toolkits: "Sectoral Toolkits & Reference Manuals",
   citizen_charts: "Makati Citizen Charts",
   drive_links: "Google Drive Files Link",
+  bneo: "BNEO (Newly Elected Officials)",
+  bois: "BOIS (Official Information System)",
+  report_templates: "Report Templates",
+  governance_templates: "Barangay Governance Templates",
 };
 
 export const CYCLE_LABEL: Record<string, string> = {

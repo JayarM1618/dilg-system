@@ -10,6 +10,8 @@ const COLORS: Record<SubmissionStatus, string> = {
   approved: "text-emerald-400",
   returned: "text-amber-400",
   overdue: "text-rose-400",
+  rejected: "text-rose-400",
+  revision: "text-amber-400",
 };
 
 /** Small decorative status icon. Decorative only: pair it with visible text. */

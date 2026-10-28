@@ -10,7 +10,16 @@ import ThreeRsTabs from "./ThreeRsTabs";
 import { Notice, PageTitle, TYPE_LABEL, RESOURCE_GROUP_LABEL, btn, btnGhost, field } from "./ui";
 import type { Category, ResourceItem } from "./types";
 
-const RESOURCE_GROUPS = ["standard_formats", "sectoral_toolkits", "citizen_charts", "drive_links"] as const;
+const RESOURCE_GROUPS = [
+  "standard_formats",
+  "sectoral_toolkits",
+  "citizen_charts",
+  "drive_links",
+  "bneo",
+  "bois",
+  "report_templates",
+  "governance_templates",
+] as const;
 const TYPES = ["template", "guideline", "sop", "toolkit", "citizen_chart", "drive_link", "security_advisory", "other"] as const;
 
 export default function ResourcesView() {

@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\BagwisPpaController;
 use App\Http\Controllers\Api\BarangayContentController;
 use App\Http\Controllers\Api\BarangayController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\FormSubmissionController;
+use App\Http\Controllers\Api\FormTemplateController;
 use App\Http\Controllers\Api\MonitoringController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PasswordController;
@@ -128,6 +130,15 @@ Route::middleware(['auth:sanctum', 'verified', 'password.expired'])->group(funct
     // Report categories catalogue (accessible to all authenticated users)
     Route::get('/report-categories', [ReportCategoryController::class, 'index']);
 
+    // Editable Forms & Submissions (Form Templates & Form Submissions)
+    Route::get('/form-templates', [FormTemplateController::class, 'index']);
+    Route::get('/form-templates/{formTemplate}', [FormTemplateController::class, 'show'])->whereNumber('formTemplate');
+    Route::get('/form-submissions', [FormSubmissionController::class, 'index']);
+    Route::get('/form-submissions/{formSubmission}', [FormSubmissionController::class, 'show'])->whereNumber('formSubmission');
+    Route::get('/form-submissions/{formSubmission}/signature', [FormSubmissionController::class, 'signature'])->whereNumber('formSubmission');
+    Route::post('/form-submissions', [FormSubmissionController::class, 'store']);
+    Route::patch('/form-submissions/{formSubmission}', [FormSubmissionController::class, 'update'])->whereNumber('formSubmission');
+
     // --- Bagwis: city-level read-only for barangay reps, full for office ---
     // These GET endpoints power the Bagwis sub-system dashboard. Office staff
     // always have full access; barangay reps may only read (the middleware
@@ -166,6 +177,12 @@ Route::middleware(['auth:sanctum', 'verified', 'password.expired'])->group(funct
         // Resources management (templates, guidelines, SOPs)
         Route::post('/resources', [ResourceController::class, 'store']);
         Route::patch('/resources/{resource}/archive', [ResourceController::class, 'archive']);
+
+        // Form Templates & Form Submissions management (office oversight)
+        Route::post('/form-templates', [FormTemplateController::class, 'store']);
+        Route::patch('/form-templates/{formTemplate}', [FormTemplateController::class, 'update'])->whereNumber('formTemplate');
+        Route::delete('/form-templates/{formTemplate}', [FormTemplateController::class, 'destroy'])->whereNumber('formTemplate');
+        Route::patch('/form-submissions/{formSubmission}/review', [FormSubmissionController::class, 'review'])->whereNumber('formSubmission');
 
         // Bagwis PPAs management
         Route::post('/bagwis/ppas/{ppa}/entries', [BagwisPpaController::class, 'storeEntry']);

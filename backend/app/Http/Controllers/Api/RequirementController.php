@@ -51,7 +51,7 @@ class RequirementController extends Controller
     public function index(Request $request)
     {
         if ($this->isOffice($request)) {
-            $rows = Requirement::with(['creator:id,name', 'assignments:id,requirement_id,status'])
+            $rows = Requirement::with(['creator:id,name', 'assignments:id,requirement_id,status', 'formTemplate'])
                 ->withCount('files')
                 ->orderByDesc('id')
                 ->get()
@@ -82,7 +82,7 @@ class RequirementController extends Controller
 
         abort_unless($request->user()->barangay_id, 403);
 
-        $rows = RequirementAssignment::with(['requirement.files', 'requirement.creator:id,name'])
+        $rows = RequirementAssignment::with(['requirement.files', 'requirement.creator:id,name', 'requirement.formTemplate'])
             ->withCount('responses')
             ->where('barangay_id', $request->user()->barangay_id)
             ->orderByDesc('id')
@@ -162,6 +162,7 @@ class RequirementController extends Controller
             'description' => ['nullable', 'string', 'max:5000'],
             'due_date' => ['nullable', 'date', 'after_or_equal:today'],
             'requires_response' => ['nullable', 'boolean'],
+            'form_template_id' => ['nullable', 'exists:form_templates,id'],
             'audience' => ['required', 'in:all,selected'],
             'barangay_ids' => ['required_if:audience,selected', 'array'],
             'barangay_ids.*' => ['integer', 'exists:barangays,id'],
@@ -184,6 +185,7 @@ class RequirementController extends Controller
                 'description' => $data['description'] ?? null,
                 'due_date' => $data['due_date'] ?? null,
                 'requires_response' => $request->has('requires_response') ? $request->boolean('requires_response') : true,
+                'form_template_id' => $data['form_template_id'] ?? null,
                 'audience' => $data['audience'],
                 'status' => 'open',
                 'created_by' => $request->user()->id,
@@ -211,6 +213,7 @@ class RequirementController extends Controller
             'kind' => $requirement->kind,
             'audience' => $requirement->audience,
             'barangays' => $targets->count(),
+            'form_template_id' => $requirement->form_template_id,
         ]);
 
         // ── Notify all targeted barangay reps ──
@@ -225,13 +228,13 @@ class RequirementController extends Controller
             $request->user(),
         );
 
-        return response()->json($requirement->load('files'), 201);
+        return response()->json($requirement->load(['files', 'formTemplate']), 201);
     }
 
     /** Office: the full picture. Barangay: only their own copy. */
     public function show(Request $request, Requirement $requirement)
     {
-        $requirement->load(['files', 'creator:id,name']);
+        $requirement->load(['files', 'creator:id,name', 'formTemplate']);
 
         if ($this->isOffice($request)) {
             $requirement->load([

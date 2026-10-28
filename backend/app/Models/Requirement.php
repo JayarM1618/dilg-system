@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Requirement extends Model
 {
     protected $fillable = [
-        'title', 'kind', 'description', 'due_date', 'requires_response',
+        'title', 'kind', 'form_template_id', 'description', 'due_date', 'requires_response',
         'audience', 'status', 'created_by', 'closed_at',
     ];
 
@@ -18,6 +18,11 @@ class Requirement extends Model
             'requires_response' => 'boolean',
             'closed_at' => 'datetime',
         ];
+    }
+
+    public function formTemplate()
+    {
+        return $this->belongsTo(FormTemplate::class, 'form_template_id');
     }
 
     public function files()

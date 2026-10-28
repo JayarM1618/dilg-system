@@ -3,7 +3,8 @@ USE `dilg_makati_portal`;
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
-DROP TABLE IF EXISTS `requirement_responses`, `requirement_assignments`, `requirement_files`, `requirements`,
+DROP TABLE IF EXISTS `form_submissions`, `form_templates`,
+  `requirement_responses`, `requirement_assignments`, `requirement_files`, `requirements`,
   `barangay_programs`, `barangay_announcements`, `activity_logs`, `security_incidents`, `submission_files`, `submissions`, `resources`,
   `report_categories`, `bagwis_ppa_entries`, `bagwis_ppas`, `repository_documents`, `document_categories`,
   `sessions`, `users`, `barangays`, `cache`, `cache_locks`,
@@ -341,6 +342,55 @@ CREATE TABLE `requirement_responses` (
   KEY `requirement_responses_uploaded_by_foreign` (`uploaded_by`),
   CONSTRAINT `requirement_responses_assignment_id_foreign` FOREIGN KEY (`assignment_id`) REFERENCES `requirement_assignments` (`id`) ON DELETE CASCADE,
   CONSTRAINT `requirement_responses_uploaded_by_foreign` FOREIGN KEY (`uploaded_by`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Editable form templates (supervisors create these)
+CREATE TABLE `form_templates` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `description` text,
+  `category` varchar(100) DEFAULT 'general',
+  `fields` json NOT NULL COMMENT 'Array of field definitions [{name, type, label, required, options}]',
+  `version` varchar(20) NOT NULL DEFAULT '1.0',
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_by` bigint unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `form_templates_created_by_foreign` (`created_by`),
+  CONSTRAINT `form_templates_created_by_foreign` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Form submissions (barangay reps fill out and e-sign)
+CREATE TABLE `form_submissions` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `form_template_id` bigint unsigned NOT NULL,
+  `requirement_id` bigint unsigned DEFAULT NULL COMMENT 'Links to requirement if this form was sent as a requirement',
+  `barangay_id` bigint unsigned NOT NULL,
+  `data` json NOT NULL COMMENT 'Key-value pairs matching the template fields',
+  `status` varchar(20) NOT NULL DEFAULT 'draft' COMMENT 'draft, submitted, approved, revision, rejected',
+  `submitted_at` timestamp NULL DEFAULT NULL,
+  `submitted_by` bigint unsigned DEFAULT NULL,
+  `reviewed_at` timestamp NULL DEFAULT NULL,
+  `reviewed_by` bigint unsigned DEFAULT NULL,
+  `review_notes` text,
+  `signature_data` longtext COMMENT 'Base64-encoded signature image',
+  `signature_name` varchar(255) DEFAULT NULL,
+  `signature_position` varchar(255) DEFAULT NULL,
+  `signed_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `form_submissions_template_foreign` (`form_template_id`),
+  KEY `form_submissions_requirement_foreign` (`requirement_id`),
+  KEY `form_submissions_barangay_foreign` (`barangay_id`),
+  KEY `form_submissions_submitted_by_foreign` (`submitted_by`),
+  KEY `form_submissions_reviewed_by_foreign` (`reviewed_by`),
+  CONSTRAINT `form_submissions_template_foreign` FOREIGN KEY (`form_template_id`) REFERENCES `form_templates` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `form_submissions_requirement_foreign` FOREIGN KEY (`requirement_id`) REFERENCES `requirements` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `form_submissions_barangay_foreign` FOREIGN KEY (`barangay_id`) REFERENCES `barangays` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `form_submissions_submitted_by_foreign` FOREIGN KEY (`submitted_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `form_submissions_reviewed_by_foreign` FOREIGN KEY (`reviewed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Bagwis PPAs (city-level programs)
@@ -750,6 +800,42 @@ INSERT INTO `document_categories` (`slug`, `name`, `group_slug`, `description`, 
   ('project-docs', 'Project Documentation', 'audit_compliance', 'Project photos, liquidation attachments, attendance sheets', @aud_id, 2, NOW(), NOW()),
   ('sglgb-evidence', 'SGLGB Compliance Evidence', 'audit_compliance', 'Folders ng compliance evidence para sa SGLGB', @aud_id, 3, NOW(), NOW());
 
+-- Feature Expansion: Additional document categories (3Rs aligned)
+-- These use INSERT IGNORE so re-running is safe (slug is UNIQUE).
+INSERT IGNORE INTO `document_categories` (`name`, `slug`, `group_slug`, `description`, `sort_order`, `created_at`, `updated_at`) VALUES
+  -- Civil Registry
+  ('Birth Certificates', 'birth_certificates', 'civil_registry', 'Barangay-certified birth records', 10, NOW(), NOW()),
+  ('Death Certificates', 'death_certificates', 'civil_registry', 'Barangay-certified death records', 11, NOW(), NOW()),
+  ('Barangay Clearances', 'barangay_clearances', 'civil_registry', 'Barangay clearance documents', 12, NOW(), NOW()),
+  ('Certificates of Indigency', 'certificates_of_indigency', 'civil_registry', 'Certificates of indigency', 13, NOW(), NOW()),
+  -- Audit & Compliance
+  ('COA Audit Reports', 'coa_audit', 'audit_compliance', 'Commission on Audit reports', 20, NOW(), NOW()),
+  ('Financial Statements', 'financial_statements', 'audit_compliance', 'Barangay financial statements', 21, NOW(), NOW()),
+  ('Annual Budget', 'annual_budget', 'audit_compliance', 'Approved annual budget documents', 22, NOW(), NOW()),
+  -- Katarungang Pambarangay
+  ('KP Case Records', 'kp_case_records', 'katarungang_pambarangay', 'Katarungang Pambarangay case files and settlements', 30, NOW(), NOW()),
+  ('Mediation Agreements', 'mediation_agreements', 'katarungang_pambarangay', 'Mediation and conciliation agreements', 31, NOW(), NOW()),
+  ('Certificates to File Action', 'cfa', 'katarungang_pambarangay', 'Certificates to File Action issued by Lupong Tagapamayapa', 32, NOW(), NOW()),
+  -- Peace & Order / Anti-Illegal Drugs
+  ('Peace & Order Reports', 'peace_order', 'peace_order', 'Barangay peace and order situational reports', 40, NOW(), NOW()),
+  ('Anti-Illegal Drugs Reports', 'anti_drugs', 'peace_order', 'BADAC reports and anti-illegal drugs campaign records', 41, NOW(), NOW()),
+  ('Tanod Duty Reports', 'tanod_reports', 'peace_order', 'Barangay tanod deployment and duty reports', 42, NOW(), NOW()),
+  -- GAD (Gender and Development)
+  ('GAD Plan & Budget', 'gad_plan', 'gad', 'Gender and Development plan and budget', 50, NOW(), NOW()),
+  ('GAD Accomplishment Reports', 'gad_accomplishment', 'gad', 'GAD accomplishment and activity reports', 51, NOW(), NOW()),
+  -- Vulnerable Sectors
+  ('PWD Records', 'pwd_records', 'vulnerable_sectors', 'Persons with Disability registry and services', 60, NOW(), NOW()),
+  ('Senior Citizens Records', 'senior_citizens', 'vulnerable_sectors', 'Senior citizen registry and services', 61, NOW(), NOW()),
+  ('Solo Parent Records', 'solo_parent', 'vulnerable_sectors', 'Solo parent registry and services', 62, NOW(), NOW()),
+  -- SK (Sangguniang Kabataan)
+  ('SK Plans & Programs', 'sk_plans', 'sk', 'SK development plans and programs', 70, NOW(), NOW()),
+  ('SK Financial Reports', 'sk_financial', 'sk', 'SK financial reports and budget utilization', 71, NOW(), NOW()),
+  ('SK Activity Reports', 'sk_activity', 'sk', 'SK activity and accomplishment reports', 72, NOW(), NOW()),
+  -- Environment / Solid Waste Management
+  ('SWM Plans', 'swm_plans', 'environment', 'Solid Waste Management plans', 80, NOW(), NOW()),
+  ('Environmental Reports', 'environmental_reports', 'environment', 'Environmental monitoring and compliance reports', 81, NOW(), NOW()),
+  ('Cleanup Drive Reports', 'cleanup_drive', 'environment', 'Weekly/monthly cleanup drive documentation', 82, NOW(), NOW());
+
 -- PDF Architecture: 6 Bagwis PPAs (city-level programs)
 INSERT INTO `bagwis_ppas` (`slug`, `name`, `frequency`, `responsible_office`, `description`, `deadline_description`, `is_active`, `sort_order`, `created_at`, `updated_at`) VALUES
   ('subaybayan', 'Subaybayan (Support to LG)', 'Monthly (Tuwing ika-25)', 'City Portal Focal / Engineering / Planning', 'Monitoring portal para sa mga proyektong pang-imprastraktura ng lungsod.', 'Every 25th of the month', 1, 1, NOW(), NOW()),
@@ -762,6 +848,9 @@ INSERT INTO `bagwis_ppas` (`slug`, `name`, `frequency`, `responsible_office`, `d
 -- 4) Register migrations so php artisan migrate skips them
 INSERT IGNORE INTO `migrations` (`migration`, `batch`) VALUES
   ('2026_10_14_000001_create_repository_documents_table', 3),
-  ('2024_01_15_000001_pdf_architecture_update', 4);
+  ('2024_01_15_000001_pdf_architecture_update', 4),
+  ('2026_10_20_000001_create_form_templates_table', 5),
+  ('2026_10_20_000002_create_form_submissions_table', 5),
+  ('2026_10_20_000003_feature_expansion_document_categories', 5);
 
 SELECT 'Repository tables created and seeded successfully.' AS result;
