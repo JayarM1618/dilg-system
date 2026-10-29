@@ -13,6 +13,11 @@ class BagwisPpa extends Model
         'responsible_office',
         'description',
         'deadline_description',
+        'attachment_path',
+        'attachment_name',
+        'attachment_size',
+        'attachment_mime',
+        'created_by',
         'is_active',
         'sort_order',
     ];
@@ -21,11 +26,17 @@ class BagwisPpa extends Model
     {
         return [
             'is_active' => 'boolean',
+            'attachment_size' => 'integer',
         ];
     }
 
     public function entries()
     {
         return $this->hasMany(BagwisPpaEntry::class);
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

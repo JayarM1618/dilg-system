@@ -73,22 +73,26 @@ return new class extends Migration
         // ──────────────────────────────────────────────
         // 3. DOCUMENT CATEGORIES — parent/group
         // ──────────────────────────────────────────────
-        Schema::table('document_categories', function (Blueprint $table) {
-            $table->unsignedBigInteger('parent_id')->nullable()->after('id');
-            $table->string('group_slug', 60)->nullable()->after('slug');
+        if (Schema::hasTable('document_categories')) {
+            Schema::table('document_categories', function (Blueprint $table) {
+                $table->unsignedBigInteger('parent_id')->nullable()->after('id');
+                $table->string('group_slug', 60)->nullable()->after('slug');
 
-            $table->foreign('parent_id')
-                  ->references('id')
-                  ->on('document_categories')
-                  ->nullOnDelete();
-        });
+                $table->foreign('parent_id')
+                      ->references('id')
+                      ->on('document_categories')
+                      ->nullOnDelete();
+            });
+        }
 
         // ──────────────────────────────────────────────
         // 4. RESOURCES — resource_group
         // ──────────────────────────────────────────────
-        Schema::table('resources', function (Blueprint $table) {
-            $table->string('resource_group', 60)->default('standard_formats')->after('type');
-        });
+        if (Schema::hasTable('resources')) {
+            Schema::table('resources', function (Blueprint $table) {
+                $table->string('resource_group', 60)->default('standard_formats')->after('type');
+            });
+        }
     }
 
     public function down(): void

@@ -22,18 +22,24 @@ use Illuminate\Validation\Rule;
 /**
  * Accounts are issued by the DILG super admin (route middleware: role:super_admin).
  * Nobody registers themselves: DILG creates the account with an email, the owner only activates it.
+ *
+ * UPDATED: destroy() now archives instead of permanently deleting.
  */
 class UserController extends Controller
 {
     private const LINK_VALID_DAYS = 7;
 
-    public function index()
+    public function index(Request $request)
     {
+        $query = User::with('barangay:id,name,code', 'verifier:id,name');
+
+        // By default, exclude archived users unless ?include_archived=1
+        if (!$request->boolean('include_archived')) {
+            $query->whereNull('archived_at');
+        }
+
         return response()->json([
-            'data' => User::with('barangay:id,name,code')
-                ->with('verifier:id,name')
-                ->orderBy('name')
-                ->get(),
+            'data' => $query->orderBy('name')->get(),
         ]);
     }
 
@@ -54,7 +60,7 @@ class UserController extends Controller
             ], 422);
         }
         if ($data['role'] !== 'barangay_rep') {
-            $data['barangay_id'] = null; // office accounts are not tied to a barangay
+            $data['barangay_id'] = null;
         }
 
         $user = new User([
@@ -63,8 +69,8 @@ class UserController extends Controller
             'role' => $data['role'],
             'barangay_id' => $data['barangay_id'],
             'is_active' => true,
-            'password' => Str::random(40), // unusable until the owner chooses their own
-            'verification_status' => 'unverified', // will become 'pending' after activation
+            'password' => Str::random(40),
+            'verification_status' => 'unverified',
         ]);
         $user->created_by = $request->user()->id;
         $user->save();
@@ -79,7 +85,6 @@ class UserController extends Controller
             'email' => $user->email,
         ]);
 
-        // ── Notify other admins about the new account ──
         $roleLabel = match ($user->role) {
             'barangay_rep' => 'Barangay Representative',
             'office_supervisor' => 'Office Supervisor',
@@ -92,7 +97,7 @@ class UserController extends Controller
             "A {$roleLabel} account was created for {$user->email}.",
             '/talaghayan/users',
             $request->user(),
-            false, // skip email — the admin who did it is right there
+            false,
         );
 
         return response()->json([
@@ -126,7 +131,6 @@ class UserController extends Controller
         if (array_key_exists('is_active', $data)) {
             ActivityLog::record($data['is_active'] ? 'account.reactivated' : 'account.deactivated', $user, ['email' => $user->email]);
 
-            // ── Notify the affected user about activation status change ──
             if ($data['is_active']) {
                 NotificationService::send(
                     $user,
@@ -209,7 +213,6 @@ class UserController extends Controller
             'verified_by' => $request->user()->email,
         ]);
 
-        // Notify the user their account is verified
         NotificationService::send(
             $user,
             'account.verified',
@@ -219,7 +222,6 @@ class UserController extends Controller
             $request->user(),
         );
 
-        // Send email notification
         try {
             Mail::to($user->email)->send(new AccountVerified($user));
         } catch (\Throwable $e) {
@@ -256,7 +258,6 @@ class UserController extends Controller
             'rejected_by' => $request->user()->email,
         ]);
 
-        // Notify the user
         NotificationService::send(
             $user,
             'account.rejected',
@@ -266,7 +267,6 @@ class UserController extends Controller
             $request->user(),
         );
 
-        // Send email notification
         try {
             Mail::to($user->email)->send(new AccountRejected($user, $data['reason'] ?? null));
         } catch (\Throwable $e) {
@@ -279,96 +279,53 @@ class UserController extends Controller
         ]);
     }
 
-    /** Permanent deletion directly from the database (super admin only). */
+    /**
+     * ARCHIVE instead of permanent delete.
+     * Moves the user to archived state — they can be restored later from the Archive Center.
+     * Their sessions are revoked immediately so they cannot log in.
+     */
     public function destroy(Request $request, User $user)
     {
         if ($user->id === $request->user()->id) {
-            return response()->json(['message' => 'You cannot delete your own account.'], 422);
+            return response()->json(['message' => 'You cannot archive your own account.'], 422);
         }
 
-        $adminId = $request->user()->id;
-        $userName = $user->name;
-        $userEmail = $user->email;
-
-        DB::transaction(function () use ($user, $adminId, $userName, $userEmail, $request) {
-            // 1. Delete associated sessions/tokens if tables exist
+        DB::transaction(function () use ($user, $request) {
+            // Revoke all sessions/tokens so the archived user is immediately logged out
             if (Schema::hasTable('personal_access_tokens')) {
-                DB::table('personal_access_tokens')->where('tokenable_type', User::class)->where('tokenable_id', $user->id)->delete();
+                DB::table('personal_access_tokens')
+                    ->where('tokenable_type', User::class)
+                    ->where('tokenable_id', $user->id)
+                    ->delete();
             }
             if (Schema::hasTable('sessions')) {
                 DB::table('sessions')->where('user_id', $user->id)->delete();
             }
 
-            // 2. Remove notifications directed to this user or nullify actor
-            if (Schema::hasTable('notifications')) {
-                DB::table('notifications')->where('user_id', $user->id)->delete();
-                DB::table('notifications')->where('actor_id', $user->id)->update(['actor_id' => null]);
-            }
+            // Archive the user (soft archive)
+            $user->forceFill([
+                'archived_at' => now(),
+                'archived_by' => $request->user()->id,
+                'is_active'   => false,
+            ])->save();
 
-            // 3. Reassign non-nullable author/uploader foreign keys to the deleting admin
-            if (Schema::hasTable('repository_documents')) {
-                DB::table('repository_documents')->where('uploaded_by', $user->id)->update(['uploaded_by' => $adminId]);
-            }
-            if (Schema::hasTable('requirement_responses')) {
-                DB::table('requirement_responses')->where('uploaded_by', $user->id)->update(['uploaded_by' => $adminId]);
-            }
-            if (Schema::hasTable('requirements')) {
-                DB::table('requirements')->where('created_by', $user->id)->update(['created_by' => $adminId]);
-            }
-            if (Schema::hasTable('resources')) {
-                DB::table('resources')->where('uploaded_by', $user->id)->update(['uploaded_by' => $adminId]);
-            }
-            if (Schema::hasTable('security_incidents')) {
-                DB::table('security_incidents')->where('reported_by', $user->id)->update(['reported_by' => $adminId]);
-                DB::table('security_incidents')->where('acknowledged_by', $user->id)->update(['acknowledged_by' => null]);
-            }
-
-            // 4. Nullify nullable references
-            if (Schema::hasTable('activity_logs')) {
-                DB::table('activity_logs')->where('user_id', $user->id)->update(['user_id' => null]);
-            }
-            if (Schema::hasTable('bagwis_ppa_entries')) {
-                DB::table('bagwis_ppa_entries')->where('submitted_by', $user->id)->update(['submitted_by' => null]);
-                DB::table('bagwis_ppa_entries')->where('reviewed_by', $user->id)->update(['reviewed_by' => null]);
-            }
-            if (Schema::hasTable('barangay_announcements')) {
-                DB::table('barangay_announcements')->where('created_by', $user->id)->update(['created_by' => null]);
-            }
-            if (Schema::hasTable('barangay_programs')) {
-                DB::table('barangay_programs')->where('created_by', $user->id)->update(['created_by' => null]);
-            }
-            if (Schema::hasTable('requirement_assignments')) {
-                DB::table('requirement_assignments')->where('reviewed_by', $user->id)->update(['reviewed_by' => null]);
-            }
-            if (Schema::hasTable('submission_files')) {
-                DB::table('submission_files')->where('uploaded_by', $user->id)->update(['uploaded_by' => null]);
-            }
-            if (Schema::hasTable('submissions')) {
-                DB::table('submissions')->where('submitted_by', $user->id)->update(['submitted_by' => null]);
-                DB::table('submissions')->where('reviewed_by', $user->id)->update(['reviewed_by' => null]);
-            }
-            DB::table('users')->where('created_by', $user->id)->update(['created_by' => null]);
-            DB::table('users')->where('verified_by', $user->id)->update(['verified_by' => null]);
-
-            // 5. Delete profile photo if stored on disk
-            if ($user->profile_photo_path) {
-                Storage::disk('public')->delete($user->profile_photo_path);
-            }
-
-            // 6. Record activity log
-            ActivityLog::record('account.deleted', null, [
-                'deleted_user_id' => $user->id,
-                'deleted_user_name' => $userName,
-                'deleted_user_email' => $userEmail,
-                'deleted_by' => $request->user()->email,
+            ActivityLog::record('account.archived', $user, [
+                'email'       => $user->email,
+                'archived_by' => $request->user()->email,
             ]);
-
-            // 7. Delete directly from the database
-            $user->delete();
         });
 
+        NotificationService::notifyOffice(
+            'account.archived',
+            "Account archived: {$user->name}",
+            "The account for {$user->email} has been moved to the archive.",
+            '/talaghayan/archive',
+            $request->user(),
+            false,
+        );
+
         return response()->json([
-            'message' => "Account {$userName} ({$userEmail}) was permanently deleted from the database.",
+            'message' => "Account {$user->name} ({$user->email}) has been archived. You can restore it from the Archive Center.",
         ]);
     }
 
@@ -387,7 +344,6 @@ class UserController extends Controller
         return rtrim(config('app.frontend_url', env('FRONTEND_URL', 'http://localhost:3000')), '/') . '/activate?token=' . $plain;
     }
 
-    /** Best effort: uses the AccountActivation mailable for styled emails. */
     private function sendInvite(User $user, string $link, ?string &$error = null): bool
     {
         if (config('mail.default') === 'log') {
@@ -397,12 +353,10 @@ class UserController extends Controller
 
         try {
             Mail::to($user->email)->send(new AccountActivation($user, $link));
-
             return true;
         } catch (\Throwable $e) {
             $error = $e->getMessage();
             Log::warning('Invite email failed for ' . $user->email . ': ' . $error);
-
             return false;
         }
     }

@@ -1,13 +1,16 @@
 <?php
 
 use App\Http\Controllers\Api\ActivationController;
+use App\Http\Controllers\Api\ArchiveController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BagwisPpaController;
 use App\Http\Controllers\Api\BarangayContentController;
 use App\Http\Controllers\Api\BarangayController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\ExportController;
 use App\Http\Controllers\Api\FormSubmissionController;
 use App\Http\Controllers\Api\FormTemplateController;
+use App\Http\Controllers\Api\IpBlockController;
 use App\Http\Controllers\Api\MonitoringController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PasswordController;
@@ -17,8 +20,13 @@ use App\Http\Controllers\Api\RepositoryController;
 use App\Http\Controllers\Api\RequirementController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\ResourceController;
+use App\Http\Controllers\Api\SecurityDashboardController;
 use App\Http\Controllers\Api\SecurityIncidentController;
+use App\Http\Controllers\Api\SessionController;
 use App\Http\Controllers\Api\SubmissionController;
+use App\Http\Controllers\Api\SystemBroadcastController;
+use App\Http\Controllers\Api\SystemInfoController;
+use App\Http\Controllers\Api\SystemSettingsController;
 use App\Http\Controllers\Api\TwoFactorController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
@@ -140,9 +148,6 @@ Route::middleware(['auth:sanctum', 'verified', 'password.expired'])->group(funct
     Route::patch('/form-submissions/{formSubmission}', [FormSubmissionController::class, 'update'])->whereNumber('formSubmission');
 
     // --- Bagwis: city-level read-only for barangay reps, full for office ---
-    // These GET endpoints power the Bagwis sub-system dashboard. Office staff
-    // always have full access; barangay reps may only read (the middleware
-    // blocks POST/PATCH/DELETE for them).
     Route::middleware('bagwis.readonly')->group(function () {
         Route::get('/dashboard/talaghayan', [DashboardController::class, 'talaghayan']);
         Route::get('/bagwis/compliance-grid', [DashboardController::class, 'talaghayan']);
@@ -150,6 +155,8 @@ Route::middleware(['auth:sanctum', 'verified', 'password.expired'])->group(funct
         Route::get('/bagwis/totals', [DashboardController::class, 'summary']);
         Route::get('/bagwis/ppas', [BagwisPpaController::class, 'index']);
         Route::get('/bagwis/ppas/{ppa}/entries', [BagwisPpaController::class, 'entries']);
+        Route::get('/bagwis/ppas/{ppa}/download', [BagwisPpaController::class, 'download']);
+        Route::get('/bagwis/ppa-entries/{entry}/download', [BagwisPpaController::class, 'downloadEntryAttachment']);
         Route::get('/reports/compliance/export', [ReportController::class, 'exportCompliance']);
         Route::get('/reports/security', [ReportController::class, 'security']);
         Route::get('/barangays', [BarangayController::class, 'index']);
@@ -185,8 +192,12 @@ Route::middleware(['auth:sanctum', 'verified', 'password.expired'])->group(funct
         Route::patch('/form-submissions/{formSubmission}/review', [FormSubmissionController::class, 'review'])->whereNumber('formSubmission');
 
         // Bagwis PPAs management
-        Route::post('/bagwis/ppas/{ppa}/entries', [BagwisPpaController::class, 'storeEntry']);
-        Route::patch('/bagwis/ppa-entries/{entry}/review', [BagwisPpaController::class, 'reviewEntry']);
+        Route::post('/bagwis/ppas', [BagwisPpaController::class, 'store']);
+        Route::post('/bagwis/ppas/{ppa}', [BagwisPpaController::class, 'update'])->whereNumber('ppa');
+        Route::post('/bagwis/ppas/{ppa}/attachment', [BagwisPpaController::class, 'uploadAttachment'])->whereNumber('ppa');
+        Route::delete('/bagwis/ppas/{ppa}', [BagwisPpaController::class, 'destroy'])->whereNumber('ppa');
+        Route::post('/bagwis/ppas/{ppa}/entries', [BagwisPpaController::class, 'storeEntry'])->whereNumber('ppa');
+        Route::patch('/bagwis/ppa-entries/{entry}/review', [BagwisPpaController::class, 'reviewEntry'])->whereNumber('entry');
     });
 
     // --- Super admin only ---
@@ -206,7 +217,7 @@ Route::middleware(['auth:sanctum', 'verified', 'password.expired'])->group(funct
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);
         Route::patch('/users/{user}', [UserController::class, 'update']);
-        Route::delete('/users/{user}', [UserController::class, 'destroy']);
+        Route::delete('/users/{user}', [UserController::class, 'destroy']);  // Now archives instead of deleting
         Route::post('/users/{user}/invite', [UserController::class, 'invite']);
 
         // Account verification (admin reviews profile + photo)
@@ -216,5 +227,73 @@ Route::middleware(['auth:sanctum', 'verified', 'password.expired'])->group(funct
         // Monitoring: everything the DILG admins and barangay representatives do
         Route::get('/monitoring/summary', [MonitoringController::class, 'summary']);
         Route::get('/monitoring/activity', [MonitoringController::class, 'activity']);
+
+        // ══════════════════════════════════════════════════════════════
+        // ═══════ NEW SUPER ADMIN (IT) FEATURES ═══════════════════════
+        // ══════════════════════════════════════════════════════════════
+
+        // ── Security Dashboard ──
+        Route::get('/admin/security/login-history',     [SecurityDashboardController::class, 'loginHistory']);
+        Route::get('/admin/security/failed-attempts',   [SecurityDashboardController::class, 'failedAttempts']);
+        Route::get('/admin/security/suspicious',        [SecurityDashboardController::class, 'suspiciousActivity']);
+        Route::get('/admin/security/report',            [SecurityDashboardController::class, 'securityReport']);
+        Route::get('/admin/security/privacy',           [SecurityDashboardController::class, 'privacyDashboard']);
+
+        // ── IP Blocking ──
+        Route::get('/admin/ip-blocks',                  [IpBlockController::class, 'index']);
+        Route::post('/admin/ip-blocks',                 [IpBlockController::class, 'store']);
+        Route::delete('/admin/ip-blocks/{ipBlock}',     [IpBlockController::class, 'destroy']);
+
+        // ── Session Management ──
+        Route::get('/admin/sessions',                   [SessionController::class, 'index']);
+        Route::delete('/admin/sessions/{id}',           [SessionController::class, 'destroy']);
+        Route::post('/admin/sessions/force-logout-all', [SessionController::class, 'destroyAll']);
+
+        // ── System Settings ──
+        Route::get('/admin/settings',                   [SystemSettingsController::class, 'index']);
+        Route::patch('/admin/settings',                 [SystemSettingsController::class, 'update']);
+
+        // ── System Broadcasts ──
+        Route::get('/admin/broadcasts',                 [SystemBroadcastController::class, 'index']);
+        Route::get('/admin/broadcasts/active',          [SystemBroadcastController::class, 'active']);
+        Route::post('/admin/broadcasts',                [SystemBroadcastController::class, 'store']);
+        Route::patch('/admin/broadcasts/{id}',          [SystemBroadcastController::class, 'update']);
+        Route::delete('/admin/broadcasts/{id}',         [SystemBroadcastController::class, 'destroy']);
+
+        // ── Archive Center ──
+        Route::get('/admin/archive',                    [ArchiveController::class, 'index']);
+        Route::get('/admin/archive/summary',            [ArchiveController::class, 'summary']);
+        Route::post('/admin/archive/{type}/{id}/restore', [ArchiveController::class, 'restore']);
+
+        // ── System Info & Health ──
+        Route::get('/admin/system/info',                [SystemInfoController::class, 'index']);
+        Route::get('/admin/system/storage',             [SystemInfoController::class, 'storage']);
+        Route::get('/admin/system/health',              [SystemInfoController::class, 'health']);
+        Route::get('/admin/system/phpinfo',             [SystemInfoController::class, 'phpinfo']);
+
+        // ── Export Center ──
+        Route::get('/admin/export',                     [ExportController::class, 'export']);
+        Route::get('/admin/analytics',                  [ExportController::class, 'analytics']);
+
+        // ── Error Logs ──
+        Route::get('/admin/error-logs', function (Request $request) {
+            $query = \App\Models\ErrorLog::with('user:id,name')
+                ->orderByDesc('logged_at');
+
+            if ($level = $request->query('level')) {
+                $query->where('level', $level);
+            }
+            if ($from = $request->query('from')) {
+                $query->where('logged_at', '>=', $from);
+            }
+            if ($to = $request->query('to')) {
+                $query->where('logged_at', '<=', $to . ' 23:59:59');
+            }
+            if ($q = $request->query('q')) {
+                $query->where('message', 'like', "%{$q}%");
+            }
+
+            return response()->json($query->paginate(25));
+        });
     });
 });

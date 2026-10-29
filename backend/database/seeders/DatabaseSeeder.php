@@ -89,6 +89,9 @@ class DatabaseSeeder extends Seeder
             $user->save();
         }
 
+        // 4) Bagwis PPAs (Makati City Programs, Projects & Activities)
+        $this->call(BagwisPpaSeeder::class);
+
         if (filter_var(env('SEED_SAMPLE_DATA', true), FILTER_VALIDATE_BOOLEAN)) {
             $this->seedSampleData($now);
             $this->call(BarangayContentSeeder::class);

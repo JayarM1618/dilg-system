@@ -57,7 +57,7 @@ export const ROLE_INFO: Record<Role, RoleInfo> = {
   super_admin: {
     label: "Super admin",
     tag: "Super admin",
-    description: "Full control: everything the DILG supervisor can do, plus accounts, barangays, monitoring of every transaction and deleting records.",
+    description: "Full control: everything the DILG supervisor can do, plus accounts, barangays, monitoring of every transaction and IT administration.",
     home: "/talaghayan",
     nav: [
       { href: "/talaghayan", label: "Talaghayan Hub" },
@@ -66,6 +66,7 @@ export const ROLE_INFO: Record<Role, RoleInfo> = {
       { href: "/talaghayan/monitoring", label: "Monitoring" },
       { href: "/talaghayan/users", label: "Accounts" },
       { href: "/talaghayan/barangays", label: "Barangays" },
+      { href: "/talaghayan/settings", label: "System Admin" },
     ],
   },
 };

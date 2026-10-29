@@ -78,6 +78,37 @@ function getNavIcon(label: string) {
           <path d="M13.73 21a2 2 0 0 1-3.46 0" />
         </svg>
       );
+    case "security":
+      return (
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        </svg>
+      );
+    case "system admin":
+    case "settings":
+      return (
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+      );
+    case "archive":
+      return (
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <polyline points="21 8 21 21 3 21 3 8" />
+          <rect x="1" y="3" width="22" height="5" />
+          <line x1="10" y1="12" x2="14" y2="12" />
+        </svg>
+      );
+    case "system":
+      return (
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="2" y="2" width="20" height="8" rx="2" ry="2" />
+          <rect x="2" y="14" width="20" height="8" rx="2" ry="2" />
+          <line x1="6" y1="6" x2="6.01" y2="6" />
+          <line x1="6" y1="18" x2="6.01" y2="18" />
+        </svg>
+      );
     default:
       return (
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -116,6 +147,12 @@ function getBreadcrumbLabel(pathname: string): string {
       return "Repository";
     case "community":
       return "Announcements & Programs";
+    case "settings":
+      return "Settings";
+    case "archive":
+      return "Archive";
+    case "system":
+      return "System";
     default:
       return last.replace(/-/g, " ");
   }
@@ -288,7 +325,18 @@ export default function DashboardShell({ allow, children }: { allow: Role[]; chi
           >
             <div className="mx-auto flex w-full min-w-max items-center gap-2">
               {info.nav.map((item) => {
-                const active = item.href === info.home ? pathname === item.href : pathname.startsWith(item.href);
+                const isSystemAdminItem = item.href === "/talaghayan/settings";
+                const isSystemAdminPath =
+                  pathname.startsWith("/talaghayan/settings") ||
+                  pathname.startsWith("/talaghayan/security") ||
+                  pathname.startsWith("/talaghayan/archive") ||
+                  pathname.startsWith("/talaghayan/system");
+                const active =
+                  isSystemAdminItem && isSystemAdminPath
+                    ? true
+                    : item.href === info.home
+                    ? pathname === item.href
+                    : pathname.startsWith(item.href);
                 const icon = getNavIcon(item.label);
                 return (
                   <Link

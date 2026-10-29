@@ -6,10 +6,15 @@ export type ConfirmType = "warning" | "danger" | "info" | "success";
 
 export interface ConfirmOptions {
   title?: string;
-  message: string;
+  message?: string;
+  body?: string;
   confirmText?: string;
+  confirmLabel?: string;
+  action?: string;
   cancelText?: string;
+  cancelLabel?: string;
   type?: ConfirmType;
+  intent?: "danger" | "warning" | "info" | "success" | "confirm" | string;
 }
 
 interface ConfirmState extends ConfirmOptions {
@@ -29,7 +34,9 @@ export const confirmDialog: ConfirmFunction = (options) => {
   }
   // Fallback to native window.confirm only if provider is not mounted
   if (typeof window !== "undefined") {
-    const msg = typeof options === "string" ? options : `${options.title ? options.title + "\n\n" : ""}${options.message}`;
+    const parsed = typeof options === "string" ? { message: options } : options;
+    const msgText = parsed.message || parsed.body || "";
+    const msg = `${parsed.title ? parsed.title + "\n\n" : ""}${msgText}`;
     return Promise.resolve(window.confirm(msg));
   }
   return Promise.resolve(false);
@@ -45,7 +52,21 @@ export function useConfirm(): ConfirmFunction {
 
 function parseOptions(input: string | ConfirmOptions): ConfirmOptions {
   if (typeof input !== "string") {
-    return input;
+    let resolvedType = input.type;
+    if (!resolvedType && input.intent) {
+      if (input.intent === "confirm" || input.intent === "success") resolvedType = "success";
+      else if (input.intent === "danger") resolvedType = "danger";
+      else if (input.intent === "warning") resolvedType = "warning";
+      else resolvedType = "info";
+    }
+
+    return {
+      ...input,
+      type: resolvedType,
+      message: input.message || input.body || "",
+      confirmText: input.confirmText || input.confirmLabel || input.action || "Confirm",
+      cancelText: input.cancelText || input.cancelLabel || "Cancel",
+    };
   }
 
   const raw = input.trim();
@@ -229,7 +250,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                   id="confirm-modal-description"
                   className="mt-2 text-sm text-slate-600 dark:text-slate-300 leading-relaxed break-words whitespace-pre-line"
                 >
-                  {state.message}
+                  {state.message || state.body}
                 </p>
               </div>
             </div>
@@ -241,7 +262,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                 onClick={() => state.resolve(false)}
                 className="rounded-xl border border-slate-200 dark:border-white/15 bg-white/70 dark:bg-white/5 px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
               >
-                {state.cancelText || "Cancel"}
+                {state.cancelText || state.cancelLabel || "Cancel"}
               </button>
 
               <button
@@ -258,7 +279,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                     : "bg-gradient-to-r from-[#7B4DFF] to-[#6A3CF0] hover:from-[#6A3CF0] hover:to-[#5A18C9] shadow-[#7B4DFF]/30 focus-visible:outline-[#7B4DFF]"
                 }`}
               >
-                {state.confirmText || "Confirm"}
+                {state.confirmText || state.confirmLabel || "Confirm"}
               </button>
             </div>
           </div>

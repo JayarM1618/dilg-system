@@ -60,6 +60,9 @@ export interface User {
   force_password_change?: boolean;
   two_factor_enabled?: boolean;
   two_factor_confirmed_at?: string | null;
+  // Archive fields
+  archived_at?: string | null;
+  archived_by?: number | null;
 }
 
 export type ReportCycle = "weekly" | "monthly" | "quarterly" | "semestral" | "annual";
@@ -159,4 +162,115 @@ export interface SecurityInfo {
   password_expires_at: string | null;
   two_factor_enabled: boolean;
   two_factor_confirmed_at: string | null;
+}
+
+/* ─── New super-admin types ─── */
+
+export interface SystemSetting {
+  key: string;
+  value: string | number | boolean;
+  type: "string" | "integer" | "boolean" | "json";
+  description?: string | null;
+  updated_at?: string;
+}
+
+export interface LoginAttempt {
+  id: number;
+  email: string;
+  ip_address: string;
+  user_agent?: string | null;
+  successful: boolean;
+  user_id?: number | null;
+  failure_reason?: string | null;
+  attempted_at: string;
+  user?: { id: number; name: string; email: string; role: Role } | null;
+}
+
+export interface IpBlock {
+  id: number;
+  ip_address: string;
+  reason?: string | null;
+  type: "auto" | "manual";
+  blocked_by?: number | null;
+  blocked_at: string;
+  expires_at?: string | null;
+  is_active: boolean;
+  blocker?: { id: number; name: string } | null;
+}
+
+export interface SystemBroadcast {
+  id: number;
+  title: string;
+  message: string;
+  type: "info" | "warning" | "critical" | "maintenance";
+  target: "all" | "super_admin" | "office_supervisor" | "barangay_rep";
+  is_active: boolean;
+  is_dismissible: boolean;
+  starts_at?: string | null;
+  ends_at?: string | null;
+  created_by?: number | null;
+  creator?: { id: number; name: string } | null;
+  created_at?: string;
+}
+
+export interface ErrorLog {
+  id: number;
+  level: string;
+  channel: string;
+  message: string;
+  context?: string | null;
+  trace?: string | null;
+  file?: string | null;
+  line?: number | null;
+  url?: string | null;
+  method?: string | null;
+  user_id?: number | null;
+  ip_address?: string | null;
+  logged_at: string;
+  user?: { id: number; name: string } | null;
+}
+
+export interface SessionInfo {
+  id: string | number;
+  type: "session" | "token";
+  user_id: number;
+  user_name: string;
+  user_email: string;
+  user_role: string;
+  ip_address?: string;
+  user_agent?: string;
+  token_name?: string;
+  last_activity: string;
+}
+
+export interface ArchiveSummary {
+  counts: Record<string, number>;
+  total: number;
+}
+
+export interface SystemHealth {
+  overall: "healthy" | "degraded";
+  checks: Record<string, { status: string; latency_ms?: number; message?: string; driver?: string }>;
+  checked_at: string;
+}
+
+export interface SystemInfo {
+  php_version: string;
+  laravel_version: string;
+  mysql_version: string;
+  server_os: string;
+  server_uptime: string;
+  disk_total: number;
+  disk_free: number;
+  disk_used: number;
+  memory_limit: string;
+  memory_usage: number;
+  max_upload: string;
+  post_max_size: string;
+  timezone: string;
+  app_env: string;
+  app_debug: boolean;
+  cache_driver: string;
+  queue_driver: string;
+  mail_driver: string;
 }

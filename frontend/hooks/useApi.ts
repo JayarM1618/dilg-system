@@ -10,8 +10,11 @@ interface UseApiOptions {
 interface UseApiResult<T> {
   data: T | null;
   loading: boolean;
+  isLoading: boolean;
   error: string | null;
   retry: () => void;
+  mutate: () => void;
+  reload: () => void;
   lastUpdated: Date;
 }
 
@@ -109,5 +112,15 @@ export function useApi<T>(path: string | null, options: UseApiOptions = {}): Use
     setAttempt((n) => n + 1);
   }, []);
 
-  return { data, loading: path === null ? false : loading, error, retry, lastUpdated };
+  const actualLoading = path === null ? false : loading;
+  return {
+    data,
+    loading: actualLoading,
+    isLoading: actualLoading,
+    error,
+    retry,
+    mutate: retry,
+    reload: retry,
+    lastUpdated,
+  };
 }

@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
+use App\Models\IpBlock;
+use App\Models\LoginAttempt;
 use App\Models\PasswordHistory;
+use App\Models\SystemSetting;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,55 +21,85 @@ class AuthController extends Controller
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
-            // Sent by the landing-page tile the person picked (optional on the plain /login page).
             'barangay_id' => ['nullable', 'integer'],
         ]);
+
+        $ip = $request->ip();
+
+        // ── IP Block check ──
+        if (IpBlock::isBlocked($ip)) {
+            LoginAttempt::record($credentials['email'], $ip, $request->userAgent(), false, null, 'ip_blocked');
+            return response()->json([
+                'message' => 'Your IP address has been temporarily blocked due to too many failed login attempts. Please try again later or contact the system administrator.',
+            ], 403);
+        }
 
         $user = User::where('email', $credentials['email'])->first();
 
         // DILG issued this account but its owner has not activated it yet.
         if ($user && $user->isPending()) {
+            LoginAttempt::record($credentials['email'], $ip, $request->userAgent(), false, $user->id, 'account_pending');
             throw ValidationException::withMessages([
                 'email' => ['This account is not activated yet. Open the activation link the DILG office sent to your email.'],
             ]);
         }
 
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
+            LoginAttempt::record($credentials['email'], $ip, $request->userAgent(), false, $user?->id, 'invalid_credentials');
+
+            // Auto-block IP after too many failures
+            $maxAttempts = (int) SystemSetting::getValue('max_login_attempts', 10);
+            $blockDuration = (int) SystemSetting::getValue('ip_block_duration_minutes', 30);
+            $recentFails = LoginAttempt::recentFailedFromIp($ip, 30);
+
+            if ($recentFails >= $maxAttempts) {
+                IpBlock::autoBlock($ip, $blockDuration);
+            }
+
             throw ValidationException::withMessages([
                 'email' => ['These credentials do not match our records.'],
             ]);
         }
 
+        // Check if user is archived
+        if ($user->archived_at) {
+            LoginAttempt::record($credentials['email'], $ip, $request->userAgent(), false, $user->id, 'account_archived');
+            throw ValidationException::withMessages([
+                'email' => ['This account has been archived. Contact the DILG office.'],
+            ]);
+        }
+
         if (!$user->is_active) {
+            LoginAttempt::record($credentials['email'], $ip, $request->userAgent(), false, $user->id, 'account_deactivated');
             throw ValidationException::withMessages([
                 'email' => ['This account has been deactivated. Contact the DILG office.'],
             ]);
         }
 
-        // Sanctum SPA auth: log in via the session guard (cookie-based, not a bearer token)
         // Barangay representatives may only sign in through their OWN barangay.
-        // Office staff (admin / super admin) can use any tile.
         if (
             !empty($credentials['barangay_id'])
             && $user->isBarangayRep()
             && (int) $user->barangay_id !== (int) $credentials['barangay_id']
         ) {
             $own = $user->barangay?->name ?? 'another barangay';
-
+            LoginAttempt::record($credentials['email'], $ip, $request->userAgent(), false, $user->id, 'wrong_barangay');
             throw ValidationException::withMessages([
                 'email' => ["This account belongs to Barangay {$own}. Close this window and pick your own barangay."],
             ]);
         }
 
         // ── 2FA Check ──
-        // If user has confirmed 2FA, do NOT log them in yet.
-        // Return a flag so the frontend shows the TOTP code entry step.
         if ($user->two_factor_enabled && $user->two_factor_confirmed_at) {
+            // Don't record success yet — 2FA step still pending
             return response()->json([
                 'requires_2fa' => true,
                 'user_id' => $user->id,
             ]);
         }
+
+        // ── Successful login ──
+        LoginAttempt::record($credentials['email'], $ip, $request->userAgent(), true, null, $user->id);
 
         Auth::login($user);
         if ($request->hasSession()) {
@@ -127,10 +160,12 @@ class AuthController extends Controller
             default => [],
         };
 
+        // Get active broadcasts for this user's role
+        $broadcasts = \App\Models\SystemBroadcast::activeFor($user->role);
+
         return response()->json([
             'user'       => $user->load('barangay'),
             'subsystems' => $subsystems,
-            // Verification info for the frontend to show appropriate UI
             'verification' => [
                 'status' => $user->verification_status ?? 'unverified',
                 'is_pending' => $user->isPendingVerification(),
@@ -139,7 +174,6 @@ class AuthController extends Controller
                 'rejection_reason' => $user->rejection_reason,
                 'verified_at' => $user->verified_at?->toISOString(),
             ],
-            // Security info for the frontend
             'security' => [
                 'password_expired' => $user->isPasswordExpired(),
                 'force_password_change' => (bool) $user->force_password_change,
@@ -148,6 +182,7 @@ class AuthController extends Controller
                 'two_factor_enabled' => (bool) $user->two_factor_enabled,
                 'two_factor_confirmed_at' => $user->two_factor_confirmed_at?->toISOString(),
             ],
+            'broadcasts' => $broadcasts,
         ]);
     }
 
@@ -171,7 +206,6 @@ class AuthController extends Controller
                 ], 422);
             }
 
-            // Save old password to history before changing
             PasswordHistory::create([
                 'user_id' => $user->id,
                 'password' => $user->password,

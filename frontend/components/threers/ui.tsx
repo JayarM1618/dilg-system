@@ -19,7 +19,20 @@ export function formatDateTime(iso: string | null | undefined): string {
   return Number.isNaN(d.getTime()) ? "-" : d.toLocaleString("en-PH", { dateStyle: "medium", timeStyle: "short" });
 }
 
-export function PageTitle({ title, subtitle }: { title: string; subtitle: string }) {
+export function PageTitle({
+  title,
+  subtitle,
+  sub,
+  children,
+}: {
+  title?: string;
+  subtitle?: string;
+  sub?: string;
+  children?: ReactNode;
+}) {
+  const displayTitle = title || (typeof children === "string" ? children : "Barangay Operations Portal");
+  const displaySub = subtitle || sub || (typeof children !== "string" ? children : undefined);
+
   return (
     <header className="mb-6 flex flex-wrap items-end justify-between gap-4 border-b border-slate-200 dark:border-white/10 pb-5">
       <div>
@@ -28,11 +41,13 @@ export function PageTitle({ title, subtitle }: { title: string; subtitle: string
           Barangay Operations Portal
         </div>
         <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-          {title}
+          {displayTitle}
         </h1>
-        <p className="mt-1 text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-2xl">
-          {subtitle}
-        </p>
+        {displaySub && (
+          <p className="mt-1 text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-2xl">
+            {displaySub}
+          </p>
+        )}
       </div>
     </header>
   );
@@ -66,25 +81,36 @@ export function Notice({
 export function Pager({
   page,
   last,
+  lastPage,
   total,
   onPage,
+  onChange,
 }: {
   page: number;
-  last: number;
-  total: number;
-  onPage: (p: number) => void;
+  last?: number;
+  lastPage?: number;
+  total?: number;
+  onPage?: (p: number) => void;
+  onChange?: (p: number) => void;
 }) {
-  if (last <= 1) return <p className="mt-3 text-sm text-muted dark:text-slate-400">{total} record(s)</p>;
+  const actualLast = last ?? lastPage ?? 1;
+  const handlePage = onPage ?? onChange ?? (() => {});
+
+  if (actualLast <= 1) {
+    return total !== undefined ? <p className="mt-3 text-sm text-muted dark:text-slate-400">{total} record(s)</p> : null;
+  }
+
   return (
     <div className="mt-3 flex items-center justify-between text-sm text-muted dark:text-slate-400">
       <span>
-        Page {page} of {last} &middot; {total} records
+        Page {page} of {actualLast}
+        {total !== undefined ? <> &middot; {total} records</> : null}
       </span>
       <span className="flex gap-2">
-        <button className={btnGhost} disabled={page <= 1} onClick={() => onPage(page - 1)}>
+        <button className={btnGhost} disabled={page <= 1} onClick={() => handlePage(page - 1)}>
           Previous
         </button>
-        <button className={btnGhost} disabled={page >= last} onClick={() => onPage(page + 1)}>
+        <button className={btnGhost} disabled={page >= actualLast} onClick={() => handlePage(page + 1)}>
           Next
         </button>
       </span>

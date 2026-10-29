@@ -10,8 +10,11 @@ interface UseFetchOptions {
 interface UseFetchResult<T> {
   data: T | null;
   loading: boolean;
+  isLoading: boolean;
   error: string | null;
   reload: () => void;
+  mutate: () => void;
+  retry: () => void;
   lastUpdated: Date;
 }
 
@@ -109,7 +112,17 @@ export function useFetch<T>(path: string | null, options: UseFetchOptions = {}):
     setAttempt((n) => n + 1);
   }, []);
 
-  return { data, loading: path === null ? false : loading, error, reload, lastUpdated };
+  const actualLoading = path === null ? false : loading;
+  return {
+    data,
+    loading: actualLoading,
+    isLoading: actualLoading,
+    error,
+    reload,
+    mutate: reload,
+    retry: reload,
+    lastUpdated,
+  };
 }
 
 export { useApi } from "./useApi";

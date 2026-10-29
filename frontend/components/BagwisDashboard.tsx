@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, type FormEvent } from "react";
+import { useState, useMemo, useRef, type FormEvent } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useFetch } from "@/hooks/useFetch";
 import { apiSend, apiUrl } from "@/lib/http";
@@ -513,13 +513,308 @@ function ReportsTab() {
 }
 
 /* ================================================================== */
-/* PPAs Tab — 6 Bagwis city-level programs from the PDF architecture   */
+/* PPAs Tab — Makati City Programs, Projects & Activities (Bagwis)    */
 /* ================================================================== */
+
+function formatBytes(bytes?: number | null): string {
+  if (!bytes || bytes <= 0) return "";
+  const units = ["B", "KB", "MB", "GB"];
+  let i = 0;
+  let size = bytes;
+  while (size >= 1024 && i < units.length - 1) {
+    size /= 1024;
+    i++;
+  }
+  return `${size.toFixed(1)} ${units[i]}`;
+}
+
+type PpaFormModalProps = {
+  ppa?: BagwisPpa | null;
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+};
+
+function PpaFormModal({ ppa, isOpen, onClose, onSuccess }: PpaFormModalProps) {
+  const [name, setName] = useState(ppa?.name ?? "");
+  const [frequency, setFrequency] = useState(ppa?.frequency ?? "Quarterly");
+  const [responsibleOffice, setResponsibleOffice] = useState(ppa?.responsible_office ?? "");
+  const [deadlineDescription, setDeadlineDescription] = useState(ppa?.deadline_description ?? "");
+  const [description, setDescription] = useState(ppa?.description ?? "");
+  const [file, setFile] = useState<File | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (!isOpen) return null;
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!name.trim() || !responsibleOffice.trim()) {
+      setError("Please fill out all required fields.");
+      return;
+    }
+
+    setBusy(true);
+    setError(null);
+
+    try {
+      const fd = new FormData();
+      fd.append("name", name.trim());
+      fd.append("frequency", frequency);
+      fd.append("responsible_office", responsibleOffice.trim());
+      if (deadlineDescription.trim()) fd.append("deadline_description", deadlineDescription.trim());
+      if (description.trim()) fd.append("description", description.trim());
+      if (file) fd.append("attachment", file);
+
+      if (ppa) {
+        await apiSend(`/api/bagwis/ppas/${ppa.id}`, "POST", fd);
+      } else {
+        await apiSend("/api/bagwis/ppas", "POST", fd);
+      }
+
+      onSuccess();
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save program.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+      <div className="relative w-full max-w-xl rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#181126] p-6 sm:p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-100 dark:border-white/10 pb-4">
+          <div>
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#7B4DFF]/10 dark:bg-[#7B4DFF]/20 px-2.5 py-0.5 text-[11px] font-bold text-[#7B4DFF] dark:text-[#CDBBFF]">
+              <span>🏛️</span> DILG Makati City Oversight
+            </div>
+            <h3 className="mt-1.5 text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+              {ppa ? "Edit Makati City Program / Directive" : "Upload & Publish Makati City Program"}
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Programs and uploaded guidelines will be available city-wide to all Makati barangays in view-only mode.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition"
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {error && (
+          <div className="mt-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/40 p-3 text-xs text-rose-600 dark:text-rose-400">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              Program Name / Directive Title <span className="text-rose-500">*</span>
+            </label>
+            <input
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Makati BADAC Program Guidelines 2026"
+              className="w-full rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#1F1733] px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Reporting Frequency <span className="text-rose-500">*</span>
+              </label>
+              <select
+                value={frequency}
+                onChange={(e) => setFrequency(e.target.value)}
+                className="w-full rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#1F1733] px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20"
+              >
+                <option value="Monthly">Monthly</option>
+                <option value="Quarterly">Quarterly</option>
+                <option value="Semestral">Semestral</option>
+                <option value="Annual">Annual</option>
+                <option value="Weekly">Weekly</option>
+                <option value="Ad Hoc">Ad Hoc / As Needed</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Responsible Office / Council <span className="text-rose-500">*</span>
+              </label>
+              <input
+                type="text"
+                required
+                value={responsibleOffice}
+                onChange={(e) => setResponsibleOffice(e.target.value)}
+                placeholder="e.g. CADAC / DILG Makati / PNP"
+                className="w-full rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#1F1733] px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              Submission Deadline / Target Schedule
+            </label>
+            <input
+              type="text"
+              value={deadlineDescription}
+              onChange={(e) => setDeadlineDescription(e.target.value)}
+              placeholder="e.g. Tuwing ika-5 ng buwan kasunod ng bawat quarter"
+              className="w-full rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#1F1733] px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              Program Description &amp; Objectives
+            </label>
+            <textarea
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Provide context, objectives, and compliance requirements for Makati barangays..."
+              className="w-full rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#1F1733] px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20 resize-none"
+            />
+          </div>
+
+          {/* Guideline Document Upload */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              Makati City Guideline Document / Memorandum (PDF, DOCX, XLSX, max 25MB)
+            </label>
+            {ppa?.attachment_name && !file && (
+              <div className="mb-2 p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/40 flex items-center justify-between text-xs text-purple-700 dark:text-purple-300">
+                <span className="flex items-center gap-2 truncate">
+                  <span>📄</span>
+                  <span className="font-semibold truncate">{ppa.attachment_name}</span>
+                  {ppa.attachment_size ? <span className="text-[11px] opacity-75">({formatBytes(ppa.attachment_size)})</span> : null}
+                </span>
+                <span className="text-[10px] font-bold uppercase tracking-wider bg-purple-200/60 dark:bg-purple-900/60 px-2 py-0.5 rounded-lg">Current File</span>
+              </div>
+            )}
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.jpg,.jpeg,.png"
+              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              className="block w-full text-xs text-slate-500 dark:text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#7B4DFF]/10 dark:file:bg-[#7B4DFF]/20 file:text-[#7B4DFF] dark:file:text-[#CDBBFF] hover:file:bg-[#7B4DFF]/20 cursor-pointer"
+            />
+            <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+              Barangay representatives will be able to view and download this official guideline file.
+            </p>
+          </div>
+
+          <div className="pt-3 border-t border-slate-100 dark:border-white/10 flex items-center justify-end gap-2.5">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={busy}
+              className="rounded-xl border border-slate-300 dark:border-white/15 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={busy}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#7B4DFF] to-[#9254DE] px-5 py-2 text-xs font-bold text-white shadow-md shadow-[#7B4DFF]/25 hover:opacity-95 transition disabled:opacity-50"
+            >
+              {busy ? (
+                <>
+                  <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  <span>Uploading &amp; Publishing...</span>
+                </>
+              ) : (
+                <>
+                  <span>🚀</span>
+                  <span>{ppa ? "Save Changes" : "Publish Program & Upload Guideline"}</span>
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
 
 function PpasTab() {
   const { user } = useAuth();
   const isOffice = user ? ["super_admin", "office_supervisor"].includes(user.role) : false;
+  const isBarangayRep = user?.role === "barangay_rep";
   const { data: ppas, loading, reload } = useFetch<BagwisPpa[]>(user ? "/api/bagwis/ppas" : null);
+
+  const [search, setSearch] = useState("");
+  const [frequencyFilter, setFrequencyFilter] = useState("all");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingPpa, setEditingPpa] = useState<BagwisPpa | null>(null);
+  const [flash, setFlash] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
+
+  // Quick guideline upload ref
+  const quickFileRef = useRef<HTMLInputElement>(null);
+  const [quickUploadTargetPpaId, setQuickUploadTargetPpaId] = useState<number | null>(null);
+  const [quickUploadBusy, setQuickUploadBusy] = useState(false);
+
+  function triggerQuickUpload(ppaId: number) {
+    setQuickUploadTargetPpaId(ppaId);
+    quickFileRef.current?.click();
+  }
+
+  async function handleQuickFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const selectedFile = e.target.files?.[0];
+    if (!selectedFile || !quickUploadTargetPpaId) return;
+
+    setQuickUploadBusy(true);
+    try {
+      const fd = new FormData();
+      fd.append("attachment", selectedFile);
+      await apiSend(`/api/bagwis/ppas/${quickUploadTargetPpaId}/attachment`, "POST", fd);
+      setFlash({ kind: "ok", text: `Official guideline "${selectedFile.name}" uploaded successfully.` });
+      reload();
+    } catch (err) {
+      setFlash({ kind: "error", text: err instanceof Error ? err.message : "Failed to upload guideline file." });
+    } finally {
+      setQuickUploadBusy(false);
+      setQuickUploadTargetPpaId(null);
+      if (e.target) e.target.value = "";
+    }
+  }
+
+  async function handleDeletePpa(ppa: BagwisPpa) {
+    if (!confirm(`Are you sure you want to delete "${ppa.name}"? This will also remove its associated compliance records.`)) return;
+    try {
+      await apiSend(`/api/bagwis/ppas/${ppa.id}`, "DELETE");
+      setFlash({ kind: "ok", text: `Program "${ppa.name}" removed successfully.` });
+      reload();
+    } catch (err) {
+      setFlash({ kind: "error", text: err instanceof Error ? err.message : "Failed to remove program." });
+    }
+  }
+
+  const filteredPpas = useMemo(() => {
+    if (!ppas) return [];
+    return ppas.filter((p) => {
+      const matchesSearch =
+        search.trim() === "" ||
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        p.responsible_office.toLowerCase().includes(search.toLowerCase()) ||
+        (p.description && p.description.toLowerCase().includes(search.toLowerCase()));
+
+      const matchesFreq =
+        frequencyFilter === "all" || p.frequency.toLowerCase() === frequencyFilter.toLowerCase();
+
+      return matchesSearch && matchesFreq;
+    });
+  }, [ppas, search, frequencyFilter]);
 
   if (loading)
     return (
@@ -529,75 +824,333 @@ function PpasTab() {
       </div>
     );
 
-  if (!ppas || ppas.length === 0)
-    return (
-      <div className="p-8 text-center rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#181126]/80">
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          No city-level PPAs loaded.
-        </p>
-      </div>
-    );
-
   return (
     <div className="space-y-6">
-      <div className="p-5 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#181126]/80 backdrop-blur-md shadow-sm">
-        <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <span>🎯</span> Makati City Programs, Projects &amp; Activities (PPAs)
-        </h2>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-          Standard programs monitored city-wide by DILG Makati and partner governance bodies.
-        </p>
+      {/* Hidden file input for supervisor quick upload */}
+      <input
+        ref={quickFileRef}
+        type="file"
+        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.jpg,.jpeg,.png"
+        className="hidden"
+        onChange={handleQuickFileChange}
+      />
+
+      {/* Program Create/Edit Modal */}
+      <PpaFormModal
+        ppa={editingPpa}
+        isOpen={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          setEditingPpa(null);
+        }}
+        onSuccess={() => {
+          setFlash({ kind: "ok", text: editingPpa ? "Program updated successfully." : "Makati program and guideline published successfully." });
+          reload();
+        }}
+      />
+
+      {/* Flash Notice */}
+      {flash && (
+        <div
+          className={`rounded-2xl px-5 py-3 text-xs font-semibold flex items-center justify-between shadow-sm ${
+            flash.kind === "error"
+              ? "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/40"
+              : "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/40"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <span>{flash.kind === "ok" ? "✓" : "⚠️"}</span>
+            <span>{flash.text}</span>
+          </div>
+          <button onClick={() => setFlash(null)} className="underline text-[11px] opacity-80 hover:opacity-100">
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* Supervisor Authority Banner */}
+      {isOffice ? (
+        <div className="p-5 rounded-2xl border border-[#7B4DFF]/20 bg-gradient-to-r from-[#7B4DFF]/10 via-[#9254DE]/5 to-transparent dark:bg-[#181126]/90 backdrop-blur-md shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#7B4DFF]/15 px-2.5 py-0.5 text-[11px] font-bold text-[#7B4DFF] dark:text-[#CDBBFF]">
+              <span>🛡️</span> DILG Supervisor Authority &bull; Makati City Oversight
+            </div>
+            <h2 className="mt-1 text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+              Makati City Programs, Projects &amp; Activities (PPAs)
+            </h2>
+            <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5 max-w-2xl">
+              You have supervisor power to upload, publish, and maintain city-level programs, memos, and toolkits.
+              Barangay representatives have view-only and download access.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setEditingPpa(null);
+              setModalOpen(true);
+            }}
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-gradient-to-r from-[#7B4DFF] to-[#9254DE] px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-[#7B4DFF]/30 hover:opacity-95 transition"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>Upload Makati Program</span>
+          </button>
+        </div>
+      ) : (
+        <div className="p-5 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#181126]/80 backdrop-blur-md shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 dark:bg-emerald-950/40 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
+              <span>👁</span> View Only &bull; Download Guidelines
+            </div>
+            <h2 className="mt-1 text-base font-bold text-slate-900 dark:text-white">
+              Makati City Programs, Projects &amp; Activities (PPAs)
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Official programs and policies monitored across Makati City. You can view schedules and download published guidelines.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Filter and Search Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          {["all", "Monthly", "Quarterly", "Semestral", "Annual"].map((freq) => (
+            <button
+              key={freq}
+              onClick={() => setFrequencyFilter(freq)}
+              className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
+                frequencyFilter === freq
+                  ? "bg-[#7B4DFF] text-white shadow-sm"
+                  : "bg-white/80 dark:bg-[#181126]/80 text-slate-600 dark:text-slate-400 border border-slate-200/70 dark:border-white/10 hover:text-slate-900 dark:hover:text-white"
+              }`}
+            >
+              {freq === "all" ? "All Cycles" : freq}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <input
+            type="text"
+            placeholder="Search programs, offices..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full sm:w-64 rounded-xl border border-slate-300 dark:border-white/15 bg-white/90 dark:bg-[#181126]/90 px-3.5 py-1.5 text-xs text-slate-900 dark:text-white focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20"
+          />
+          <button
+            onClick={() => reload()}
+            title="Refresh list"
+            className="p-2 rounded-xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#181126]/80 text-slate-500 hover:text-slate-900 dark:hover:text-white transition"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+        </div>
       </div>
 
-      {/* PPA overview cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {ppas.map((ppa) => (
-          <div
-            key={ppa.id}
-            className="rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#181126]/90 p-5 shadow-sm transition-all hover:border-slate-300 dark:hover:border-white/20"
-          >
-            <div className="flex items-start gap-3">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#7B4DFF]/10 text-[#7B4DFF] dark:text-[#CDBBFF] text-base font-bold">
-                🎯
-              </span>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white leading-tight">{ppa.name}</h3>
-                {ppa.description && (
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{ppa.description}</p>
-                )}
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <span className="inline-flex items-center rounded-full bg-[#7B4DFF]/10 dark:bg-[#7B4DFF]/20 px-2.5 py-0.5 text-[10px] font-bold text-[#7B4DFF] dark:text-[#CDBBFF] uppercase tracking-wider">
-                    {ppa.frequency}
-                  </span>
-                  <span className="inline-flex items-center rounded-full bg-slate-100 dark:bg-white/10 px-2.5 py-0.5 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
-                    {ppa.responsible_office}
-                  </span>
+      {/* PPA List / Cards Grid */}
+      {filteredPpas.length === 0 ? (
+        <div className="p-12 text-center rounded-2xl border border-dashed border-slate-200 dark:border-white/15 bg-white/60 dark:bg-[#181126]/60">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-100 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 text-2xl">
+            🎯
+          </div>
+          <h3 className="mt-3 text-sm font-bold text-slate-900 dark:text-white">No Makati programs found</h3>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+            {search ? "No programs match your search criteria." : "No city programs currently published."}
+          </p>
+          {isOffice && (
+            <button
+              onClick={() => {
+                setEditingPpa(null);
+                setModalOpen(true);
+              }}
+              className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-[#7B4DFF] px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-[#6A3CF0] transition"
+            >
+              + Upload Makati Program Now
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {filteredPpas.map((ppa) => (
+            <div
+              key={ppa.id}
+              className="rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#181126]/90 p-5 shadow-sm transition-all hover:border-[#7B4DFF]/40 dark:hover:border-[#7B4DFF]/40 flex flex-col justify-between"
+            >
+              <div>
+                {/* Header row: frequency + office actions */}
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="inline-flex items-center rounded-full bg-[#7B4DFF]/10 dark:bg-[#7B4DFF]/20 px-2.5 py-0.5 text-[10px] font-bold text-[#7B4DFF] dark:text-[#CDBBFF] uppercase tracking-wider">
+                      {ppa.frequency}
+                    </span>
+                    <span className="inline-flex items-center rounded-full bg-slate-100 dark:bg-white/10 px-2.5 py-0.5 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
+                      {ppa.responsible_office}
+                    </span>
+                  </div>
+
+                  {isOffice && (
+                    <div className="flex items-center gap-1">
+                      <button
+                        title="Edit program details"
+                        onClick={() => {
+                          setEditingPpa(ppa);
+                          setModalOpen(true);
+                        }}
+                        className="rounded-lg p-1.5 text-slate-400 hover:text-[#7B4DFF] hover:bg-slate-100 dark:hover:bg-white/5 transition"
+                      >
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                      </button>
+                      <button
+                        title="Delete program"
+                        onClick={() => handleDeletePpa(ppa)}
+                        className="rounded-lg p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition"
+                      >
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
                 </div>
-                {ppa.deadline_description && (
-                  <p className="mt-2.5 text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                    <span>📅</span> {ppa.deadline_description}
+
+                {/* Title & Description */}
+                <h3 className="text-base font-bold text-slate-900 dark:text-white leading-snug">
+                  {ppa.name}
+                </h3>
+                {ppa.description && (
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 line-clamp-3 leading-relaxed">
+                    {ppa.description}
                   </p>
                 )}
+
+                {/* Schedule/Deadline */}
+                {ppa.deadline_description && (
+                  <div className="mt-3 flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-slate-300 font-medium bg-slate-50 dark:bg-white/5 p-2 rounded-xl">
+                    <span className="text-[#7B4DFF]">📅</span>
+                    <span className="truncate">{ppa.deadline_description}</span>
+                  </div>
+                )}
+
+                {/* Guideline / City File Attachment Zone */}
+                <div className="mt-4 pt-3 border-t border-slate-100 dark:border-white/10">
+                  {ppa.attachment_name ? (
+                    <div className="rounded-2xl border border-emerald-200/80 dark:border-emerald-500/20 bg-emerald-50/50 dark:bg-emerald-950/20 p-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-300 text-sm">
+                            📄
+                          </span>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                              {ppa.attachment_name}
+                            </p>
+                            <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                              Official Guideline &bull; {formatBytes(ppa.attachment_size)}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Download link accessible to all (including barangays) */}
+                        <a
+                          href={apiUrl(`/api/bagwis/ppas/${ppa.id}/download`)}
+                          download
+                          title="Download guideline document"
+                          className="shrink-0 inline-flex items-center gap-1 rounded-xl bg-emerald-600 dark:bg-emerald-500 px-2.5 py-1.5 text-[11px] font-bold text-white hover:bg-emerald-700 transition shadow-sm"
+                        >
+                          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                          <span>Download</span>
+                        </a>
+                      </div>
+
+                      {/* Supervisor quick replace option */}
+                      {isOffice && (
+                        <div className="mt-2 pt-2 border-t border-emerald-100 dark:border-emerald-900/30 flex justify-end">
+                          <button
+                            type="button"
+                            disabled={quickUploadBusy}
+                            onClick={() => triggerQuickUpload(ppa.id)}
+                            className="text-[10px] font-semibold text-[#7B4DFF] dark:text-[#CDBBFF] hover:underline"
+                          >
+                            Replace Guideline File
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div>
+                      {isOffice ? (
+                        <button
+                          type="button"
+                          disabled={quickUploadBusy}
+                          onClick={() => triggerQuickUpload(ppa.id)}
+                          className="w-full rounded-2xl border border-dashed border-[#7B4DFF]/40 dark:border-[#7B4DFF]/40 bg-[#7B4DFF]/5 dark:bg-[#7B4DFF]/10 p-3 text-center text-xs font-semibold text-[#7B4DFF] dark:text-[#CDBBFF] hover:bg-[#7B4DFF]/15 transition flex items-center justify-center gap-1.5"
+                        >
+                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                          </svg>
+                          <span>+ Upload City Guideline File (PDF/DOC)</span>
+                        </button>
+                      ) : (
+                        <div className="rounded-xl bg-slate-50 dark:bg-white/5 p-2.5 text-center text-[11px] text-slate-500 dark:text-slate-400">
+                          Official guideline document pending upload by DILG Supervisor
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Creator & Entries indicator */}
+              <div className="mt-4 pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                <span className="flex items-center gap-1">
+                  <span>🏛️</span>
+                  <span>{ppa.creator?.name ?? "DILG Makati"}</span>
+                </span>
+                <span className="font-semibold text-slate-700 dark:text-slate-300">
+                  {ppa.entries_count ?? 0} compliance cycle{(ppa.entries_count ?? 0) === 1 ? "" : "s"}
+                </span>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
-      {/* Detail accordion view per PPA */}
-      <div className="space-y-3">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 px-1">
-          PPA Periodic Tracking &amp; Compliance Records
-        </h3>
-        {ppas.map((ppa) => (
-          <PpaDetail key={ppa.id} ppa={ppa} isOffice={isOffice} />
+      {/* Detail accordion view per PPA for periodic tracking */}
+      <div className="space-y-4 pt-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 px-1">
+            Makati City PPA Periodic Tracking &amp; Compliance Logs
+          </h3>
+          <span className="text-[11px] text-slate-500">
+            {isOffice ? "Supervisors record & review cycle compliance" : "View-only compliance archive"}
+          </span>
+        </div>
+
+        {filteredPpas.map((ppa) => (
+          <PpaDetail key={ppa.id} ppa={ppa} isOffice={isOffice} onPpaUpdated={reload} />
         ))}
       </div>
     </div>
   );
 }
 
-function PpaDetail({ ppa, isOffice }: { ppa: BagwisPpa; isOffice: boolean }) {
+function PpaDetail({
+  ppa,
+  isOffice,
+  onPpaUpdated,
+}: {
+  ppa: BagwisPpa;
+  isOffice: boolean;
+  onPpaUpdated: () => void;
+}) {
   const [expanded, setExpanded] = useState(false);
   const { data: entriesRes, loading, reload } = useFetch<{ data: BagwisPpaEntry[] }>(
     expanded ? `/api/bagwis/ppas/${ppa.id}/entries` : null
@@ -613,35 +1166,41 @@ function PpaDetail({ ppa, isOffice }: { ppa: BagwisPpa; isOffice: boolean }) {
   /* Add entry form state */
   const [showForm, setShowForm] = useState(false);
   const [periodLabel, setPeriodLabel] = useState("");
+  const [status, setStatus] = useState<"pending" | "submitted" | "compliant" | "non_compliant">("submitted");
   const [remarks, setRemarks] = useState("");
+  const [entryFile, setEntryFile] = useState<File | null>(null);
 
   async function handleAddEntry(e: FormEvent) {
     e.preventDefault();
     if (!periodLabel.trim()) return;
     setBusy(true);
     try {
-      await apiSend(`/api/bagwis/ppas/${ppa.id}/entries`, "POST", {
-        period_label: periodLabel.trim(),
-        status: "submitted",
-        remarks: remarks.trim() || null,
-      });
-      setFlash({ kind: "ok", text: `Entry added for ${periodLabel}.` });
+      const fd = new FormData();
+      fd.append("period_label", periodLabel.trim());
+      fd.append("status", status);
+      if (remarks.trim()) fd.append("remarks", remarks.trim());
+      if (entryFile) fd.append("attachment", entryFile);
+
+      await apiSend(`/api/bagwis/ppas/${ppa.id}/entries`, "POST", fd);
+      setFlash({ kind: "ok", text: `Entry recorded for ${periodLabel}.` });
       setPeriodLabel("");
       setRemarks("");
+      setEntryFile(null);
       setShowForm(false);
       reload();
+      onPpaUpdated();
     } catch (err) {
-      setFlash({ kind: "error", text: err instanceof Error ? err.message : "Failed to add entry." });
+      setFlash({ kind: "error", text: err instanceof Error ? err.message : "Failed to record entry." });
     } finally {
       setBusy(false);
     }
   }
 
-  async function handleReview(entryId: number, status: "compliant" | "non_compliant") {
+  async function handleReview(entryId: number, reviewStatus: "compliant" | "non_compliant") {
     setBusy(true);
     try {
-      await apiSend(`/api/bagwis/ppa-entries/${entryId}/review`, "PATCH", { status });
-      setFlash({ kind: "ok", text: `Entry marked as ${status.replace("_", " ")}.` });
+      await apiSend(`/api/bagwis/ppa-entries/${entryId}/review`, "PATCH", { status: reviewStatus });
+      setFlash({ kind: "ok", text: `Entry marked as ${reviewStatus.replace("_", " ")}.` });
       reload();
     } catch (err) {
       setFlash({ kind: "error", text: err instanceof Error ? err.message : "Review failed." });
@@ -651,33 +1210,43 @@ function PpaDetail({ ppa, isOffice }: { ppa: BagwisPpa; isOffice: boolean }) {
   }
 
   return (
-    <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#181126]/90 shadow-sm overflow-hidden">
+    <div className="rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#181126]/90 shadow-sm overflow-hidden">
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
         className="w-full text-left px-5 py-4 hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors flex items-center justify-between"
       >
-        <div className="flex items-center gap-3 min-w-0">
-          <span className="text-lg">🎯</span>
-          <div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">{ppa.name}</h3>
+        <div className="flex items-center gap-3.5 min-w-0">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#7B4DFF]/10 text-[#7B4DFF] dark:text-[#CDBBFF] text-lg font-bold">
+            🎯
+          </span>
+          <div className="min-w-0">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white truncate">{ppa.name}</h3>
             <span className="text-xs text-slate-500 dark:text-slate-400">
               {ppa.frequency} &bull; {ppa.responsible_office}
+              {ppa.attachment_name ? " &bull; 📄 Guideline Attached" : ""}
             </span>
           </div>
         </div>
-        <svg
-          className={`flex-shrink-0 h-4 w-4 text-slate-400 transition-transform ${expanded ? "rotate-180" : ""}`}
-          fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-        </svg>
+        <div className="flex items-center gap-3 shrink-0">
+          {ppa.attachment_name && (
+            <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-950/40 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-300">
+              <span>✓</span> Guideline Ready
+            </span>
+          )}
+          <svg
+            className={`h-4 w-4 text-slate-400 transition-transform ${expanded ? "rotate-180" : ""}`}
+            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
       </button>
 
       {expanded && (
-        <div className="border-t border-slate-100 dark:border-white/5 px-5 py-4 bg-slate-50/30 dark:bg-black/10">
+        <div className="border-t border-slate-100 dark:border-white/5 px-5 py-5 bg-slate-50/30 dark:bg-black/10 space-y-4">
           {flash && (
-            <div className={`mb-3 rounded-xl px-4 py-2.5 text-xs font-medium flex items-center justify-between ${
+            <div className={`rounded-xl px-4 py-2.5 text-xs font-medium flex items-center justify-between ${
               flash.kind === "error"
                 ? "bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900/40"
                 : "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40"
@@ -687,29 +1256,77 @@ function PpaDetail({ ppa, isOffice }: { ppa: BagwisPpa; isOffice: boolean }) {
             </div>
           )}
 
+          {/* Guideline Banner in Details */}
+          {ppa.attachment_name && (
+            <div className="p-3.5 rounded-2xl bg-white dark:bg-[#181126] border border-slate-200/80 dark:border-white/10 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+              <div className="flex items-center gap-2.5">
+                <span className="text-xl">📄</span>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                    Official Guideline: {ppa.attachment_name}
+                  </h4>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    File Size: {formatBytes(ppa.attachment_size)} &bull; Uploaded for city-wide barangay compliance
+                  </p>
+                </div>
+              </div>
+              <a
+                href={apiUrl(`/api/bagwis/ppas/${ppa.id}/download`)}
+                download
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#7B4DFF] px-3.5 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-[#6A3CF0] transition"
+              >
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                <span>Download Guideline</span>
+              </a>
+            </div>
+          )}
+
+          {/* Office Supervisor Add Entry Form */}
           {isOffice && (
-            <div className="mb-4">
+            <div>
               <button
-                className="inline-flex items-center gap-1.5 rounded-xl bg-[#7B4DFF] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#6A3CF0] transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#7B4DFF] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#6A3CF0] transition-colors shadow-sm"
                 onClick={() => setShowForm(!showForm)}
               >
-                {showForm ? "Cancel" : "+ Record Period Entry"}
+                {showForm ? "Cancel Entry" : "+ Record Period Compliance Entry"}
               </button>
 
               {showForm && (
-                <form onSubmit={handleAddEntry} className="mt-3 p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] flex flex-wrap gap-3 items-end">
-                  <label className="text-xs">
-                    <span className="block mb-1 font-semibold text-slate-700 dark:text-slate-300">Period Label</span>
-                    <input
-                      className="rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#1F1733] px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20 w-44"
-                      required
-                      placeholder="e.g. 2024-Q3 or 2024-ANNUAL"
-                      value={periodLabel}
-                      onChange={(e) => setPeriodLabel(e.target.value)}
-                    />
-                  </label>
-                  <label className="text-xs flex-1 min-w-[200px]">
-                    <span className="block mb-1 font-semibold text-slate-700 dark:text-slate-300">Remarks</span>
+                <form onSubmit={handleAddEntry} className="mt-3 p-5 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] space-y-3 shadow-sm">
+                  <h4 className="text-xs font-bold text-slate-900 dark:text-white">
+                    Record New Period Entry for {ppa.name}
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label className="text-xs">
+                      <span className="block mb-1 font-semibold text-slate-700 dark:text-slate-300">Period Label <span className="text-rose-500">*</span></span>
+                      <input
+                        className="rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#1F1733] px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20 w-full"
+                        required
+                        placeholder="e.g. 2026-Q1 or 2026-OCTOBER"
+                        value={periodLabel}
+                        onChange={(e) => setPeriodLabel(e.target.value)}
+                      />
+                    </label>
+
+                    <label className="text-xs">
+                      <span className="block mb-1 font-semibold text-slate-700 dark:text-slate-300">Initial Status</span>
+                      <select
+                        value={status}
+                        onChange={(e) => setStatus(e.target.value as any)}
+                        className="rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#1F1733] px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20 w-full"
+                      >
+                        <option value="submitted">Submitted</option>
+                        <option value="pending">Pending</option>
+                        <option value="compliant">Compliant</option>
+                        <option value="non_compliant">Non-compliant</option>
+                      </select>
+                    </label>
+                  </div>
+
+                  <label className="text-xs block">
+                    <span className="block mb-1 font-semibold text-slate-700 dark:text-slate-300">Remarks / Evaluation Notes</span>
                     <input
                       className="rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#1F1733] px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20 w-full"
                       placeholder="Optional assessment / remarks"
@@ -717,13 +1334,25 @@ function PpaDetail({ ppa, isOffice }: { ppa: BagwisPpa; isOffice: boolean }) {
                       onChange={(e) => setRemarks(e.target.value)}
                     />
                   </label>
-                  <button
-                    type="submit"
-                    disabled={busy}
-                    className="rounded-xl bg-[#7B4DFF] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#6A3CF0] transition-colors disabled:opacity-50"
-                  >
-                    {busy ? "Saving..." : "Save Entry"}
-                  </button>
+
+                  <div>
+                    <span className="block mb-1 text-xs font-semibold text-slate-700 dark:text-slate-300">Optional MOV / Evidence Document</span>
+                    <input
+                      type="file"
+                      onChange={(e) => setEntryFile(e.target.files?.[0] ?? null)}
+                      className="block w-full text-xs text-slate-500 dark:text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-100 dark:file:bg-white/10 file:text-slate-700 dark:file:text-slate-200"
+                    />
+                  </div>
+
+                  <div className="pt-2 flex justify-end">
+                    <button
+                      type="submit"
+                      disabled={busy}
+                      className="rounded-xl bg-[#7B4DFF] px-4 py-2 text-xs font-semibold text-white hover:bg-[#6A3CF0] transition-colors disabled:opacity-50"
+                    >
+                      {busy ? "Saving Entry..." : "Save Period Entry"}
+                    </button>
+                  </div>
                 </form>
               )}
             </div>
@@ -733,42 +1362,61 @@ function PpaDetail({ ppa, isOffice }: { ppa: BagwisPpa; isOffice: boolean }) {
           {loading ? (
             <p className="text-xs text-slate-500 dark:text-slate-400 py-4 text-center">Loading entries...</p>
           ) : entries.length === 0 ? (
-            <p className="text-xs text-slate-500 dark:text-slate-400 py-4 text-center">
-              No entries recorded yet. {isOffice ? 'Click "+ Record Period Entry" to add one.' : ""}
-            </p>
+            <div className="rounded-2xl border border-dashed border-slate-200 dark:border-white/10 p-6 text-center text-xs text-slate-500 dark:text-slate-400">
+              No periodic entries recorded yet for this program. {isOffice ? 'Click "+ Record Period Compliance Entry" above to add one.' : ""}
+            </div>
           ) : (
-            <div className="overflow-x-auto rounded-xl border border-slate-200/60 dark:border-white/10">
-              <table className="w-full min-w-[550px] text-left text-xs bg-white dark:bg-[#181126]">
+            <div className="overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/10 shadow-xs">
+              <table className="w-full min-w-[650px] text-left text-xs bg-white dark:bg-[#181126]">
                 <thead className="bg-slate-50/80 dark:bg-white/5 border-b border-slate-100 dark:border-white/10 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   <tr>
-                    <th scope="col" className="px-4 py-2.5">Period</th>
-                    <th scope="col" className="px-4 py-2.5">Status</th>
-                    <th scope="col" className="px-4 py-2.5">Submitted</th>
-                    <th scope="col" className="px-4 py-2.5">Reviewed</th>
-                    <th scope="col" className="px-4 py-2.5">Remarks</th>
-                    {isOffice && <th scope="col" className="px-4 py-2.5 text-right">Office Action</th>}
+                    <th scope="col" className="px-4 py-3">Period</th>
+                    <th scope="col" className="px-4 py-3">Status</th>
+                    <th scope="col" className="px-4 py-3">Submitted</th>
+                    <th scope="col" className="px-4 py-3">Reviewed</th>
+                    <th scope="col" className="px-4 py-3">Attachment</th>
+                    <th scope="col" className="px-4 py-3">Remarks</th>
+                    {isOffice && <th scope="col" className="px-4 py-3 text-right">Supervisor Action</th>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-white/10">
                   {entries.map((entry) => (
-                    <tr key={entry.id} className="hover:bg-slate-50/50 dark:hover:bg-white/5">
-                      <td className="px-4 py-2.5 font-bold text-slate-900 dark:text-white">{entry.period_label}</td>
-                      <td className="px-4 py-2.5">
-                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${PPA_STATUS_COLORS[entry.status] ?? PPA_STATUS_COLORS.pending}`}>
+                    <tr key={entry.id} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition">
+                      <td className="px-4 py-3 font-bold text-slate-900 dark:text-white">{entry.period_label}</td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide ${PPA_STATUS_COLORS[entry.status] ?? PPA_STATUS_COLORS.pending}`}>
                           {entry.status.replace("_", " ")}
                         </span>
                       </td>
-                      <td className="px-4 py-2.5 text-slate-600 dark:text-slate-300 tabular-nums">
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 tabular-nums">
                         {entry.submitted_at ? formatDate(entry.submitted_at) : "—"}
                         {entry.submitter && <span className="text-slate-400 ml-1">({entry.submitter.name})</span>}
                       </td>
-                      <td className="px-4 py-2.5 text-slate-600 dark:text-slate-300 tabular-nums">
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 tabular-nums">
                         {entry.reviewed_at ? formatDate(entry.reviewed_at) : "—"}
                         {entry.reviewer && <span className="text-slate-400 ml-1">({entry.reviewer.name})</span>}
                       </td>
-                      <td className="px-4 py-2.5 text-slate-500 dark:text-slate-400 max-w-[200px] truncate">{entry.remarks ?? "—"}</td>
+                      <td className="px-4 py-3">
+                        {entry.attachment_name ? (
+                          <a
+                            href={apiUrl(`/api/bagwis/ppa-entries/${entry.id}/download`)}
+                            download
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#7B4DFF] dark:text-[#CDBBFF] hover:underline"
+                          >
+                            <span>📎</span>
+                            <span className="truncate max-w-[120px]" title={entry.attachment_name}>
+                              {entry.attachment_name}
+                            </span>
+                          </a>
+                        ) : (
+                          <span className="text-slate-400">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-slate-500 dark:text-slate-400 max-w-[180px] truncate" title={entry.remarks ?? ""}>
+                        {entry.remarks ?? "—"}
+                      </td>
                       {isOffice && (
-                        <td className="px-4 py-2.5 text-right">
+                        <td className="px-4 py-3 text-right">
                           {entry.status === "submitted" || entry.status === "pending" ? (
                             <div className="flex gap-1.5 justify-end">
                               <button

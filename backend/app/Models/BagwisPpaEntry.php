@@ -11,6 +11,10 @@ class BagwisPpaEntry extends Model
         'period_label',
         'status',
         'remarks',
+        'attachment_path',
+        'attachment_name',
+        'attachment_size',
+        'attachment_mime',
         'submitted_by',
         'submitted_at',
         'reviewed_by',
@@ -20,6 +24,7 @@ class BagwisPpaEntry extends Model
     protected function casts(): array
     {
         return [
+            'attachment_size' => 'integer',
             'submitted_at' => 'datetime',
             'reviewed_at'  => 'datetime',
         ];

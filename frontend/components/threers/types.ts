@@ -157,6 +157,13 @@ export type BagwisPpa = {
   description: string | null;
   deadline_description: string | null;
   sort_order: number;
+  attachment_path?: string | null;
+  attachment_name?: string | null;
+  attachment_size?: number | null;
+  attachment_mime?: string | null;
+  created_by?: number | null;
+  creator?: { id: number; name: string } | null;
+  entries_count?: number;
 };
 
 export type BagwisPpaEntry = {
@@ -165,6 +172,10 @@ export type BagwisPpaEntry = {
   period_label: string;
   status: "pending" | "submitted" | "compliant" | "non_compliant";
   remarks: string | null;
+  attachment_path?: string | null;
+  attachment_name?: string | null;
+  attachment_size?: number | null;
+  attachment_mime?: string | null;
   submitted_at: string | null;
   reviewed_at: string | null;
   submitter?: { id: number; name: string } | null;

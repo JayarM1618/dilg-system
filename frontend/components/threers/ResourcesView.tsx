@@ -7,6 +7,7 @@ import { apiSend, apiUrl } from "@/lib/http";
 import { formatDate } from "@/lib/format";
 import { useConfirm } from "@/components/ConfirmModal";
 import ThreeRsTabs from "./ThreeRsTabs";
+import FormTemplateManager from "./FormTemplateManager";
 import { Notice, PageTitle, TYPE_LABEL, RESOURCE_GROUP_LABEL, btn, btnGhost, field } from "./ui";
 import type { Category, ResourceItem } from "./types";
 
@@ -25,12 +26,13 @@ const TYPES = ["template", "guideline", "sop", "toolkit", "citizen_chart", "driv
 export default function ResourcesView() {
   const { user } = useAuth();
   const confirm = useConfirm();
-  const [activeGroup, setActiveGroup] = useState<string>("all");
+  const [resourceTab, setResourceTab] = useState<"files" | "templates">("files");
   const [type, setType] = useState("");
   const [history, setHistory] = useState(false);
   const [flash, setFlash] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
 
   const isOffice = user ? user.role !== "barangay_rep" : false;
+  const isSupervisor = user?.role === "office_supervisor";
 
   const qs = new URLSearchParams();
   if (type) qs.set("type", type);
@@ -45,19 +47,12 @@ export default function ResourcesView() {
 
   // Group items by resource_group from the PDF architecture
   const groupedBySection = useMemo(() => {
-    if (activeGroup === "all") {
-      return RESOURCE_GROUPS.map((g) => ({
-        group: g,
-        label: RESOURCE_GROUP_LABEL[g] || g,
-        items: items.filter((i) => i.resource_group === g),
-      })).filter((g) => g.items.length > 0);
-    }
-    return [{
-      group: activeGroup,
-      label: RESOURCE_GROUP_LABEL[activeGroup] || activeGroup,
-      items: items.filter((i) => i.resource_group === activeGroup),
-    }].filter((g) => g.items.length > 0);
-  }, [items, activeGroup]);
+    return RESOURCE_GROUPS.map((g) => ({
+      group: g,
+      label: RESOURCE_GROUP_LABEL[g] || g,
+      items: items.filter((i) => i.resource_group === g),
+    })).filter((g) => g.items.length > 0);
+  }, [items]);
 
   // Fallback: items that don't match any group (legacy data)
   const ungrouped = useMemo(() => {
@@ -97,98 +92,110 @@ export default function ResourcesView() {
         </Notice>
       )}
 
-      {/* Upload Form (office_supervisor) */}
-      {user?.role === "office_supervisor" && (
-        <UploadForm
-          categories={categories.data ?? []}
-          onDone={(text) => {
-            setFlash({ kind: "ok", text });
-            reload();
-          }}
-          onError={(text) => setFlash({ kind: "error", text })}
-        />
-      )}
-
-      {/* ── Section Navigation (PDF architecture groups) ── */}
-      <nav className="mb-4 flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => setActiveGroup("all")}
-          className={`rounded-xl px-3.5 py-2 text-xs font-semibold transition-all ${
-            activeGroup === "all"
-              ? "bg-[#7B4DFF] text-white shadow-sm"
-              : "bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/15"
-          }`}
-        >
-          All Resources
-        </button>
-        {RESOURCE_GROUPS.map((g) => (
+      {/* DILG Supervisor Sub-Tab: Uploaded Files vs Official Form Templates (Word / Docs Format) */}
+      {isSupervisor && (
+        <div className="mb-6 inline-flex rounded-xl bg-slate-100 dark:bg-black/30 p-1 border border-slate-200 dark:border-white/10">
           <button
-            key={g}
             type="button"
-            onClick={() => setActiveGroup(g)}
-            className={`rounded-xl px-3.5 py-2 text-xs font-semibold transition-all ${
-              activeGroup === g
-                ? "bg-[#7B4DFF] text-white shadow-sm"
-                : "bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/15"
+            onClick={() => setResourceTab("files")}
+            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs sm:text-sm font-semibold transition-colors ${
+              resourceTab === "files"
+                ? "bg-white dark:bg-[#201835] text-[#0039A6] dark:text-white shadow-xs"
+                : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
-            {RESOURCE_GROUP_LABEL[g]}
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            <span>Uploaded Resource Files &amp; SOPs</span>
           </button>
-        ))}
-      </nav>
 
-      {/* ── Filters ── */}
-      <div className="mb-4 flex flex-col sm:flex-row sm:items-end gap-3 sm:gap-4">
-        <label className="text-sm w-full sm:w-auto">
-          <span className="mb-1 block text-muted dark:text-slate-400">Type</span>
-          <select className={`${field} w-full sm:w-auto`} value={type} onChange={(e) => setType(e.target.value)}>
-            <option value="" className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">All types</option>
-            {TYPES.map((t) => (
-              <option key={t} value={t} className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">{TYPE_LABEL[t]}</option>
-            ))}
-          </select>
-        </label>
-        {isOffice && (
-          <label className="flex items-center gap-2 pb-2 text-sm text-slate-800 dark:text-slate-200 cursor-pointer">
-            <input type="checkbox" checked={history} onChange={(e) => setHistory(e.target.checked)} className="rounded border-line dark:border-white/20 text-[#7B4DFF] focus:ring-[#7B4DFF] bg-white dark:bg-black/30" />
-            Show older and withdrawn versions
-          </label>
-        )}
-      </div>
-
-      {/* ── Content ── */}
-      {loading && items.length === 0 ? (
-        <p className="py-10 text-center text-slate-500 dark:text-slate-400">Loading resources...</p>
-      ) : error ? (
-        <p className="py-10 text-center font-medium text-rose-500 dark:text-rose-400">
-          {error}{" "}
-          <button onClick={reload} className="underline underline-offset-4">Try again</button>
-        </p>
-      ) : groupedBySection.length === 0 && ungrouped.length === 0 ? (
-        <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] py-12 text-center text-slate-500 dark:text-slate-400">
-          {isOffice ? "Nothing has been uploaded yet. Use the form above to add the first resource." : "No resources have been published yet."}
+          <button
+            type="button"
+            onClick={() => setResourceTab("templates")}
+            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs sm:text-sm font-semibold transition-colors ${
+              resourceTab === "templates"
+                ? "bg-white dark:bg-[#201835] text-[#0039A6] dark:text-white shadow-xs"
+                : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+            }`}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Official Form Formats (Word / Docs)</span>
+          </button>
         </div>
+      )}
+
+      {isSupervisor && resourceTab === "templates" ? (
+        <FormTemplateManager setFlash={setFlash} />
       ) : (
-        <div className="space-y-6">
-          {groupedBySection.map((section) => (
-            <ResourceSection
-              key={section.group}
-              title={section.label}
-              items={section.items}
-              isOffice={isOffice}
-              onArchive={archive}
-            />
-          ))}
-          {ungrouped.length > 0 && activeGroup === "all" && (
-            <ResourceSection
-              title="Other Resources"
-              items={ungrouped}
-              isOffice={isOffice}
-              onArchive={archive}
+        <>
+          {/* Upload Form (office_supervisor) */}
+          {user?.role === "office_supervisor" && (
+            <UploadForm
+              categories={categories.data ?? []}
+              onDone={(text) => {
+                setFlash({ kind: "ok", text });
+                reload();
+              }}
+              onError={(text) => setFlash({ kind: "error", text })}
             />
           )}
-        </div>
+
+          {/* ── Filters ── */}
+          <div className="mb-4 flex flex-col sm:flex-row sm:items-end gap-3 sm:gap-4">
+            <label className="text-sm w-full sm:w-auto">
+              <span className="mb-1 block text-muted dark:text-slate-400">Type</span>
+              <select className={`${field} w-full sm:w-auto`} value={type} onChange={(e) => setType(e.target.value)}>
+                <option value="" className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">All types</option>
+                {TYPES.map((t) => (
+                  <option key={t} value={t} className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">{TYPE_LABEL[t]}</option>
+                ))}
+              </select>
+            </label>
+            {isOffice && (
+              <label className="flex items-center gap-2 pb-2 text-sm text-slate-800 dark:text-slate-200 cursor-pointer">
+                <input type="checkbox" checked={history} onChange={(e) => setHistory(e.target.checked)} className="rounded border-line dark:border-white/20 text-[#7B4DFF] focus:ring-[#7B4DFF] bg-white dark:bg-black/30" />
+                Show older and withdrawn versions
+              </label>
+            )}
+          </div>
+
+          {/* ── Content ── */}
+          {loading && items.length === 0 ? (
+            <p className="py-10 text-center text-slate-500 dark:text-slate-400">Loading resources...</p>
+          ) : error ? (
+            <p className="py-10 text-center font-medium text-rose-500 dark:text-rose-400">
+              {error}{" "}
+              <button onClick={reload} className="underline underline-offset-4">Try again</button>
+            </p>
+          ) : groupedBySection.length === 0 && ungrouped.length === 0 ? (
+            <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] py-12 text-center text-slate-500 dark:text-slate-400">
+              {isOffice ? "Nothing has been uploaded yet. Use the form above to add the first resource." : "No resources have been published yet."}
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {groupedBySection.map((section) => (
+                <ResourceSection
+                  key={section.group}
+                  title={section.label}
+                  items={section.items}
+                  isOffice={isOffice}
+                  onArchive={archive}
+                />
+              ))}
+              {ungrouped.length > 0 && (
+                <ResourceSection
+                  title="Other Resources"
+                  items={ungrouped}
+                  isOffice={isOffice}
+                  onArchive={archive}
+                />
+              )}
+            </div>
+          )}
+        </>
       )}
     </>
   );

@@ -24,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'bagwis.readonly' => BagwisReadOnly::class,
             'verified' => EnsureAccountVerified::class,
             'password.expired' => CheckPasswordExpiry::class,
+            'ip.blocked' => \App\Http\Middleware\CheckIpBlock::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
