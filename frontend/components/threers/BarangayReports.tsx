@@ -8,6 +8,7 @@ import { formatDate } from "@/lib/format";
 import { StatusBadge } from "@/components/StatusBadge";
 import ThreeRsTabs from "./ThreeRsTabs";
 import SubmitReport from "./SubmitReport";
+import SubmissionReceiptModal from "./SubmissionReceiptModal";
 import { EmptyRow, UploadButton } from "./RepositoryView";
 import {
   Notice,
@@ -56,6 +57,7 @@ export default function BarangayReports({ sectorFilter }: BarangayReportsProps =
   const [flash, setFlash] = useState<Flash>(null);
   const [page, setPage] = useState(1);
   const [cycleFilter, setCycleFilter] = useState<CycleKey | "">("");
+  const [receiptSubmission, setReceiptSubmission] = useState<RepoSubmission | null>(null);
 
   const { data: submissionsData, loading, reload } = useFetch<Paged<RepoSubmission>>(
     user ? `/api/submissions?page=${page}${cycleFilter ? `&cycle=${cycleFilter}` : ""}${sectorFilter ? `&sector=${sectorFilter}` : ""}` : null
@@ -109,7 +111,7 @@ export default function BarangayReports({ sectorFilter }: BarangayReportsProps =
           onClick={() => { setCycleFilter(""); setPage(1); }}
           className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
             !cycleFilter
-              ? "bg-[#7B4DFF] text-white"
+              ? "bg-[#0039A6] text-white"
               : "bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/20"
           }`}
         >
@@ -121,7 +123,7 @@ export default function BarangayReports({ sectorFilter }: BarangayReportsProps =
             onClick={() => { setCycleFilter(c); setPage(1); }}
             className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
               cycleFilter === c
-                ? "bg-[#7B4DFF] text-white"
+                ? "bg-[#0039A6] text-white"
                 : "bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/20"
             }`}
           >
@@ -139,6 +141,7 @@ export default function BarangayReports({ sectorFilter }: BarangayReportsProps =
           loading={loading}
           onFlash={setFlash}
           onDone={reload}
+          onOpenReceipt={setReceiptSubmission}
         />
       ) : (
         /* Grouped sections when showing all */
@@ -151,6 +154,7 @@ export default function BarangayReports({ sectorFilter }: BarangayReportsProps =
               loading={false}
               onFlash={setFlash}
               onDone={reload}
+              onOpenReceipt={setReceiptSubmission}
             />
           ))}
           {loading && filings.length === 0 && (
@@ -170,6 +174,12 @@ export default function BarangayReports({ sectorFilter }: BarangayReportsProps =
 
       {/* Incident section */}
       <IncidentSection onFlash={setFlash} />
+
+      {/* Official Electronic Submission Receipt Modal */}
+      <SubmissionReceiptModal
+        submission={receiptSubmission}
+        onClose={() => setReceiptSubmission(null)}
+      />
     </>
   );
 }
@@ -184,17 +194,19 @@ function FilingsTable({
   loading,
   onFlash,
   onDone,
+  onOpenReceipt,
 }: {
   title: string;
   filings: RepoSubmission[];
   loading: boolean;
   onFlash: (f: Flash) => void;
   onDone: () => void;
+  onOpenReceipt: (sub: RepoSubmission) => void;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] shadow-sm overflow-hidden">
+    <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] shadow-sm overflow-hidden">
       <div className="px-5 py-3 border-b border-slate-100 dark:border-white/10 flex items-center gap-2">
-        <span className="inline-flex items-center rounded-full bg-[#7B4DFF]/10 dark:bg-[#7B4DFF]/20 px-2.5 py-0.5 text-[10px] font-bold text-[#7B4DFF] dark:text-[#CDBBFF] uppercase tracking-wider">
+        <span className="inline-flex items-center rounded-full bg-[#0039A6]/10 dark:bg-[#0039A6]/20 px-2.5 py-0.5 text-[10px] font-bold text-[#0039A6] dark:text-[#93C5FD] uppercase tracking-wider">
           {title}
         </span>
         <span className="text-xs text-slate-500 dark:text-slate-400">{filings.length} filing(s)</span>
@@ -221,6 +233,7 @@ function FilingsTable({
             ) : (
               filings.map((sub) => {
                 const sectorIcon = SECTOR_ICON[sub.category?.sector ?? ""] ?? "";
+                const canShowReceipt = sub.status !== "pending" || sub.latest_file;
                 return (
                   <tr key={sub.id} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
                     <td className="px-5 py-3">
@@ -232,6 +245,11 @@ function FilingsTable({
                           <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 truncate max-w-[240px]">
                             {sub.category.deadline_description}
                           </p>
+                        )}
+                        {sub.status === "non_compliant" && sub.review_remarks && (
+                          <div className="mt-1.5 rounded-lg border border-rose-200 dark:border-rose-900/40 bg-rose-50 dark:bg-rose-950/30 p-2 text-[11px] text-rose-700 dark:text-rose-300">
+                            <span className="font-bold">Remarks:</span> {sub.review_remarks}
+                          </div>
                         )}
                       </div>
                     </td>
@@ -256,23 +274,39 @@ function FilingsTable({
                       <StatusBadge status={sub.status} />
                     </td>
                     <td className="px-5 py-3 text-right">
-                      {sub.status === "pending" || sub.status === "non_compliant" ? (
-                        <UploadButton
-                          submission={sub}
-                          label={sub.status === "non_compliant" ? "Resubmit" : "Upload"}
-                          onFlash={onFlash}
-                          onDone={onDone}
-                        />
-                      ) : sub.latest_file ? (
-                        <a
-                          className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
-                          href={apiUrl(`/api/submissions/${sub.id}/download`)}
-                        >
-                          View file
-                        </a>
-                      ) : (
-                        <span className="text-xs text-slate-400">—</span>
-                      )}
+                      <div className="flex items-center justify-end gap-1.5">
+                        {canShowReceipt && (
+                          <button
+                            type="button"
+                            onClick={() => onOpenReceipt(sub)}
+                            className="inline-flex items-center gap-1 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:border-[#0039A6] hover:text-[#0039A6] dark:hover:text-blue-300 transition-colors shadow-xs"
+                            title="View Official Electronic Submission Receipt (e-AR)"
+                          >
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                              <polyline points="14 2 14 8 20 8" />
+                            </svg>
+                            <span>Receipt</span>
+                          </button>
+                        )}
+                        {sub.status === "pending" || sub.status === "non_compliant" ? (
+                          <UploadButton
+                            submission={sub}
+                            label={sub.status === "non_compliant" ? "Resubmit" : "Upload"}
+                            onFlash={onFlash}
+                            onDone={onDone}
+                          />
+                        ) : sub.latest_file ? (
+                          <a
+                            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors"
+                            href={apiUrl(`/api/submissions/${sub.id}/download`)}
+                          >
+                            View file
+                          </a>
+                        ) : (
+                          <span className="text-xs text-slate-400">—</span>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );
@@ -368,14 +402,14 @@ function IncidentSection({ onFlash }: { onFlash: (f: Flash) => void }) {
       </div>
 
       {showForm && (
-        <div className="mb-6 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] p-5 shadow-sm">
+        <div className="mb-6 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] p-5 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <label className="text-sm">
                 <span className="block mb-1 font-medium text-slate-700 dark:text-slate-300">Type</span>
                 <select className={`${field} w-full`} value={type} onChange={(e) => setType(e.target.value)}>
                   {INCIDENT_TYPES.map((t) => (
-                    <option key={t} value={t} className="bg-white dark:bg-[#2B2542]">{INCIDENT_TYPE_LABEL[t]}</option>
+                    <option key={t} value={t} className="bg-white dark:bg-[#1E293B]">{INCIDENT_TYPE_LABEL[t]}</option>
                   ))}
                 </select>
               </label>
@@ -383,7 +417,7 @@ function IncidentSection({ onFlash }: { onFlash: (f: Flash) => void }) {
                 <span className="block mb-1 font-medium text-slate-700 dark:text-slate-300">Severity</span>
                 <select className={`${field} w-full`} value={severity} onChange={(e) => setSeverity(e.target.value)}>
                   {SEVERITY_OPTIONS.map((s) => (
-                    <option key={s} value={s} className="bg-white dark:bg-[#2B2542] capitalize">{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                    <option key={s} value={s} className="bg-white dark:bg-[#1E293B] capitalize">{s.charAt(0).toUpperCase() + s.slice(1)}</option>
                   ))}
                 </select>
               </label>
@@ -408,9 +442,9 @@ function IncidentSection({ onFlash }: { onFlash: (f: Flash) => void }) {
                 accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt"
                 className="block w-full text-sm text-slate-500 dark:text-slate-400
                   file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0
-                  file:text-sm file:font-semibold file:bg-[#7B4DFF]/10 file:text-[#7B4DFF]
-                  dark:file:bg-[#7B4DFF]/20 dark:file:text-[#CDBBFF]
-                  hover:file:bg-[#7B4DFF]/20 transition"
+                  file:text-sm file:font-semibold file:bg-[#0039A6]/10 file:text-[#0039A6]
+                  dark:file:bg-[#0039A6]/20 dark:file:text-[#93C5FD]
+                  hover:file:bg-[#0039A6]/20 transition"
               />
             </label>
             <button type="submit" className={btn} disabled={busy}>
@@ -426,7 +460,7 @@ function IncidentSection({ onFlash }: { onFlash: (f: Flash) => void }) {
           {incidents!.data.map((inc) => (
             <div
               key={inc.id}
-              className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#181126] px-4 py-3 text-sm"
+              className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#0F172A] px-4 py-3 text-sm"
             >
               <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
                 inc.severity === "critical" ? "bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-400"

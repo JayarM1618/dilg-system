@@ -12,7 +12,7 @@ interface UserProfileModalProps {
 }
 
 const focusRing =
-  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7B4DFF]";
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0039A6]";
 
 export default function UserProfileModal({ isOpen, onClose }: UserProfileModalProps) {
   const { user, refetch, verification } = useAuth();
@@ -103,7 +103,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
         {/* Header banner */}
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/10 px-6 py-4 bg-slate-50/80 dark:bg-white/[0.02]">
           <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#7B4DFF]/15 text-[#7B4DFF] dark:text-[#CDBBFF]">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#0039A6]/15 text-[#0039A6] dark:text-[#93C5FD]">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                 <circle cx="12" cy="7" r="4" />
@@ -136,7 +136,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
           {/* Biometric Selfie Profile Photo Section (STRICTLY LOCKED) */}
           <div className="flex flex-col sm:flex-row items-center gap-5 p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/70 dark:border-white/5">
             <div className="relative shrink-0">
-              <div className="h-24 w-24 rounded-full overflow-hidden border-4 border-[#7B4DFF] shadow-lg bg-slate-950 flex items-center justify-center">
+              <div className="h-24 w-24 rounded-full overflow-hidden border-4 border-[#0039A6] shadow-lg bg-slate-950 flex items-center justify-center">
                 {user.profile_photo_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -145,7 +145,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="grid h-full w-full place-items-center bg-[#7B4DFF]/20 text-[#7B4DFF] font-bold text-2xl">
+                  <div className="grid h-full w-full place-items-center bg-[#0039A6]/20 text-[#0039A6] font-bold text-2xl">
                     {user.name.charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -160,7 +160,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
 
             <div className="min-w-0 flex-1 text-center sm:text-left">
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#7B4DFF]/15 text-[#7B4DFF] dark:text-[#CDBBFF]">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#0039A6]/15 text-[#0039A6] dark:text-[#93C5FD]">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
@@ -243,7 +243,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
                 <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
                   System Authority
                 </span>
-                <span className="text-sm font-semibold text-[#7B4DFF] dark:text-[#CDBBFF] mt-0.5 block truncate">
+                <span className="text-sm font-semibold text-[#0039A6] dark:text-[#93C5FD] mt-0.5 block truncate">
                   {roleInfo?.label ?? user.role}
                 </span>
                 <span className="absolute right-3 top-3 text-slate-400">
@@ -262,7 +262,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
               <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                 Contact &amp; Assignment (Editable)
               </label>
-              <span className="inline-flex items-center gap-1 text-[11px] text-[#7B4DFF] dark:text-[#CDBBFF] font-semibold">
+              <span className="inline-flex items-center gap-1 text-[11px] text-[#0039A6] dark:text-[#93C5FD] font-semibold">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                   <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
@@ -281,7 +281,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
                   value={position}
                   onChange={(e) => setPosition(e.target.value)}
                   placeholder="e.g. Barangay Secretary, Kagawad"
-                  className={`w-full rounded-xl bg-slate-50 dark:bg-white/5 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 outline-none transition focus:border-[#7B4DFF] focus:ring-2 focus:ring-[#7B4DFF]/20 ${focusRing}`}
+                  className={`w-full rounded-xl bg-slate-50 dark:bg-white/5 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 outline-none transition focus:border-[#0039A6] focus:ring-2 focus:ring-[#0039A6]/20 ${focusRing}`}
                 />
                 <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
                   Your official title or office in the barangay.
@@ -297,7 +297,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
                   value={contactNumber}
                   onChange={(e) => setContactNumber(e.target.value)}
                   placeholder="e.g. 09171234567"
-                  className={`w-full rounded-xl bg-slate-50 dark:bg-white/5 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 outline-none transition focus:border-[#7B4DFF] focus:ring-2 focus:ring-[#7B4DFF]/20 ${focusRing}`}
+                  className={`w-full rounded-xl bg-slate-50 dark:bg-white/5 px-3.5 py-2.5 text-sm text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 outline-none transition focus:border-[#0039A6] focus:ring-2 focus:ring-[#0039A6]/20 ${focusRing}`}
                 />
                 <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
                   Where DILG supervisors can reach you.
@@ -317,7 +317,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
                 setConfirmPassword("");
                 setError(null);
               }}
-              className="text-xs font-bold text-[#7B4DFF] dark:text-[#CDBBFF] hover:underline flex items-center gap-1.5"
+              className="text-xs font-bold text-[#0039A6] dark:text-[#93C5FD] hover:underline flex items-center gap-1.5"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -337,7 +337,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     placeholder="Enter your current password"
-                    className={`w-full rounded-xl bg-white dark:bg-[#1E1630] px-3.5 py-2 text-sm text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 outline-none focus:border-[#7B4DFF] focus:ring-2 focus:ring-[#7B4DFF]/20 ${focusRing}`}
+                    className={`w-full rounded-xl bg-white dark:bg-[#0F172A] px-3.5 py-2 text-sm text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 outline-none focus:border-[#0039A6] focus:ring-2 focus:ring-[#0039A6]/20 ${focusRing}`}
                   />
                 </div>
 
@@ -351,7 +351,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="At least 8 characters"
-                      className={`w-full rounded-xl bg-white dark:bg-[#1E1630] px-3.5 py-2 text-sm text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 outline-none focus:border-[#7B4DFF] focus:ring-2 focus:ring-[#7B4DFF]/20 ${focusRing}`}
+                      className={`w-full rounded-xl bg-white dark:bg-[#0F172A] px-3.5 py-2 text-sm text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 outline-none focus:border-[#0039A6] focus:ring-2 focus:ring-[#0039A6]/20 ${focusRing}`}
                     />
                   </div>
                   <div>
@@ -363,7 +363,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Repeat new password"
-                      className={`w-full rounded-xl bg-white dark:bg-[#1E1630] px-3.5 py-2 text-sm text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 outline-none focus:border-[#7B4DFF] focus:ring-2 focus:ring-[#7B4DFF]/20 ${focusRing}`}
+                      className={`w-full rounded-xl bg-white dark:bg-[#0F172A] px-3.5 py-2 text-sm text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 outline-none focus:border-[#0039A6] focus:ring-2 focus:ring-[#0039A6]/20 ${focusRing}`}
                     />
                   </div>
                 </div>
@@ -399,7 +399,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
             <button
               type="submit"
               disabled={saving}
-              className={`rounded-full bg-[#7B4DFF] hover:bg-[#6A3CF0] px-6 py-2.5 text-xs font-bold text-white shadow-md shadow-[#7B4DFF]/25 disabled:opacity-60 transition-all flex items-center gap-2 ${focusRing}`}
+              className={`rounded-full bg-[#0039A6] hover:bg-[#002B7F] px-6 py-2.5 text-xs font-bold text-white shadow-md shadow-sm disabled:opacity-60 transition-all flex items-center gap-2 ${focusRing}`}
             >
               {saving ? (
                 <>

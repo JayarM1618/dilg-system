@@ -40,7 +40,7 @@ export const ROLE_INFO: Record<Role, RoleInfo> = {
       { href: "/user", label: "Barangay Hub" },
       { href: "/borms", label: "BORMS" },
       { href: "/bagwis", label: "Bagwis" },
-      { href: "/user/community", label: "Announcements & programs" },
+      { href: "/borms/community", label: "Announcements & programs" },
     ],
   },
   office_supervisor: {

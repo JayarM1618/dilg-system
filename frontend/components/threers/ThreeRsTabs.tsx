@@ -103,14 +103,14 @@ export default function ThreeRsTabs() {
               aria-current={active ? "page" : undefined}
               className={`flex items-center gap-2.5 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-semibold whitespace-nowrap transition-colors select-none ${
                 active
-                  ? "bg-white dark:bg-[#201835] text-[#5A18C9] dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-white/15"
+                  ? "bg-white dark:bg-[#0F172A] text-[#002B7F] dark:text-white shadow-sm ring-1 ring-slate-200 dark:ring-white/15"
                   : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-white/5"
               }`}
             >
               <span
                 className={`grid h-6 w-6 place-items-center rounded-lg transition-colors ${
                   active
-                    ? "bg-[#F1EBFF] text-[#7B4DFF] dark:bg-[#7B4DFF]/30 dark:text-[#D1C4F9]"
+                    ? "bg-[#EBF2FF] text-[#0039A6] dark:bg-[#0039A6]/30 dark:text-[#93C5FD]"
                     : "text-slate-400 dark:text-slate-500"
                 }`}
               >
@@ -121,7 +121,7 @@ export default function ThreeRsTabs() {
                 <span className="rounded-full bg-[#F21D6B] px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">{badge}</span>
               )}
               {active && (
-                <span className="hidden sm:inline-block h-1.5 w-1.5 rounded-full bg-[#7B4DFF] dark:bg-[#06D6A0]" />
+                <span className="hidden sm:inline-block h-1.5 w-1.5 rounded-full bg-[#0039A6] dark:bg-[#06D6A0]" />
               )}
             </Link>
           );

@@ -11,7 +11,7 @@ import { homeFor } from "@/lib/roles";
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
 
 const focusRing =
-  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7B4DFF]";
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0039A6]";
 
 export default function ForcePasswordPage() {
   const { user, loading, logout, refetch } = useAuth();
@@ -87,7 +87,7 @@ export default function ForcePasswordPage() {
   return (
     <div className={`${poppins.className} min-h-screen w-full bg-slate-50 dark:bg-[#0E0A17] text-slate-800 dark:text-[#E9DFFF] transition-colors duration-500 ease-out flex flex-col`}>
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -left-40 top-0 h-[40rem] w-[40rem] rounded-full bg-[#F3EDFE]/40 blur-3xl dark:bg-[#7B4DFF]/15" />
+        <div className="absolute -left-40 top-0 h-[40rem] w-[40rem] rounded-full bg-blue-50/20 blur-3xl dark:bg-[#0039A6]/15" />
         <div className="absolute right-0 bottom-0 h-[40rem] w-[40rem] rounded-full bg-[#FFF8E6]/40 blur-3xl dark:bg-[#F5A800]/10" />
       </div>
 
@@ -161,7 +161,7 @@ export default function ForcePasswordPage() {
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       required
-                      className="w-full rounded-xl bg-slate-50 dark:bg-[#201833] py-3 px-4 pr-11 text-sm text-slate-900 dark:text-white outline-none ring-1 ring-slate-200 dark:ring-white/10 transition focus:ring-2 focus:ring-[#7B4DFF]"
+                      className="w-full rounded-xl bg-slate-50 dark:bg-[#0F172A] py-3 px-4 pr-11 text-sm text-slate-900 dark:text-white outline-none ring-1 ring-slate-200 dark:ring-white/10 transition focus:ring-2 focus:ring-[#0039A6]"
                       placeholder="Enter current password"
                     />
                     <button
@@ -205,7 +205,7 @@ export default function ForcePasswordPage() {
                       onChange={(e) => setNewPassword(e.target.value)}
                       required
                       minLength={8}
-                      className="w-full rounded-xl bg-slate-50 dark:bg-[#201833] py-3 px-4 pr-11 text-sm text-slate-900 dark:text-white outline-none ring-1 ring-slate-200 dark:ring-white/10 transition focus:ring-2 focus:ring-[#7B4DFF]"
+                      className="w-full rounded-xl bg-slate-50 dark:bg-[#0F172A] py-3 px-4 pr-11 text-sm text-slate-900 dark:text-white outline-none ring-1 ring-slate-200 dark:ring-white/10 transition focus:ring-2 focus:ring-[#0039A6]"
                       placeholder="Minimum 8 characters"
                     />
                     <button
@@ -248,7 +248,7 @@ export default function ForcePasswordPage() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
-                      className="w-full rounded-xl bg-slate-50 dark:bg-[#201833] py-3 px-4 text-sm text-slate-900 dark:text-white outline-none ring-1 ring-slate-200 dark:ring-white/10 transition focus:ring-2 focus:ring-[#7B4DFF]"
+                      className="w-full rounded-xl bg-slate-50 dark:bg-[#0F172A] py-3 px-4 text-sm text-slate-900 dark:text-white outline-none ring-1 ring-slate-200 dark:ring-white/10 transition focus:ring-2 focus:ring-[#0039A6]"
                       placeholder="Re-enter new password"
                     />
                   </div>
@@ -268,7 +268,7 @@ export default function ForcePasswordPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className={`w-full rounded-xl bg-[#7B4DFF] py-3.5 px-4 text-sm font-bold text-white shadow-lg shadow-[#7B4DFF]/25 hover:bg-[#6A3CF0] active:bg-[#5A18C9] disabled:cursor-not-allowed disabled:opacity-60 transition-colors flex items-center justify-center gap-2 ${focusRing}`}
+                  className={`w-full rounded-xl bg-[#0039A6] py-3.5 px-4 text-sm font-bold text-white shadow-lg shadow-sm hover:bg-[#002B7F] active:bg-[#002B7F] disabled:cursor-not-allowed disabled:opacity-60 transition-colors flex items-center justify-center gap-2 ${focusRing}`}
                 >
                   {submitting ? (
                     <>

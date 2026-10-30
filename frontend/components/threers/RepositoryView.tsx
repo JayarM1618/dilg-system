@@ -257,8 +257,8 @@ function RepositoryDashboard() {
               }}
               className={`text-left rounded-2xl border p-4 sm:p-5 shadow-sm transition-all ${
                 groupFilter === parent.group_slug
-                  ? "border-[#7B4DFF]/50 bg-[#7B4DFF]/5 dark:bg-[#7B4DFF]/10 ring-2 ring-[#7B4DFF]/20"
-                  : "border-slate-200/80 dark:border-white/10 bg-white/70 dark:bg-white/5 hover:border-[#7B4DFF]/30 hover:shadow-md"
+                  ? "border-[#0039A6]/50 bg-[#0039A6]/5 dark:bg-[#0039A6]/10 ring-2 ring-[#0039A6]/20"
+                  : "border-slate-200/80 dark:border-white/10 bg-white/70 dark:bg-white/5 hover:border-[#0039A6]/30 hover:shadow-md"
               }`}
             >
               <div className="flex items-center gap-2 mb-2">
@@ -318,28 +318,28 @@ function RepositoryDashboard() {
         <label className="text-sm flex-1 min-w-[150px] sm:flex-initial sm:min-w-0">
           <span className="mb-1 block text-muted dark:text-slate-400">Category</span>
           <select className={`${field} w-full sm:w-auto`} value={categoryFilter} onChange={applyFilter(setCategoryFilter)}>
-            <option value="" className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">All categories</option>
+            <option value="" className="bg-white dark:bg-[#1E293B] text-slate-900 dark:text-slate-100">All categories</option>
             {parentCats.map((parent) => {
               const children = childrenOf(parent.id);
               return (
                 <optgroup key={parent.id} label={parent.name}>
-                  <option value={parent.id} className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">{parent.name} (All)</option>
+                  <option value={parent.id} className="bg-white dark:bg-[#1E293B] text-slate-900 dark:text-slate-100">{parent.name} (All)</option>
                   {children.map((c) => (
-                    <option key={c.id} value={c.id} className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">&nbsp;&nbsp;{c.name}</option>
+                    <option key={c.id} value={c.id} className="bg-white dark:bg-[#1E293B] text-slate-900 dark:text-slate-100">&nbsp;&nbsp;{c.name}</option>
                   ))}
                 </optgroup>
               );
             })}
             {/* Flat categories without parent */}
             {cats.filter((c) => !c.parent_id && !parentCats.some((p) => p.id === c.id)).map((c) => (
-              <option key={c.id} value={c.id} className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">{c.name}</option>
+              <option key={c.id} value={c.id} className="bg-white dark:bg-[#1E293B] text-slate-900 dark:text-slate-100">{c.name}</option>
             ))}
           </select>
         </label>
 
         {groupFilter && (
           <button
-            className={`${btnGhost} text-[#7B4DFF] dark:text-[#CDBBFF]`}
+            className={`${btnGhost} text-[#0039A6] dark:text-[#93C5FD]`}
             onClick={() => { setGroupFilter(""); setCategoryFilter(""); setPage(1); }}
           >
             Clear group filter
@@ -361,7 +361,7 @@ function RepositoryDashboard() {
       )}
 
       {/* ---- Document list ---- */}
-      <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] shadow-sm overflow-hidden">
+      <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] shadow-sm overflow-hidden">
         <div className="border-b border-slate-100 dark:border-white/10 px-6 py-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-base font-bold text-slate-900 dark:text-white">Documents</h2>
@@ -430,7 +430,7 @@ function RepositoryDashboard() {
             {summary.data!.recent.map((doc) => (
               <div
                 key={doc.id}
-                className="flex items-center gap-3 rounded-xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#181126] px-4 py-3 text-sm"
+                className="flex items-center gap-3 rounded-xl border border-slate-100 dark:border-white/10 bg-white dark:bg-[#0F172A] px-4 py-3 text-sm"
               >
                 <FileTypeIcon mime={doc.mime_type} />
                 <div className="flex-1 min-w-0">
@@ -507,7 +507,7 @@ function UploadDocumentForm({
   }
 
   return (
-    <div className="mb-6 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] shadow-sm p-6">
+    <div className="mb-6 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] shadow-sm p-6">
       <h3 className="text-base font-bold text-slate-900 dark:text-white mb-4">Upload a Document</h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -526,20 +526,20 @@ function UploadDocumentForm({
           <label className="text-sm">
             <span className="mb-1 block font-medium text-slate-700 dark:text-slate-300">Category <span className="text-rose-500">*</span></span>
             <select className={`${field} w-full`} required value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
-              <option value="" className="bg-white dark:bg-[#2B2542]">Select a category</option>
+              <option value="" className="bg-white dark:bg-[#1E293B]">Select a category</option>
               {parentCategories.map((parent) => {
                 const children = childrenOf(parent.id);
                 if (children.length > 0) {
                   return (
                     <optgroup key={parent.id} label={parent.name}>
                       {children.map((c) => (
-                        <option key={c.id} value={c.id} className="bg-white dark:bg-[#2B2542]">{c.name}</option>
+                        <option key={c.id} value={c.id} className="bg-white dark:bg-[#1E293B]">{c.name}</option>
                       ))}
                     </optgroup>
                   );
                 }
                 return (
-                  <option key={parent.id} value={parent.id} className="bg-white dark:bg-[#2B2542]">{parent.name}</option>
+                  <option key={parent.id} value={parent.id} className="bg-white dark:bg-[#1E293B]">{parent.name}</option>
                 );
               })}
             </select>
@@ -568,9 +568,9 @@ function UploadDocumentForm({
               required
               className="block w-full text-sm text-slate-500 dark:text-slate-400
                 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0
-                file:text-sm file:font-semibold file:bg-[#7B4DFF]/10 file:text-[#7B4DFF]
-                dark:file:bg-[#7B4DFF]/20 dark:file:text-[#CDBBFF]
-                hover:file:bg-[#7B4DFF]/20 transition"
+                file:text-sm file:font-semibold file:bg-[#0039A6]/10 file:text-[#0039A6]
+                dark:file:bg-[#0039A6]/20 dark:file:text-[#93C5FD]
+                hover:file:bg-[#0039A6]/20 transition"
             />
             <span className="mt-1 block text-xs text-slate-400">Max 10 MB. PDF, Word, Excel, PowerPoint, images, CSV, ZIP.</span>
           </label>
@@ -579,9 +579,9 @@ function UploadDocumentForm({
             <label className="text-sm">
               <span className="mb-1 block font-medium text-slate-700 dark:text-slate-300">Visibility</span>
               <select className={`${field} w-full`} value={accessLevel} onChange={(e) => setAccessLevel(e.target.value)}>
-                <option value="public" className="bg-white dark:bg-[#2B2542]">Everyone (all barangays)</option>
-                <option value="office" className="bg-white dark:bg-[#2B2542]">DILG Office only</option>
-                <option value="barangay" className="bg-white dark:bg-[#2B2542]">Specific barangay</option>
+                <option value="public" className="bg-white dark:bg-[#1E293B]">Everyone (all barangays)</option>
+                <option value="office" className="bg-white dark:bg-[#1E293B]">DILG Office only</option>
+                <option value="barangay" className="bg-white dark:bg-[#1E293B]">Specific barangay</option>
               </select>
             </label>
           )}
@@ -694,7 +694,7 @@ function DocumentRow({
             )}
             {isSuperAdmin && (
               <button
-                className="inline-flex items-center gap-1.5 rounded-xl border border-rose-200 dark:border-rose-500/30 bg-white dark:bg-[#181126] px-3 py-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-rose-200 dark:border-rose-500/30 bg-white dark:bg-[#0F172A] px-3 py-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors disabled:opacity-50"
                 disabled={busy}
                 onClick={handleDelete}
               >

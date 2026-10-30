@@ -16,11 +16,11 @@ type Tab = (typeof TABS)[number];
 const pill = (active: boolean) =>
   `px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors select-none ${
     active
-      ? "bg-[#7B4DFF] text-white shadow-sm"
+      ? "bg-[#0039A6] text-white shadow-sm"
       : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5"
   }`;
 
-const card = "rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1F1733] shadow-sm";
+const card = "rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] shadow-sm";
 
 const thClass = "px-3 py-2 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider";
 const tdClass = "px-3 py-2.5 text-slate-700 dark:text-slate-200 border-t border-slate-100 dark:border-white/5";

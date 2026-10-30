@@ -56,8 +56,8 @@ export default function RealtimePeriodTally({
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">{title}</h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{subtitle}</p>
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-50 dark:bg-[#2C2145] px-2.5 py-1 text-xs font-semibold text-[#7B4DFF] dark:text-[#CDBBFF] border border-[#7B4DFF]/20">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#7B4DFF] animate-pulse" />
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 dark:bg-[#0F172A] px-2.5 py-1 text-xs font-semibold text-[#0039A6] dark:text-[#93C5FD] border border-[#0039A6]/20">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#0039A6] animate-pulse" />
             Live Status
           </span>
         </div>
@@ -67,19 +67,19 @@ export default function RealtimePeriodTally({
           {/* Legend Items */}
           <ul className="space-y-2.5 text-xs text-slate-700 dark:text-slate-200">
             <li className="flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#F21DB4]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#D97706]" />
               <span className="font-medium">Filed Submissions:</span>
               <strong className="text-slate-900 dark:text-white font-bold ml-1">{filedCount}</strong>
             </li>
             <li className="flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#7B4DFF]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#0039A6]" />
               <span className="font-medium">In Office Review:</span>
               <strong className="text-slate-900 dark:text-white font-bold ml-1">{underReview}</strong>
             </li>
             <li className="flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#06D6A0]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#059669]" />
               <span className="font-medium">Compliant &amp; Cleared:</span>
-              <strong className="text-[#059669] dark:text-[#84DEBD] font-bold ml-1">{compliant}</strong>
+              <strong className="text-[#059669] dark:text-[#34D399] font-bold ml-1">{compliant}</strong>
             </li>
             {nonCompliant > 0 && (
               <li className="flex items-center gap-2">
@@ -114,7 +114,7 @@ export default function RealtimePeriodTally({
                 cy="60"
                 r={rOuter}
                 fill="none"
-                stroke="#F21DB4"
+                stroke="#D97706"
                 strokeWidth="6"
                 strokeLinecap="round"
                 strokeDasharray={`${cOuter * filedPct} ${cOuter}`}
@@ -127,7 +127,7 @@ export default function RealtimePeriodTally({
                 cy="60"
                 r={rMiddle}
                 fill="none"
-                stroke="#7B4DFF"
+                stroke="#0039A6"
                 strokeWidth="6"
                 strokeLinecap="round"
                 strokeDasharray={`${cMiddle * reviewPct} ${cMiddle}`}
@@ -140,7 +140,7 @@ export default function RealtimePeriodTally({
                 cy="60"
                 r={rInner}
                 fill="none"
-                stroke="#06D6A0"
+                stroke="#059669"
                 strokeWidth="6"
                 strokeLinecap="round"
                 strokeDasharray={`${cInner * compliantPct} ${cInner}`}
@@ -170,7 +170,7 @@ export default function RealtimePeriodTally({
         </span>
         <Link
           href={actionHref}
-          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-slate-200 dark:border-white/15 px-3.5 py-1.5 text-xs font-semibold text-[#7B4DFF] dark:text-[#CDBBFF] hover:bg-[#7B4DFF] hover:text-white transition-colors"
+          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-slate-200 dark:border-white/15 px-3.5 py-1.5 text-xs font-semibold text-[#0039A6] dark:text-[#93C5FD] hover:bg-[#0039A6] hover:text-white transition-colors"
         >
           {actionLabel} &rarr;
         </Link>

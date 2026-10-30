@@ -79,13 +79,16 @@ class DatabaseSeeder extends Seeder
             ['id' => 3, 'name' => 'Bangkal Barangay Representative', 'email' => 'rep.bangkal@barangay.test', 'role' => 'barangay_rep', 'barangay_id' => 1],
             ['id' => 4, 'name' => 'Poblacion Barangay Representative', 'email' => 'rep.poblacion@barangay.test', 'role' => 'barangay_rep', 'barangay_id' => 20],
             ['id' => 7, 'name' => 'San Antonio Barangay Representative', 'email' => 'rep.san.antonio@barangay.test', 'role' => 'barangay_rep', 'barangay_id' => 24, 'password' => 'password123'],
+            ['id' => 8, 'name' => 'Guadalupe Nuevo Barangay Representative', 'email' => 'reynaldomaramag5@gmail.com', 'role' => 'barangay_rep', 'barangay_id' => 9, 'password' => 'password123'],
             ['id' => 9, 'name' => 'Ron Suarez', 'email' => 'orangeezz50805@gmail.com', 'role' => 'office_supervisor', 'barangay_id' => null, 'password' => 'RonSua123'],
         ] as $u) {
-            $user = new User(array_merge(['is_active' => true], $u));
+            $user = User::find($u['id']) ?? new User(array_merge(['is_active' => true], $u));
             $user->id = $u['id'];
             $user->email_verified_at = $now;
             $user->invited_at = $now;
             $user->activated_at = $now; // accounts are already activated
+            $user->verification_status = 'verified';
+            $user->verified_at = $now;
             $user->save();
         }
 

@@ -14,7 +14,7 @@ export function normalizeName(s?: string | null): string {
 /** Pastel avatar colours for barangay tiles, cycled by position (same as the homepage). */
 export const AVATARS = [
   { bg: "#BDF3DE", fg: "#0B6B52" },
-  { bg: "#E3D5FF", fg: "#5A18C9" },
+  { bg: "#DBEAFE", fg: "#002B7F" },
   { bg: "#FFF0A3", fg: "#7A5B00" },
   { bg: "#C5F0FF", fg: "#0B6180" },
   { bg: "#FFCDE6", fg: "#A0124F" },

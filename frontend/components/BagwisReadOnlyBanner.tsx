@@ -41,7 +41,7 @@ export function BagwisReadOnlyBanner() {
 
       <Link
         href="/borms"
-        className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#7B4DFF] to-[#5A18C9] px-4 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-md shadow-[#7B4DFF]/20 transition-all hover:scale-105 active:scale-95 shrink-0"
+        className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0039A6] hover:bg-[#002B7F] px-4 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-sm transition-colors shrink-0"
       >
         <span>Open BORMS</span>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>

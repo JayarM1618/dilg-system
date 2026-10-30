@@ -190,7 +190,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                   ? "bg-amber-500"
                   : type === "success"
                   ? "bg-emerald-500"
-                  : "bg-[#7B4DFF]"
+                  : "bg-[#0039A6]"
               }`}
             />
 
@@ -204,7 +204,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                     ? "bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 ring-1 ring-amber-300 dark:ring-amber-800/40"
                     : type === "success"
                     ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-300 dark:ring-emerald-800/40"
-                    : "bg-[#7B4DFF]/15 dark:bg-[#7B4DFF]/25 text-[#7B4DFF] dark:text-[#CDBBFF] ring-1 ring-[#7B4DFF]/30"
+                    : "bg-[#0039A6]/15 dark:bg-[#0039A6]/25 text-[#0039A6] dark:text-[#93C5FD] ring-1 ring-[#0039A6]/30"
                 }`}
               >
                 {type === "danger" && (
@@ -269,14 +269,14 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
                 ref={confirmBtnRef}
                 type="button"
                 onClick={() => state.resolve(true)}
-                className={`rounded-xl px-5 sm:px-6 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md transition-all active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
+                className={`rounded-xl px-5 sm:px-6 py-2.5 text-xs sm:text-sm font-bold text-white shadow-sm transition-all active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
                   type === "danger"
-                    ? "bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 shadow-rose-600/30 focus-visible:outline-rose-500"
+                    ? "bg-rose-600 hover:bg-rose-700 shadow-rose-600/30 focus-visible:outline-rose-500"
                     : type === "warning"
-                    ? "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 shadow-amber-500/30 focus-visible:outline-amber-500"
+                    ? "bg-amber-600 hover:bg-amber-700 shadow-amber-500/30 focus-visible:outline-amber-500"
                     : type === "success"
-                    ? "bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 shadow-emerald-600/30 focus-visible:outline-emerald-500"
-                    : "bg-gradient-to-r from-[#7B4DFF] to-[#6A3CF0] hover:from-[#6A3CF0] hover:to-[#5A18C9] shadow-[#7B4DFF]/30 focus-visible:outline-[#7B4DFF]"
+                    ? "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/30 focus-visible:outline-emerald-500"
+                    : "bg-[#0039A6] hover:bg-[#002B7F] shadow-sm focus-visible:outline-[#0039A6]"
                 }`}
               >
                 {state.confirmText || state.confirmLabel || "Confirm"}

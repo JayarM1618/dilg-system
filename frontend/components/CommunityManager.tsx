@@ -12,9 +12,9 @@ import {
 } from "@/lib/publicInfo";
 
 const field =
-  "w-full rounded-xl border border-line dark:border-white/10 bg-white dark:bg-[#1E1735] px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-[#7B4DFF] focus:ring-2 focus:ring-[#7B4DFF]/20 transition-all dark:[color-scheme:dark]";
+  "w-full rounded-xl border border-line dark:border-white/10 bg-white dark:bg-[#0F172A] px-3.5 py-2.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 outline-none focus:border-[#0039A6] focus:ring-2 focus:ring-[#0039A6]/20 transition-all dark:[color-scheme:dark]";
 const btn =
-  "rounded-full bg-[#5A18C9] dark:bg-[#7B4DFF] hover:bg-[#7B2FF7] dark:hover:bg-[#6A3CF0] px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors disabled:opacity-60";
+  "rounded-full bg-[#002B7F] dark:bg-[#0039A6] hover:bg-[#0039A6] dark:hover:bg-[#002B7F] px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors disabled:opacity-60";
 
 /**
  * Where a barangay representative writes what citizens see in the Citizens View.
@@ -22,19 +22,65 @@ const btn =
  */
 export default function CommunityManager() {
   const { user, loading: authLoading } = useAuth();
-  const barangayId = user?.barangay_id ?? null;
+  const barangayId = user?.barangay_id ?? user?.barangay?.id ?? null;
   const { data, loading, error, reload } = useFetch<PublicBarangayDetail>(
     barangayId ? `/api/public/barangays/${barangayId}` : null,
   );
 
-  if (authLoading) return <p className="mx-auto max-w-6xl p-8 text-muted dark:text-slate-400" role="status">Loading&hellip;</p>;
-  if (!barangayId) return <p className="mx-auto max-w-6xl p-8 text-muted dark:text-slate-400">This account is not linked to a barangay.</p>;
-  if (loading) return <p className="mx-auto max-w-6xl p-8 text-muted dark:text-slate-400" role="status">Loading&hellip;</p>;
+  // Still verifying authentication or initial data fetch
+  if (authLoading || (barangayId && (loading || (!data && !error)))) {
+    return (
+      <div className="space-y-6 px-4 py-8 sm:px-8 max-w-7xl mx-auto">
+        <header className="space-y-2">
+          <div className="h-8 w-64 bg-slate-200 dark:bg-white/10 rounded-lg animate-pulse" />
+          <div className="h-4 w-96 bg-slate-100 dark:bg-white/5 rounded-md animate-pulse" />
+        </header>
+
+        <div className="grid gap-5 lg:grid-cols-3">
+          {[1, 2, 3].map((col) => (
+            <div
+              key={col}
+              className="rounded-2xl border border-slate-200/70 dark:border-white/10 bg-white/60 dark:bg-white/5 p-6 backdrop-blur-xl space-y-4"
+            >
+              <div className="h-5 w-36 bg-slate-200 dark:bg-white/10 rounded animate-pulse" />
+              <div className="h-28 bg-slate-100 dark:bg-white/5 rounded-xl animate-pulse" />
+              <div className="h-28 bg-slate-100 dark:bg-white/5 rounded-xl animate-pulse" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Account has no barangay assigned
+  if (!barangayId) {
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-16 text-center">
+        <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#181126] p-8 shadow-sm">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Account Not Linked to a Barangay</h2>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            This account does not have an assigned barangay. Announcements and public programs are managed on behalf of a specific barangay.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Actual error occurred after loading
   if (error || !data) {
     return (
-      <div className="mx-auto max-w-6xl p-8" role="alert">
-        <p className="text-bad dark:text-rose-400">{error ?? "Could not load your barangay."}</p>
-        <button onClick={reload} className={`${btn} mt-3`}>Try again</button>
+      <div className="mx-auto max-w-4xl px-4 py-16" role="alert">
+        <div className="rounded-2xl border border-rose-200 dark:border-rose-900/40 bg-rose-50/70 dark:bg-rose-950/20 p-6 text-center">
+          <h2 className="text-base font-bold text-rose-800 dark:text-rose-300">
+            Unable to Load Announcements &amp; Programs
+          </h2>
+          <p className="mt-1 text-sm text-rose-600 dark:text-rose-400">
+            {error ?? "An unexpected error occurred while loading your barangay details. Please try again."}
+          </p>
+          <button type="button" onClick={reload} className={`${btn} mt-4`}>
+            Try again
+          </button>
+        </div>
       </div>
     );
   }
@@ -42,9 +88,11 @@ export default function CommunityManager() {
   return (
     <div className="space-y-6 px-4 py-6 sm:px-8 sm:py-8">
       <header>
-        <h1 className="text-2xl sm:text-3xl font-semibold text-[#1B1235] dark:text-white transition-colors duration-500 ease-out">Announcements &amp; programs</h1>
+        <h1 className="text-2xl sm:text-3xl font-semibold text-[#0F172A] dark:text-white transition-colors duration-500 ease-out">
+          Announcements &amp; programs
+        </h1>
         <p className="mt-1 text-sm sm:text-base text-slate-500 dark:text-[#C9BCEB] transition-colors duration-500 ease-out">
-          What you write here appears to citizens in the Citizens View of Barangay {data.barangay.name}.
+          What you write here appears to citizens in the Citizens View of Barangay {data.barangay?.name ?? ""}.
         </p>
       </header>
 
@@ -59,13 +107,18 @@ export default function CommunityManager() {
         {/* Column 2: Announcements */}
         <div className="lg:col-span-1">
           <SectionLabel icon={<MegaphoneIcon />} label="Announcements" />
-          <Announcements barangayId={barangayId} items={data.announcements} onChange={reload} />
+          <Announcements barangayId={barangayId} items={data.announcements ?? []} onChange={reload} />
         </div>
 
         {/* Column 3: Events & Programs */}
         <div className="lg:col-span-1">
           <SectionLabel icon={<CalendarIcon />} label="Events & Programs" />
-          <Programs barangayId={barangayId} events={data.events} programs={data.programs} onChange={reload} />
+          <Programs
+            barangayId={barangayId}
+            events={data.events ?? []}
+            programs={data.programs ?? []}
+            onChange={reload}
+          />
         </div>
       </div>
     </div>
@@ -89,7 +142,7 @@ function Panel({ title, hint, accent, children }: { title: string; hint?: string
   return (
     <section className={`rounded-2xl bg-white/60 dark:bg-white/5 backdrop-blur-xl border border-white/50 dark:border-white/10 shadow-[0_15px_35px_-5px_rgba(0,0,0,0.08),inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[0_15px_35px_-5px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all duration-500 ease-out overflow-hidden ${accent ?? ""}`}>
       <div className="p-5 sm:p-6">
-        <h3 className="text-lg font-semibold text-[#1B1235] dark:text-white transition-colors duration-500 ease-out">{title}</h3>
+        <h3 className="text-lg font-semibold text-[#0F172A] dark:text-white transition-colors duration-500 ease-out">{title}</h3>
         {hint && <p className="mt-1 text-sm text-slate-500 dark:text-[#A99BD4] transition-colors duration-500 ease-out">{hint}</p>}
         <div className="mt-4">{children}</div>
       </div>
@@ -132,11 +185,11 @@ function Note({ message }: { message: { ok: boolean; text: string } | null }) {
 
 /* ── Profile Form ── */
 
-function ProfileForm({ barangayId, initial }: { barangayId: number; initial: PublicBarangayDetail["barangay"] }) {
-  const [about, setAbout] = useState(initial.about ?? "");
-  const [hall, setHall] = useState(initial.hall_address ?? "");
-  const [hotline, setHotline] = useState(initial.hotline ?? "");
-  const [hours, setHours] = useState(initial.office_hours ?? "");
+function ProfileForm({ barangayId, initial }: { barangayId: number; initial?: PublicBarangayDetail["barangay"] }) {
+  const [about, setAbout] = useState(initial?.about ?? "");
+  const [hall, setHall] = useState(initial?.hall_address ?? "");
+  const [hotline, setHotline] = useState(initial?.hotline ?? "");
+  const [hours, setHours] = useState(initial?.office_hours ?? "");
   const { busy, message, run } = useSaver();
 
   function submit(e: FormEvent) {
@@ -153,7 +206,7 @@ function ProfileForm({ barangayId, initial }: { barangayId: number; initial: Pub
   }
 
   return (
-    <Panel title="Profile details" hint="Shown at the top of your page in the Citizens View." accent="bg-gradient-to-br from-emerald-500/5 to-teal-400/5 dark:from-emerald-500/10 dark:to-teal-400/5">
+    <Panel title="Profile details" hint="Shown at the top of your page in the Citizens View." accent="bg-emerald-50/40 dark:bg-emerald-950/20">
       <form onSubmit={submit} className="space-y-4">
         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">About the barangay
           <textarea value={about} onChange={(e) => setAbout(e.target.value)} rows={3} maxLength={2000} className={`${field} mt-1.5`} />
@@ -202,15 +255,17 @@ function Announcements({
     void run(() => apiSend(`/api/announcements/${id}`, "DELETE"), "Announcement deleted.");
   }
 
+  const list = items ?? [];
+
   return (
     <div className="space-y-5">
-      <Panel title="Post new" hint="News and reminders for residents." accent="bg-gradient-to-br from-amber-500/5 to-orange-400/5 dark:from-amber-500/10 dark:to-orange-400/5">
+      <Panel title="Post new" hint="News and reminders for residents." accent="bg-amber-50/40 dark:bg-amber-950/20">
         <form onSubmit={submit} className="space-y-4">
           <input value={title} onChange={(e) => setTitle(e.target.value)} required maxLength={150} placeholder="Title" aria-label="Announcement title" className={field} />
           <textarea value={body} onChange={(e) => setBody(e.target.value)} required maxLength={5000} rows={3} placeholder="What do residents need to know?" aria-label="Announcement text" className={field} />
           <div className="flex flex-col gap-3">
             <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 cursor-pointer">
-              <input type="checkbox" checked={pinned} onChange={(e) => setPinned(e.target.checked)} className="rounded border-line dark:border-white/20 text-[#7B4DFF] focus:ring-[#7B4DFF] bg-white dark:bg-[#1E1735]" /> Pin to the top
+              <input type="checkbox" checked={pinned} onChange={(e) => setPinned(e.target.checked)} className="rounded border-line dark:border-white/20 text-[#0039A6] focus:ring-[#0039A6] bg-white dark:bg-[#0F172A]" /> Pin to the top
             </label>
             <button type="submit" disabled={busy} className={`${btn} w-full`}>{busy ? "Posting…" : "Post announcement"}</button>
             <Note message={message} />
@@ -219,15 +274,15 @@ function Announcements({
       </Panel>
 
       {/* Existing announcements list */}
-      <Panel title="Posted" hint={`${items.length} announcement${items.length !== 1 ? "s" : ""}`} accent="bg-gradient-to-br from-amber-500/5 to-yellow-400/5 dark:from-amber-500/10 dark:to-yellow-400/5">
-        <ul className="divide-y divide-[#EDE7FA]/40 dark:divide-white/5">
-          {items.length === 0 ? (
+      <Panel title="Posted" hint={`${list.length} announcement${list.length !== 1 ? "s" : ""}`} accent="bg-amber-50/40 dark:bg-amber-950/20">
+        <ul className="divide-y divide-[#CBD5E1]/40 dark:divide-white/5">
+          {list.length === 0 ? (
             <li className="py-4 text-sm text-slate-400 dark:text-[#7C6FA3]">Nothing posted yet.</li>
           ) : (
-            items.map((a) => (
+            list.map((a) => (
               <li key={a.id} className="group flex items-start justify-between gap-3 py-3.5">
                 <div className="min-w-0">
-                  <p className="font-medium text-[#1B1235] dark:text-white transition-colors duration-500 ease-out">{a.is_pinned ? "📌 " : ""}{a.title}</p>
+                  <p className="font-medium text-[#0F172A] dark:text-white transition-colors duration-500 ease-out">{a.is_pinned ? "📌 " : ""}{a.title}</p>
                   <p className="text-xs text-slate-400 dark:text-[#7C6FA3] mt-0.5">{formatLongDate(a.published_at)}</p>
                 </div>
                 <button type="button" onClick={() => remove(a.id, a.title)} className="shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold text-rose-600 dark:text-rose-400 opacity-0 group-hover:opacity-100 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all">Delete</button>
@@ -281,14 +336,16 @@ function Programs({
     void run(() => apiSend(`/api/programs/${id}`, "DELETE"), "Deleted.");
   }
 
-  const rows = [...events, ...programs];
+  const eventList = events ?? [];
+  const programList = programs ?? [];
+  const rows = [...eventList, ...programList];
 
   return (
     <div className="space-y-5">
       <Panel
         title={kind === "event" ? "Add event" : "Add program"}
         hint={kind === "event" ? "Events appear on the Citizens View calendar." : "Programs are ongoing services."}
-        accent="bg-gradient-to-br from-violet-500/5 to-purple-400/5 dark:from-violet-500/10 dark:to-purple-400/5"
+        accent="bg-blue-50/40 dark:bg-blue-950/20"
       >
         <form onSubmit={submit} className="space-y-4">
           {/* Type toggle */}
@@ -298,7 +355,7 @@ function Programs({
               onClick={() => setKind("event")}
               className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-all duration-300 ${
                 kind === "event"
-                  ? "bg-white dark:bg-[#7B4DFF]/20 text-[#5A18C9] dark:text-[#CDBBFF] shadow-sm"
+                  ? "bg-white dark:bg-[#0F172A] text-[#0039A6] dark:text-blue-300 shadow-sm"
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
               }`}
             >
@@ -309,7 +366,7 @@ function Programs({
               onClick={() => setKind("program")}
               className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-all duration-300 ${
                 kind === "program"
-                  ? "bg-white dark:bg-[#7B4DFF]/20 text-[#5A18C9] dark:text-[#CDBBFF] shadow-sm"
+                  ? "bg-white dark:bg-[#0F172A] text-[#0039A6] dark:text-blue-300 shadow-sm"
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
               }`}
             >
@@ -319,7 +376,7 @@ function Programs({
 
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Category
             <select value={category} onChange={(e) => setCategory(e.target.value)} className={`${field} mt-1.5`}>
-              {CATEGORIES.map((c) => <option key={c.value} value={c.value} className="bg-white dark:bg-[#1E1735] text-slate-900 dark:text-white">{c.label}</option>)}
+              {CATEGORIES.map((c) => <option key={c.value} value={c.value} className="bg-white dark:bg-[#0F172A] text-slate-900 dark:text-white">{c.label}</option>)}
             </select>
           </label>
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Title
@@ -355,8 +412,8 @@ function Programs({
       </Panel>
 
       {/* Existing items list */}
-      <Panel title="Your items" hint={`${events.length} event${events.length !== 1 ? "s" : ""}, ${programs.length} program${programs.length !== 1 ? "s" : ""}`} accent="bg-gradient-to-br from-violet-500/5 to-indigo-400/5 dark:from-violet-500/10 dark:to-indigo-400/5">
-        <ul className="divide-y divide-[#EDE7FA]/40 dark:divide-white/5">
+      <Panel title="Your items" hint={`${eventList.length} event${eventList.length !== 1 ? "s" : ""}, ${programList.length} program${programList.length !== 1 ? "s" : ""}`} accent="bg-blue-50/40 dark:bg-blue-950/20">
+        <ul className="divide-y divide-[#CBD5E1]/40 dark:divide-white/5">
           {rows.length === 0 ? (
             <li className="py-4 text-sm text-slate-400 dark:text-[#7C6FA3]">Nothing added yet.</li>
           ) : (
@@ -371,7 +428,7 @@ function Programs({
                     }`}>
                       {p.kind}
                     </span>
-                    <span className="font-medium text-[#1B1235] dark:text-white transition-colors duration-500 ease-out">{p.title}</span>
+                    <span className="font-medium text-[#0F172A] dark:text-white transition-colors duration-500 ease-out">{p.title}</span>
                   </div>
                   <p className="text-xs text-slate-400 dark:text-[#7C6FA3] mt-0.5">
                     {p.kind === "event" && p.starts_at ? `${formatLongDate(p.starts_at)}, ${eventWhen(p)}` : p.schedule_note ?? "Program"}

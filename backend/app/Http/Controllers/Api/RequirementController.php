@@ -40,10 +40,13 @@ class RequirementController extends Controller
         return $assignment;
     }
 
-    private function isOverdue(Requirement $r, string $assignmentStatus): bool
+    private function isOverdue(?Requirement $r, ?string $assignmentStatus): bool
     {
-        return $r->due_date !== null
-            && $r->due_date->lt(now()->startOfDay())
+        if (!$r || $r->due_date === null) {
+            return false;
+        }
+
+        return $r->due_date->lt(now()->startOfDay())
             && $assignmentStatus !== 'complied';
     }
 
@@ -85,6 +88,7 @@ class RequirementController extends Controller
         $rows = RequirementAssignment::with(['requirement.files', 'requirement.creator:id,name', 'requirement.formTemplate'])
             ->withCount('responses')
             ->where('barangay_id', $request->user()->barangay_id)
+            ->whereHas('requirement')
             ->orderByDesc('id')
             ->get()
             ->map(function (RequirementAssignment $a) {
@@ -127,7 +131,10 @@ class RequirementController extends Controller
     {
         abort_unless($this->isOffice($request), 403);
 
-        $assignments = RequirementAssignment::with('requirement:id,due_date,status')->get()->groupBy('barangay_id');
+        $assignments = RequirementAssignment::with('requirement:id,due_date,status')
+            ->whereHas('requirement')
+            ->get()
+            ->groupBy('barangay_id');
 
         $rows = Barangay::where('is_active', true)->orderBy('name')->get(['id', 'name'])->map(function ($b) use ($assignments) {
             $list = $assignments->get($b->id, collect());

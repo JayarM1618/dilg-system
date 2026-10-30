@@ -1,21 +1,15 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import "@fontsource/metropolis/400.css";
-import "@fontsource/metropolis/500.css";
-import "@fontsource/metropolis/600.css";
-import "@fontsource/metropolis/700.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
-  preload: false,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
-  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -24,7 +18,6 @@ export const metadata: Metadata = {
 };
 
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { ConfirmProvider } from "@/components/ConfirmModal";
 import { DevToolsGuard } from "@/components/DevToolsGuard";
 
@@ -51,7 +44,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <DevToolsGuard />
           <ConfirmProvider>
             {children}
-            <ThemeToggle />
           </ConfirmProvider>
         </ThemeProvider>
       </body>

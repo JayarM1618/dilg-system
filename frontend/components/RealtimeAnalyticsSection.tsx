@@ -204,7 +204,7 @@ export default function RealtimeAnalyticsSection({
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-[#7B4DFF] animate-ping" />
+              <span className="h-2 w-2 rounded-full bg-[#0039A6] animate-ping" />
               <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 Side-by-Side Analytics: Citywide vs Barangay {contextBarangay.name}
               </h3>
@@ -224,7 +224,7 @@ export default function RealtimeAnalyticsSection({
 
           <div className="grid gap-6 lg:grid-cols-2">
             {/* Chart 1: Citywide */}
-            <div className="rounded-2xl bg-white dark:bg-[#181126] border border-slate-200 dark:border-white/10 shadow-sm p-6">
+            <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-white/10 shadow-sm p-6">
               <RealtimeComplianceChart
                 trend={citywideRealtime.data?.monthly_trend ?? []}
                 title="Citywide Compliance Trend"
@@ -235,7 +235,7 @@ export default function RealtimeAnalyticsSection({
             </div>
 
             {/* Chart 2: Selected Barangay */}
-            <div className="rounded-2xl bg-white dark:bg-[#181126] border-2 border-[#7B4DFF]/30 dark:border-[#7B4DFF]/40 shadow-sm p-6">
+            <div className="rounded-2xl bg-white dark:bg-[#0F172A] border-2 border-[#0039A6]/30 dark:border-[#0039A6]/40 shadow-sm p-6">
               <RealtimeComplianceChart
                 trend={barangayRealtime.data?.monthly_trend ?? []}
                 title={`${contextBarangay.name} Compliance Trend`}
@@ -247,7 +247,7 @@ export default function RealtimeAnalyticsSection({
           </div>
 
           {/* Barangay Status Tally card in full width */}
-          <div className="rounded-2xl bg-white dark:bg-[#181126] border border-slate-200 dark:border-white/10 shadow-sm p-6">
+          <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-white/10 shadow-sm p-6">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-white/5 pb-3">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
@@ -260,7 +260,7 @@ export default function RealtimeAnalyticsSection({
                   <button
                     type="button"
                     onClick={() => handleSelectBarangay(null)}
-                    className="text-xs text-[#7B4DFF] hover:underline"
+                    className="text-xs text-[#0039A6] hover:underline"
                   >
                     View All Barangays (Makati Citywide)
                   </button>
@@ -286,7 +286,7 @@ export default function RealtimeAnalyticsSection({
         // Standard Balanced View: Chart on left (col-span-7), Selector & Tally on right (col-span-5)
         <div className="grid gap-6 lg:grid-cols-12">
           {/* Main Trend Chart */}
-          <div className="rounded-2xl bg-white dark:bg-[#181126] border border-slate-200 dark:border-white/10 shadow-sm lg:col-span-7 p-6 flex flex-col justify-between">
+          <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-white/10 shadow-sm lg:col-span-7 p-6 flex flex-col justify-between">
             <RealtimeComplianceChart
               trend={chartDetails.trend}
               compareTrend={chartDetails.compareTrend}
@@ -304,7 +304,7 @@ export default function RealtimeAnalyticsSection({
                   <button
                     type="button"
                     onClick={() => setIsSideBySide(true)}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/30 dark:hover:bg-purple-900/50 text-[#7B4DFF] dark:text-[#CDBBFF] border border-[#7B4DFF]/20 transition-colors"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-950/60 text-[#0039A6] dark:text-[#93C5FD] border border-[#0039A6]/20 transition-colors"
                     title="View Citywide and Barangay charts side by side"
                   >
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -319,13 +319,13 @@ export default function RealtimeAnalyticsSection({
           </div>
 
           {/* Right Card: Barangay Selector & Status Tally */}
-          <div className="rounded-2xl bg-white dark:bg-[#181126] border border-slate-200 dark:border-white/10 shadow-sm lg:col-span-5 p-6 flex flex-col justify-between">
+          <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-white/10 shadow-sm lg:col-span-5 p-6 flex flex-col justify-between">
             <div>
               {/* Select Barangay Control */}
               <div className="mb-4">
                 <div className="flex items-center justify-between mb-1.5">
                   <label htmlFor="barangay-select" className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#7B4DFF]">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#0039A6]">
                       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                       <circle cx="12" cy="10" r="3" />
                     </svg>
@@ -335,7 +335,7 @@ export default function RealtimeAnalyticsSection({
                     <button
                       type="button"
                       onClick={() => handleSelectBarangay(null)}
-                      className="text-xs text-[#7B4DFF] dark:text-[#CDBBFF] font-medium hover:underline"
+                      className="text-xs text-[#0039A6] dark:text-[#93C5FD] font-medium hover:underline"
                     >
                       View All Barangays
                     </button>
@@ -344,7 +344,7 @@ export default function RealtimeAnalyticsSection({
 
                 <select
                   id="barangay-select"
-                  className="w-full rounded-xl border border-slate-300 dark:border-white/20 bg-white dark:bg-[#1f1733] p-2.5 text-sm text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-[#7B4DFF] transition-all"
+                  className="w-full rounded-xl border border-slate-300 dark:border-white/20 bg-white dark:bg-[#0F172A] p-2.5 text-sm text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-[#0039A6] transition-all"
                   value={selectedBarangayId ?? ""}
                   onChange={(e) => handleSelectBarangay(e.target.value ? Number(e.target.value) : null)}
                   disabled={barangaysLoading}

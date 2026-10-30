@@ -50,11 +50,10 @@ export default function SKReportsView() {
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`flex-1 min-w-fit rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-              tab === t.key
-                ? "bg-[#7B4DFF] text-white shadow-sm"
-                : "text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-white/10"
-            }`}
+            className={`flex-1 min-w-fit rounded-full px-4 py-2 text-sm font-semibold transition-colors ${tab === t.key
+              ? "bg-[#0039A6] text-white shadow-sm"
+              : "text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-white/10"
+              }`}
           >
             {t.label}
           </button>
@@ -92,11 +91,11 @@ function SKOverview() {
           skCats.map((cat) => (
             <div
               key={cat.id}
-              className="rounded-2xl border border-[#7B4DFF]/20 bg-gradient-to-br from-[#F3EDFE] to-white dark:from-[#241A3F] dark:to-[#1B142F] p-6 shadow-sm"
+              className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] p-6 shadow-sm"
             >
               <div className="flex items-center justify-between gap-3">
                 <h3 className="text-lg font-bold text-navy-900 dark:text-white">{cat.name}</h3>
-                <span className="rounded-full bg-[#7B4DFF]/15 px-3 py-1 text-xs font-bold text-[#5A18C9] dark:text-[#CDBBFF] uppercase">
+                <span className="rounded-full bg-blue-100 dark:bg-blue-950/60 px-3 py-1 text-xs font-bold text-[#0039A6] dark:text-blue-300 uppercase">
                   {cat.cycle}
                 </span>
               </div>
@@ -156,16 +155,16 @@ function SKCategoryView({ categoryName }: { categoryName: string }) {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-[#7B4DFF]/20 bg-[#F3EDFE] dark:bg-[#241A3F] p-6">
+      <div className="rounded-2xl border border-[#0039A6]/20 bg-[#EBF2FF] dark:bg-[#0F172A] p-6">
         <div className="flex items-center justify-between gap-3">
           <h3 className="text-xl font-bold text-navy-900 dark:text-white">{cat.name}</h3>
-          <span className="rounded-full bg-[#7B4DFF]/15 px-3 py-1 text-xs font-bold text-[#5A18C9] dark:text-[#CDBBFF] uppercase">
+          <span className="rounded-full bg-[#0039A6]/15 px-3 py-1 text-xs font-bold text-[#002B7F] dark:text-[#93C5FD] uppercase">
             {cat.cycle}
           </span>
         </div>
         {cat.description && <p className="mt-2 text-sm text-slate-500 dark:text-slate-300">{cat.description}</p>}
         {cat.deadline_description && (
-          <p className="mt-2 text-sm text-[#5A18C9] dark:text-[#CDBBFF]">
+          <p className="mt-2 text-sm text-[#002B7F] dark:text-[#93C5FD]">
             <strong>Deadline:</strong> {cat.deadline_description}
           </p>
         )}
@@ -229,7 +228,7 @@ function SKSubmissionsTable({ categoryId, sector }: { categoryId?: number; secto
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[600px] text-left text-sm">
-        <thead className="text-navy-800 dark:text-[#D1C4F9]">
+        <thead className="text-navy-800 dark:text-[#93C5FD]">
           <tr className="border-b border-slate-200 dark:border-white/10">
             <th className="py-2.5 pr-3 font-semibold">Report</th>
             <th className="px-3 py-2.5 font-semibold">Period</th>

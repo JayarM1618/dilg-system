@@ -149,7 +149,7 @@ export default function RealtimeComplianceChart({
               {title}
             </h2>
             {badgeLabel ? (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-100 dark:bg-[#2C2145] px-2.5 py-0.5 text-xs font-semibold text-[#7B4DFF] dark:text-[#CDBBFF]">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 dark:bg-[#0F172A] px-2.5 py-0.5 text-xs font-semibold text-[#0039A6] dark:text-[#93C5FD]">
                 {badgeLabel}
               </span>
             ) : null}
@@ -177,7 +177,7 @@ export default function RealtimeComplianceChart({
                 onClick={() => onTabChange?.(tab.id)}
                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150 ${
                   tab.active
-                    ? "bg-white dark:bg-[#7B4DFF] text-[#5A18C9] dark:text-white shadow-sm"
+                    ? "bg-white dark:bg-[#0039A6] text-[#0039A6] dark:text-white shadow-sm"
                     : "text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
                 }`}
               >
@@ -189,7 +189,7 @@ export default function RealtimeComplianceChart({
 
           <div className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
             {isComparison ? (
-              <span>Comparing: <strong className="text-purple-600 dark:text-purple-400">{primaryLabel}</strong> vs <strong className="text-emerald-600 dark:text-emerald-400">{compareLabel}</strong></span>
+              <span>Comparing: <strong className="text-blue-700 dark:text-blue-300">{primaryLabel}</strong> vs <strong className="text-emerald-600 dark:text-emerald-400">{compareLabel}</strong></span>
             ) : (
               <span>Peak Performance: <strong className="text-emerald-500">{peakRate}%</strong></span>
             )}
@@ -202,22 +202,22 @@ export default function RealtimeComplianceChart({
         {isComparison ? (
           <div className="flex items-center gap-4 text-slate-600 dark:text-slate-300">
             <span className="inline-flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#7B4DFF]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#0039A6]" />
               <strong>{primaryLabel}</strong> ({latestPoint?.rate ?? 0}%)
             </span>
             <span className="inline-flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#06D6A0]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#059669]" />
               <strong>{compareLabel}</strong> ({latestComp?.rate ?? 0}%)
             </span>
           </div>
         ) : (
           <div className="flex items-center gap-4 text-slate-600 dark:text-slate-300">
             <span className="inline-flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#F21DB4]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#D97706]" />
               Filed Reports ({latestPoint?.filed ?? 0})
             </span>
             <span className="inline-flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#7B4DFF]" />
+              <span className="h-2.5 w-2.5 rounded-full bg-[#0039A6]" />
               Compliant &amp; Cleared ({latestPoint?.compliant ?? 0})
             </span>
           </div>
@@ -239,16 +239,7 @@ export default function RealtimeComplianceChart({
           aria-label="Real-time compliance line chart"
           onMouseLeave={() => setHoverIndex(null)}
         >
-          <defs>
-            <linearGradient id="filedGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#F21DB4" stopOpacity="0.25" />
-              <stop offset="100%" stopColor="#F21DB4" stopOpacity="0.0" />
-            </linearGradient>
-            <linearGradient id="compliantGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#7B4DFF" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="#7B4DFF" stopOpacity="0.0" />
-            </linearGradient>
-          </defs>
+          
 
           {/* Grid lines */}
           {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
@@ -288,7 +279,7 @@ export default function RealtimeComplianceChart({
                 <path
                   d={primaryRatePath}
                   fill="none"
-                  stroke="#7B4DFF"
+                  stroke="#0039A6"
                   strokeWidth="2.8"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -299,7 +290,7 @@ export default function RealtimeComplianceChart({
                 <path
                   d={compRatePath}
                   fill="none"
-                  stroke="#06D6A0"
+                  stroke="#059669"
                   strokeWidth="2.8"
                   strokeDasharray="4 2"
                   strokeLinecap="round"
@@ -309,13 +300,13 @@ export default function RealtimeComplianceChart({
             </>
           ) : (
             <>
-              {filedArea && <path d={filedArea} fill="url(#filedGradient)" />}
-              {compliantArea && <path d={compliantArea} fill="url(#compliantGradient)" />}
+              {filedArea && <path d={filedArea} fill="#D97706" fillOpacity="0.08" />}
+              {compliantArea && <path d={compliantArea} fill="#0039A6" fillOpacity="0.08" />}
               {filedPath && (
                 <path
                   d={filedPath}
                   fill="none"
-                  stroke="#F21DB4"
+                  stroke="#D97706"
                   strokeWidth="2.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -325,7 +316,7 @@ export default function RealtimeComplianceChart({
                 <path
                   d={compliantPath}
                   fill="none"
-                  stroke="#7B4DFF"
+                  stroke="#0039A6"
                   strokeWidth="2.8"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -341,7 +332,7 @@ export default function RealtimeComplianceChart({
               x2={activeX}
               y1={T}
               y2={T + plotH}
-              stroke="#7B4DFF"
+              stroke="#0039A6"
               strokeWidth="1.5"
               strokeDasharray="3 3"
               className="opacity-70"
@@ -375,7 +366,7 @@ export default function RealtimeComplianceChart({
                     cx={x}
                     cy={yPrim}
                     r={isHovered ? 5.5 : 3.5}
-                    fill="#7B4DFF"
+                    fill="#0039A6"
                     stroke="#fff"
                     strokeWidth="2"
                     className="transition-all duration-200"
@@ -385,7 +376,7 @@ export default function RealtimeComplianceChart({
                     cx={x}
                     cy={yComp}
                     r={isHovered ? 5.5 : 3.5}
-                    fill="#06D6A0"
+                    fill="#059669"
                     stroke="#fff"
                     strokeWidth="2"
                     className="transition-all duration-200"
@@ -399,7 +390,7 @@ export default function RealtimeComplianceChart({
                     fill="currentColor"
                     className={`font-semibold transition-colors ${
                       isHovered
-                        ? "text-[#7B4DFF] dark:text-[#CDBBFF]"
+                        ? "text-[#0039A6] dark:text-[#93C5FD]"
                         : "text-slate-400 dark:text-slate-500"
                     }`}
                   >
@@ -427,7 +418,7 @@ export default function RealtimeComplianceChart({
                   cx={x}
                   cy={yCompliant}
                   r={isHovered ? 5.5 : 3.5}
-                  fill={isHovered ? "#06D6A0" : "#7B4DFF"}
+                  fill={isHovered ? "#059669" : "#0039A6"}
                   stroke="#fff"
                   strokeWidth="2"
                   className="transition-all duration-200"
@@ -440,7 +431,7 @@ export default function RealtimeComplianceChart({
                   fill="currentColor"
                   className={`font-semibold transition-colors ${
                     isHovered
-                      ? "text-[#7B4DFF] dark:text-[#CDBBFF]"
+                      ? "text-[#0039A6] dark:text-[#93C5FD]"
                       : "text-slate-400 dark:text-slate-500"
                   }`}
                 >
@@ -462,15 +453,15 @@ export default function RealtimeComplianceChart({
             {isComparison ? (
               <div className="mt-1 space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#7B4DFF]" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#0039A6]" />
                   <span className="text-[11px] text-slate-300">{primaryLabel}:</span>
                   <strong className="text-white ml-auto">{active.rate}%</strong>
                 </div>
                 {activeComp && (
                   <div className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#06D6A0]" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#059669]" />
                     <span className="text-[11px] text-slate-300">{compareLabel}:</span>
-                    <strong className="text-[#84DEBD] ml-auto">{activeComp.rate}%</strong>
+                    <strong className="text-[#34D399] ml-auto">{activeComp.rate}%</strong>
                   </div>
                 )}
                 {activeComp && (
@@ -485,14 +476,14 @@ export default function RealtimeComplianceChart({
             ) : (
               <div className="mt-1 space-y-0.5">
                 <div className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#F21DB4]" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#D97706]" />
                   <span className="text-[11px] text-slate-300">Filed:</span>
                   <strong className="text-white ml-auto">{active.filed}</strong>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#7B4DFF]" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#0039A6]" />
                   <span className="text-[11px] text-slate-300">Compliant:</span>
-                  <strong className="text-[#84DEBD] ml-auto">{active.compliant}</strong>
+                  <strong className="text-[#34D399] ml-auto">{active.compliant}</strong>
                 </div>
                 <div className="border-t border-white/10 pt-1 mt-1 text-[11px] font-semibold text-amber-300">
                   Compliance: {active.rate}%

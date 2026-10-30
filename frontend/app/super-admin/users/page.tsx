@@ -49,9 +49,9 @@ function maskEmail(email?: string | null): string {
 }
 
 const focusRing =
-  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7B4DFF]";
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0039A6]";
 const field =
-  "mt-1.5 w-full rounded-xl bg-white dark:bg-[#2B2542] px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none ring-1 ring-[#E3DEF5] dark:ring-[#433A66] placeholder:text-slate-400 focus:ring-2 focus:ring-[#7B4DFF]";
+  "mt-1.5 w-full rounded-xl bg-white dark:bg-[#1E293B] px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none ring-1 ring-[#CBD5E1] dark:ring-[#334155] placeholder:text-slate-400 focus:ring-2 focus:ring-[#0039A6]";
 
 export default function AccountsPage() {
   const { user: currentUser } = useAuth();
@@ -216,7 +216,7 @@ export default function AccountsPage() {
             setShowForm((v) => !v);
             setFormError(null);
           }}
-          className={`rounded-full bg-[#7B4DFF] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#5A18C9] ${focusRing}`}
+          className={`rounded-full bg-[#0039A6] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#002B7F] ${focusRing}`}
         >
           {showForm ? "Close" : "Issue a new account"}
         </button>
@@ -248,7 +248,7 @@ export default function AccountsPage() {
 
       <section className="mt-5 grid gap-3 md:grid-cols-3" aria-label="What each role can do">
         {(["barangay_rep", "office_supervisor", "super_admin"] as Role[]).map((r) => (
-          <div key={r} className="rounded-2xl bg-white p-4 ring-1 ring-[#E3DEF5] dark:bg-[#1B1430] dark:ring-white/10">
+          <div key={r} className="rounded-2xl bg-white p-4 ring-1 ring-[#CBD5E1] dark:bg-[#1B1430] dark:ring-white/10">
             <p className="text-sm font-bold text-[#1B1235] dark:text-white">{ROLE_INFO[r].label}</p>
             <p className="mt-1 text-xs leading-relaxed text-slate-600 dark:text-slate-300">{ROLE_INFO[r].description}</p>
           </div>
@@ -274,7 +274,7 @@ export default function AccountsPage() {
               : "Email delivery is not set up on this server, so send this link to them yourself. It works once and expires in 7 days."}
           </p>
           <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-            <input readOnly value={issued.activation_link} onFocus={(e) => e.currentTarget.select()} aria-label="Activation link" className="min-w-0 flex-1 rounded-xl bg-white px-3.5 py-2.5 text-sm text-slate-800 ring-1 ring-[#BDF3DE] dark:bg-[#2B2542] dark:text-slate-100 dark:ring-white/10" />
+            <input readOnly value={issued.activation_link} onFocus={(e) => e.currentTarget.select()} aria-label="Activation link" className="min-w-0 flex-1 rounded-xl bg-white px-3.5 py-2.5 text-sm text-slate-800 ring-1 ring-[#BDF3DE] dark:bg-[#1E293B] dark:text-slate-100 dark:ring-white/10" />
             <button type="button" onClick={() => void copy(issued.activation_link)} className={`rounded-full bg-[#0B6B52] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#095742] ${focusRing}`}>
               {copied ? "Copied" : "Copy link"}
             </button>
@@ -286,7 +286,7 @@ export default function AccountsPage() {
       )}
 
       {showForm && (
-        <form onSubmit={create} className="mt-4 grid gap-4 rounded-3xl bg-[#F3EDFE] p-5 dark:bg-white/5 sm:grid-cols-2" aria-label="Issue a new account">
+        <form onSubmit={create} className="mt-4 grid gap-4 rounded-3xl bg-[#EBF2FF] p-5 dark:bg-white/5 sm:grid-cols-2" aria-label="Issue a new account">
           <label className="block text-sm font-medium text-[#1B1235] dark:text-slate-200">
             Full name
             <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="Juan Dela Cruz" className={field} />
@@ -316,7 +316,7 @@ export default function AccountsPage() {
           )}
           {formError && <p role="alert" className="text-sm font-medium text-bad dark:text-rose-400 sm:col-span-2">{formError}</p>}
           <div className="sm:col-span-2">
-            <button type="submit" disabled={saving} className={`rounded-full bg-[#7B4DFF] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#5A18C9] disabled:opacity-60 ${focusRing}`}>
+            <button type="submit" disabled={saving} className={`rounded-full bg-[#0039A6] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#002B7F] disabled:opacity-60 ${focusRing}`}>
               {saving ? "Creating..." : "Create and send activation link"}
             </button>
           </div>
@@ -331,7 +331,7 @@ export default function AccountsPage() {
             onChange={(e) => setQuery(e.target.value)}
             aria-label="Search accounts"
             placeholder="Search name, email or barangay"
-            className="w-full rounded-md border border-line bg-white px-3.5 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#7B4DFF] focus:ring-2 focus:ring-[#7B4DFF]/25 dark:border-white/10 dark:bg-white/5 dark:text-white sm:w-80"
+            className="w-full rounded-md border border-line bg-white px-3.5 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#0039A6] focus:ring-2 focus:ring-[#0039A6]/25 dark:border-white/10 dark:bg-white/5 dark:text-white sm:w-80"
           />
           <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by status">
             {FILTERS.map((f) => (
@@ -342,7 +342,7 @@ export default function AccountsPage() {
                 aria-pressed={filter === f.value}
                 className={`rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${focusRing} ${
                   filter === f.value
-                    ? "border-[#7B4DFF] bg-[#5A18C9] text-white dark:bg-[#7B4DFF]"
+                    ? "border-[#0039A6] bg-[#002B7F] text-white dark:bg-[#0039A6]"
                     : "border-line bg-white text-navy-800 hover:bg-navy-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
                 }`}
               >
@@ -374,7 +374,7 @@ export default function AccountsPage() {
       <div className="mt-4 overflow-x-auto rounded-lg border border-line bg-white dark:border-white/10 dark:bg-white/5">
         <table className="w-full min-w-[920px] text-left text-sm">
           <caption className="sr-only">Accounts</caption>
-          <thead className="bg-navy-50 text-navy-800 dark:bg-white/5 dark:text-[#D1C4F9]">
+          <thead className="bg-navy-50 text-navy-800 dark:bg-white/5 dark:text-[#93C5FD]">
             <tr>
               <th scope="col" className="px-4 py-3 font-semibold">Name</th>
               <th scope="col" className="px-4 py-3 font-semibold">Email</th>
@@ -411,7 +411,7 @@ export default function AccountsPage() {
                           <button
                             type="button"
                             onClick={() => { setPhotoUser(u); setRevealDetails(false); }}
-                            className={`shrink-0 h-9 w-9 rounded-full overflow-hidden ring-2 ${isPV ? "ring-blue-400 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 animate-pulse" : isRej ? "ring-rose-300 dark:ring-rose-600" : "ring-emerald-300 dark:ring-emerald-600"} cursor-pointer hover:ring-[#7B4DFF] transition-all`}
+                            className={`shrink-0 h-9 w-9 rounded-full overflow-hidden ring-2 ${isPV ? "ring-blue-400 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 animate-pulse" : isRej ? "ring-rose-300 dark:ring-rose-600" : "ring-emerald-300 dark:ring-emerald-600"} cursor-pointer hover:ring-[#0039A6] transition-all`}
                             title="Click to view Account File"
                           >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -421,7 +421,7 @@ export default function AccountsPage() {
                           <button
                             type="button"
                             onClick={() => { setPhotoUser(u); setRevealDetails(false); }}
-                            className="shrink-0 grid h-9 w-9 place-items-center rounded-full bg-slate-100 dark:bg-white/10 text-slate-400 dark:text-slate-500 hover:text-[#7B4DFF] hover:bg-slate-200 dark:hover:bg-white/15 transition-colors"
+                            className="shrink-0 grid h-9 w-9 place-items-center rounded-full bg-slate-100 dark:bg-white/10 text-slate-400 dark:text-slate-500 hover:text-[#0039A6] hover:bg-slate-200 dark:hover:bg-white/15 transition-colors"
                             title="Click to view Account File"
                           >
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
@@ -433,7 +433,7 @@ export default function AccountsPage() {
                           className="text-left group/u"
                           title="Click to view Account File"
                         >
-                          <span className="font-semibold text-slate-900 dark:text-white group-hover/u:text-[#7B4DFF] transition-colors">
+                          <span className="font-semibold text-slate-900 dark:text-white group-hover/u:text-[#0039A6] transition-colors">
                             {u.name}
                           </span>
                           {u.first_name && u.last_name && (
@@ -501,7 +501,7 @@ export default function AccountsPage() {
                               </svg>
                               Account File
                             </button>
-                            <button type="button" disabled={busy} onClick={() => void sendLink(u)} className={`rounded-full px-3 py-1 text-xs font-semibold text-[#5A18C9] hover:bg-[#F3EDFE] disabled:opacity-50 dark:text-[#D1C4F9] dark:hover:bg-white/10 ${focusRing}`}>
+                            <button type="button" disabled={busy} onClick={() => void sendLink(u)} className={`rounded-full px-3 py-1 text-xs font-semibold text-[#002B7F] hover:bg-[#EBF2FF] disabled:opacity-50 dark:text-[#93C5FD] dark:hover:bg-white/10 ${focusRing}`}>
                               {u.status === "pending" ? "New link" : "Reset access"}
                             </button>
                             <button type="button" disabled={busy} onClick={() => void toggleActive(u)} className={`rounded-full px-3 py-1 text-xs font-semibold hover:bg-slate-100 disabled:opacity-50 dark:hover:bg-white/10 ${u.is_active ? "text-bad dark:text-rose-300" : "text-ok dark:text-emerald-300"} ${focusRing}`}>
@@ -553,7 +553,7 @@ export default function AccountsPage() {
             {/* Header banner */}
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/10 px-6 py-4 bg-slate-50/80 dark:bg-white/[0.02]">
               <div className="flex items-center gap-2.5">
-                <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#7B4DFF]/15 text-[#7B4DFF] dark:text-[#CDBBFF]">
+                <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#0039A6]/15 text-[#0039A6] dark:text-[#93C5FD]">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                     <polyline points="14 2 14 8 20 8" />
@@ -604,7 +604,7 @@ export default function AccountsPage() {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h4 className="text-xl font-bold text-slate-900 dark:text-white">{photoUser.name}</h4>
-                  <p className="text-xs font-semibold text-[#7B4DFF] dark:text-[#CDBBFF]">
+                  <p className="text-xs font-semibold text-[#0039A6] dark:text-[#93C5FD]">
                     {ROLE_INFO[photoUser.role]?.tag ?? photoUser.role} &bull; {photoUser.barangay?.name ?? "Makati DILG"}
                   </p>
                 </div>
@@ -751,7 +751,7 @@ export default function AccountsPage() {
               onChange={(e) => setRejectReason(e.target.value)}
               placeholder="Reason for rejection (optional, visible to the user)"
               rows={3}
-              className="mt-4 w-full rounded-xl bg-slate-50 dark:bg-[#201833] px-4 py-3 text-sm text-slate-900 dark:text-white outline-none ring-1 ring-slate-200 dark:ring-white/10 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-rose-400"
+              className="mt-4 w-full rounded-xl bg-slate-50 dark:bg-[#0F172A] px-4 py-3 text-sm text-slate-900 dark:text-white outline-none ring-1 ring-slate-200 dark:ring-white/10 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-rose-400"
             />
             <div className="mt-4 flex gap-3">
               <button

@@ -101,14 +101,14 @@ export default function BagwisDashboard() {
 
       {/* Modern Pill Tab Bar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="inline-flex p-1.5 rounded-2xl bg-white/90 dark:bg-[#181126]/90 backdrop-blur-md border border-slate-200/80 dark:border-white/10 shadow-sm">
+        <div className="inline-flex p-1.5 rounded-2xl bg-white/90 dark:bg-[#0F172A]/90 backdrop-blur-md border border-slate-200/80 dark:border-white/10 shadow-sm">
           {tabs.map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
               className={`flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-xs font-semibold transition-all duration-200 ${
                 tab === t.key
-                  ? "bg-gradient-to-r from-[#7B4DFF] to-[#9254DE] text-white shadow-md shadow-[#7B4DFF]/30 font-bold"
+                  ? "bg-[#0039A6] text-white shadow-sm font-bold"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5"
               }`}
             >
@@ -204,7 +204,7 @@ function MatrixTab() {
       </div>
 
       {/* Filter and Table Container */}
-      <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#181126]/90 shadow-sm overflow-hidden">
+      <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#0F172A]/90 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-100 dark:border-white/10 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h3 className="text-sm font-bold text-slate-900 dark:text-white">Makati City Compliance Matrix</h3>
@@ -216,7 +216,7 @@ function MatrixTab() {
           <div className="flex items-center gap-3">
             <div className="relative">
               <input
-                className="rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#1F1733] pl-8 pr-3.5 py-1.5 text-xs text-slate-900 dark:text-white focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20 w-52 sm:w-64 transition"
+                className="rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#0F172A] pl-8 pr-3.5 py-1.5 text-xs text-slate-900 dark:text-white focus:border-[#0039A6] focus:outline-none focus:ring-2 focus:ring-[#0039A6]/20 w-52 sm:w-64 transition"
                 placeholder="Search barangay or code..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -231,7 +231,7 @@ function MatrixTab() {
 
             <button
               onClick={() => reload()}
-              className="p-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] text-slate-500 hover:text-slate-900 dark:hover:text-white transition"
+              className="p-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] text-slate-500 hover:text-slate-900 dark:hover:text-white transition"
               title="Refresh Matrix"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -257,7 +257,7 @@ function MatrixTab() {
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-slate-500 dark:text-slate-400 text-xs">
                     <div className="flex flex-col items-center justify-center gap-2">
-                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#7B4DFF] border-t-transparent" />
+                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#0039A6] border-t-transparent" />
                       <span>Loading compliance matrix...</span>
                     </div>
                   </td>
@@ -286,7 +286,7 @@ function MatrixTab() {
                     <tr key={r.barangay.id} className="hover:bg-slate-50/60 dark:hover:bg-white/5 transition-colors">
                       <td className="px-6 py-3.5 font-medium text-slate-900 dark:text-white">
                         <div className="flex items-center gap-2.5">
-                          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#7B4DFF]/10 text-[#7B4DFF] dark:text-[#CDBBFF] text-xs font-bold">
+                          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0039A6]/10 text-[#0039A6] dark:text-[#93C5FD] text-xs font-bold">
                             {r.barangay.name.substring(0, 2).toUpperCase()}
                           </span>
                           <span className="font-semibold">{r.barangay.name}</span>
@@ -372,19 +372,19 @@ function ReportsTab() {
   return (
     <div className="space-y-6">
       {/* Period Filter Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#181126]/80 backdrop-blur-md shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-md shadow-sm">
         <div className="flex items-center gap-3">
           <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
             Filing Cycle:
           </span>
           <select
-            className="rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#1F1733] px-3.5 py-1.5 text-xs sm:text-sm text-slate-900 dark:text-white focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20 w-48 transition"
+            className="rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#0F172A] px-3.5 py-1.5 text-xs sm:text-sm text-slate-900 dark:text-white focus:border-[#0039A6] focus:outline-none focus:ring-2 focus:ring-[#0039A6]/20 w-48 transition"
             value={period}
             onChange={(e) => setPeriod(e.target.value)}
           >
-            <option value="" className="bg-white dark:bg-[#2B2542]">Latest active period</option>
+            <option value="" className="bg-white dark:bg-[#1E293B]">Latest active period</option>
             {periodList.map((p) => (
-              <option key={p.period_label} value={p.period_label} className="bg-white dark:bg-[#2B2542]">
+              <option key={p.period_label} value={p.period_label} className="bg-white dark:bg-[#1E293B]">
                 {p.period_label}
               </option>
             ))}
@@ -394,7 +394,7 @@ function ReportsTab() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => reload()}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5 transition"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-white/5 transition"
           >
             <svg className="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -405,7 +405,7 @@ function ReportsTab() {
           <a
             href={apiUrl(`/api/reports/compliance/export${qs}`)}
             download
-            className="inline-flex items-center gap-1.5 rounded-xl bg-[#7B4DFF] px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-[#6A3CF0] transition"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-[#0039A6] px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-[#002B7F] transition"
           >
             <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -416,12 +416,12 @@ function ReportsTab() {
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-16 gap-3 rounded-2xl border border-slate-200/60 dark:border-white/10 bg-white/40 dark:bg-[#181126]/40">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#7B4DFF] border-t-transparent" />
+        <div className="flex flex-col items-center justify-center py-16 gap-3 rounded-2xl border border-slate-200/60 dark:border-white/10 bg-white/40 dark:bg-[#0F172A]/40">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0039A6] border-t-transparent" />
           <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Loading compliance reports...</span>
         </div>
       ) : !report ? (
-        <div className="p-8 text-center rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#181126]/80">
+        <div className="p-8 text-center rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#0F172A]/80">
           <p className="text-sm text-slate-500 dark:text-slate-400">No compliance data available for this cycle.</p>
         </div>
       ) : (
@@ -455,7 +455,7 @@ function ReportsTab() {
           </div>
 
           {/* Breakdown Table */}
-          <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#181126]/90 shadow-sm overflow-hidden">
+          <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#0F172A]/90 shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-100 dark:border-white/10">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">
                 Barangay Filing Standing — {report.period_label || "Current Period"}
@@ -583,10 +583,10 @@ function PpaFormModal({ ppa, isOpen, onClose, onSuccess }: PpaFormModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-      <div className="relative w-full max-w-xl rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#181126] p-6 sm:p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
+      <div className="relative w-full max-w-xl rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#0F172A] p-6 sm:p-8 shadow-2xl overflow-y-auto max-h-[90vh]">
         <div className="flex items-start justify-between gap-4 border-b border-slate-100 dark:border-white/10 pb-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#7B4DFF]/10 dark:bg-[#7B4DFF]/20 px-2.5 py-0.5 text-[11px] font-bold text-[#7B4DFF] dark:text-[#CDBBFF]">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#0039A6]/10 dark:bg-[#0039A6]/20 px-2.5 py-0.5 text-[11px] font-bold text-[#0039A6] dark:text-[#93C5FD]">
               <span>🏛️</span> DILG Makati City Oversight
             </div>
             <h3 className="mt-1.5 text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
@@ -624,7 +624,7 @@ function PpaFormModal({ ppa, isOpen, onClose, onSuccess }: PpaFormModalProps) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Makati BADAC Program Guidelines 2026"
-              className="w-full rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#1F1733] px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20"
+              className="w-full rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#0F172A] px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:border-[#0039A6] focus:outline-none focus:ring-2 focus:ring-[#0039A6]/20"
             />
           </div>
 
@@ -636,7 +636,7 @@ function PpaFormModal({ ppa, isOpen, onClose, onSuccess }: PpaFormModalProps) {
               <select
                 value={frequency}
                 onChange={(e) => setFrequency(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#1F1733] px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20"
+                className="w-full rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#0F172A] px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:border-[#0039A6] focus:outline-none focus:ring-2 focus:ring-[#0039A6]/20"
               >
                 <option value="Monthly">Monthly</option>
                 <option value="Quarterly">Quarterly</option>
@@ -657,7 +657,7 @@ function PpaFormModal({ ppa, isOpen, onClose, onSuccess }: PpaFormModalProps) {
                 value={responsibleOffice}
                 onChange={(e) => setResponsibleOffice(e.target.value)}
                 placeholder="e.g. CADAC / DILG Makati / PNP"
-                className="w-full rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#1F1733] px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20"
+                className="w-full rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#0F172A] px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:border-[#0039A6] focus:outline-none focus:ring-2 focus:ring-[#0039A6]/20"
               />
             </div>
           </div>
@@ -671,7 +671,7 @@ function PpaFormModal({ ppa, isOpen, onClose, onSuccess }: PpaFormModalProps) {
               value={deadlineDescription}
               onChange={(e) => setDeadlineDescription(e.target.value)}
               placeholder="e.g. Tuwing ika-5 ng buwan kasunod ng bawat quarter"
-              className="w-full rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#1F1733] px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20"
+              className="w-full rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#0F172A] px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:border-[#0039A6] focus:outline-none focus:ring-2 focus:ring-[#0039A6]/20"
             />
           </div>
 
@@ -684,7 +684,7 @@ function PpaFormModal({ ppa, isOpen, onClose, onSuccess }: PpaFormModalProps) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Provide context, objectives, and compliance requirements for Makati barangays..."
-              className="w-full rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#1F1733] px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20 resize-none"
+              className="w-full rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#0F172A] px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:border-[#0039A6] focus:outline-none focus:ring-2 focus:ring-[#0039A6]/20 resize-none"
             />
           </div>
 
@@ -707,7 +707,7 @@ function PpaFormModal({ ppa, isOpen, onClose, onSuccess }: PpaFormModalProps) {
               type="file"
               accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.jpg,.jpeg,.png"
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-              className="block w-full text-xs text-slate-500 dark:text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#7B4DFF]/10 dark:file:bg-[#7B4DFF]/20 file:text-[#7B4DFF] dark:file:text-[#CDBBFF] hover:file:bg-[#7B4DFF]/20 cursor-pointer"
+              className="block w-full text-xs text-slate-500 dark:text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#0039A6]/10 dark:file:bg-[#0039A6]/20 file:text-[#0039A6] dark:file:text-[#93C5FD] hover:file:bg-[#0039A6]/20 cursor-pointer"
             />
             <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
               Barangay representatives will be able to view and download this official guideline file.
@@ -726,7 +726,7 @@ function PpaFormModal({ ppa, isOpen, onClose, onSuccess }: PpaFormModalProps) {
             <button
               type="submit"
               disabled={busy}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#7B4DFF] to-[#9254DE] px-5 py-2 text-xs font-bold text-white shadow-md shadow-[#7B4DFF]/25 hover:opacity-95 transition disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[#0039A6] hover:bg-[#002B7F] px-5 py-2 text-xs font-bold text-white shadow-sm transition disabled:opacity-50"
             >
               {busy ? (
                 <>
@@ -818,8 +818,8 @@ function PpasTab() {
 
   if (loading)
     return (
-      <div className="flex flex-col items-center justify-center py-16 gap-3 rounded-2xl border border-slate-200/60 dark:border-white/10 bg-white/40 dark:bg-[#181126]/40">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#7B4DFF] border-t-transparent" />
+      <div className="flex flex-col items-center justify-center py-16 gap-3 rounded-2xl border border-slate-200/60 dark:border-white/10 bg-white/40 dark:bg-[#0F172A]/40">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0039A6] border-t-transparent" />
         <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Loading Makati PPAs...</span>
       </div>
     );
@@ -870,9 +870,9 @@ function PpasTab() {
 
       {/* Supervisor Authority Banner */}
       {isOffice ? (
-        <div className="p-5 rounded-2xl border border-[#7B4DFF]/20 bg-gradient-to-r from-[#7B4DFF]/10 via-[#9254DE]/5 to-transparent dark:bg-[#181126]/90 backdrop-blur-md shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="p-5 rounded-2xl border border-blue-200 dark:border-blue-900/40 bg-blue-50/50 dark:bg-blue-950/20 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#7B4DFF]/15 px-2.5 py-0.5 text-[11px] font-bold text-[#7B4DFF] dark:text-[#CDBBFF]">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 dark:bg-blue-950/60 px-2.5 py-0.5 text-[11px] font-bold text-[#0039A6] dark:text-blue-300">
               <span>🛡️</span> DILG Supervisor Authority &bull; Makati City Oversight
             </div>
             <h2 className="mt-1 text-base sm:text-lg font-bold text-slate-900 dark:text-white">
@@ -889,7 +889,7 @@ function PpasTab() {
               setEditingPpa(null);
               setModalOpen(true);
             }}
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-gradient-to-r from-[#7B4DFF] to-[#9254DE] px-4 py-2.5 text-xs font-bold text-white shadow-md shadow-[#7B4DFF]/30 hover:opacity-95 transition"
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[#0039A6] hover:bg-[#002B7F] px-4 py-2.5 text-xs font-bold text-white shadow-sm transition"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -898,7 +898,7 @@ function PpasTab() {
           </button>
         </div>
       ) : (
-        <div className="p-5 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#181126]/80 backdrop-blur-md shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="p-5 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-md shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 dark:bg-emerald-950/40 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
               <span>👁</span> View Only &bull; Download Guidelines
@@ -922,8 +922,8 @@ function PpasTab() {
               onClick={() => setFrequencyFilter(freq)}
               className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
                 frequencyFilter === freq
-                  ? "bg-[#7B4DFF] text-white shadow-sm"
-                  : "bg-white/80 dark:bg-[#181126]/80 text-slate-600 dark:text-slate-400 border border-slate-200/70 dark:border-white/10 hover:text-slate-900 dark:hover:text-white"
+                  ? "bg-[#0039A6] text-white shadow-sm"
+                  : "bg-white/80 dark:bg-[#0F172A]/80 text-slate-600 dark:text-slate-400 border border-slate-200/70 dark:border-white/10 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
               {freq === "all" ? "All Cycles" : freq}
@@ -937,12 +937,12 @@ function PpasTab() {
             placeholder="Search programs, offices..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full sm:w-64 rounded-xl border border-slate-300 dark:border-white/15 bg-white/90 dark:bg-[#181126]/90 px-3.5 py-1.5 text-xs text-slate-900 dark:text-white focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20"
+            className="w-full sm:w-64 rounded-xl border border-slate-300 dark:border-white/15 bg-white/90 dark:bg-[#0F172A]/90 px-3.5 py-1.5 text-xs text-slate-900 dark:text-white focus:border-[#0039A6] focus:outline-none focus:ring-2 focus:ring-[#0039A6]/20"
           />
           <button
             onClick={() => reload()}
             title="Refresh list"
-            className="p-2 rounded-xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#181126]/80 text-slate-500 hover:text-slate-900 dark:hover:text-white transition"
+            className="p-2 rounded-xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#0F172A]/80 text-slate-500 hover:text-slate-900 dark:hover:text-white transition"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -953,7 +953,7 @@ function PpasTab() {
 
       {/* PPA List / Cards Grid */}
       {filteredPpas.length === 0 ? (
-        <div className="p-12 text-center rounded-2xl border border-dashed border-slate-200 dark:border-white/15 bg-white/60 dark:bg-[#181126]/60">
+        <div className="p-12 text-center rounded-2xl border border-dashed border-slate-200 dark:border-white/15 bg-white/60 dark:bg-[#0F172A]/60">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-100 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 text-2xl">
             🎯
           </div>
@@ -967,7 +967,7 @@ function PpasTab() {
                 setEditingPpa(null);
                 setModalOpen(true);
               }}
-              className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-[#7B4DFF] px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-[#6A3CF0] transition"
+              className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-[#0039A6] px-4 py-2 text-xs font-semibold text-white shadow-sm hover:bg-[#002B7F] transition"
             >
               + Upload Makati Program Now
             </button>
@@ -978,13 +978,13 @@ function PpasTab() {
           {filteredPpas.map((ppa) => (
             <div
               key={ppa.id}
-              className="rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#181126]/90 p-5 shadow-sm transition-all hover:border-[#7B4DFF]/40 dark:hover:border-[#7B4DFF]/40 flex flex-col justify-between"
+              className="rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#0F172A]/90 p-5 shadow-sm transition-all hover:border-[#0039A6]/40 dark:hover:border-[#0039A6]/40 flex flex-col justify-between"
             >
               <div>
                 {/* Header row: frequency + office actions */}
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="inline-flex items-center rounded-full bg-[#7B4DFF]/10 dark:bg-[#7B4DFF]/20 px-2.5 py-0.5 text-[10px] font-bold text-[#7B4DFF] dark:text-[#CDBBFF] uppercase tracking-wider">
+                    <span className="inline-flex items-center rounded-full bg-[#0039A6]/10 dark:bg-[#0039A6]/20 px-2.5 py-0.5 text-[10px] font-bold text-[#0039A6] dark:text-[#93C5FD] uppercase tracking-wider">
                       {ppa.frequency}
                     </span>
                     <span className="inline-flex items-center rounded-full bg-slate-100 dark:bg-white/10 px-2.5 py-0.5 text-[10px] font-semibold text-slate-600 dark:text-slate-300">
@@ -1000,7 +1000,7 @@ function PpasTab() {
                           setEditingPpa(ppa);
                           setModalOpen(true);
                         }}
-                        className="rounded-lg p-1.5 text-slate-400 hover:text-[#7B4DFF] hover:bg-slate-100 dark:hover:bg-white/5 transition"
+                        className="rounded-lg p-1.5 text-slate-400 hover:text-[#0039A6] hover:bg-slate-100 dark:hover:bg-white/5 transition"
                       >
                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -1032,7 +1032,7 @@ function PpasTab() {
                 {/* Schedule/Deadline */}
                 {ppa.deadline_description && (
                   <div className="mt-3 flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-slate-300 font-medium bg-slate-50 dark:bg-white/5 p-2 rounded-xl">
-                    <span className="text-[#7B4DFF]">📅</span>
+                    <span className="text-[#0039A6]">📅</span>
                     <span className="truncate">{ppa.deadline_description}</span>
                   </div>
                 )}
@@ -1077,7 +1077,7 @@ function PpasTab() {
                             type="button"
                             disabled={quickUploadBusy}
                             onClick={() => triggerQuickUpload(ppa.id)}
-                            className="text-[10px] font-semibold text-[#7B4DFF] dark:text-[#CDBBFF] hover:underline"
+                            className="text-[10px] font-semibold text-[#0039A6] dark:text-[#93C5FD] hover:underline"
                           >
                             Replace Guideline File
                           </button>
@@ -1091,7 +1091,7 @@ function PpasTab() {
                           type="button"
                           disabled={quickUploadBusy}
                           onClick={() => triggerQuickUpload(ppa.id)}
-                          className="w-full rounded-2xl border border-dashed border-[#7B4DFF]/40 dark:border-[#7B4DFF]/40 bg-[#7B4DFF]/5 dark:bg-[#7B4DFF]/10 p-3 text-center text-xs font-semibold text-[#7B4DFF] dark:text-[#CDBBFF] hover:bg-[#7B4DFF]/15 transition flex items-center justify-center gap-1.5"
+                          className="w-full rounded-2xl border border-dashed border-[#0039A6]/40 dark:border-[#0039A6]/40 bg-[#0039A6]/5 dark:bg-[#0039A6]/10 p-3 text-center text-xs font-semibold text-[#0039A6] dark:text-[#93C5FD] hover:bg-[#0039A6]/15 transition flex items-center justify-center gap-1.5"
                         >
                           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -1210,14 +1210,14 @@ function PpaDetail({
   }
 
   return (
-    <div className="rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#181126]/90 shadow-sm overflow-hidden">
+    <div className="rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#0F172A]/90 shadow-sm overflow-hidden">
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
         className="w-full text-left px-5 py-4 hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors flex items-center justify-between"
       >
         <div className="flex items-center gap-3.5 min-w-0">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#7B4DFF]/10 text-[#7B4DFF] dark:text-[#CDBBFF] text-lg font-bold">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#0039A6]/10 text-[#0039A6] dark:text-[#93C5FD] text-lg font-bold">
             🎯
           </span>
           <div className="min-w-0">
@@ -1258,7 +1258,7 @@ function PpaDetail({
 
           {/* Guideline Banner in Details */}
           {ppa.attachment_name && (
-            <div className="p-3.5 rounded-2xl bg-white dark:bg-[#181126] border border-slate-200/80 dark:border-white/10 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+            <div className="p-3.5 rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200/80 dark:border-white/10 flex flex-wrap items-center justify-between gap-3 shadow-xs">
               <div className="flex items-center gap-2.5">
                 <span className="text-xl">📄</span>
                 <div>
@@ -1273,7 +1273,7 @@ function PpaDetail({
               <a
                 href={apiUrl(`/api/bagwis/ppas/${ppa.id}/download`)}
                 download
-                className="inline-flex items-center gap-1.5 rounded-xl bg-[#7B4DFF] px-3.5 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-[#6A3CF0] transition"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#0039A6] px-3.5 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-[#002B7F] transition"
               >
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -1287,14 +1287,14 @@ function PpaDetail({
           {isOffice && (
             <div>
               <button
-                className="inline-flex items-center gap-1.5 rounded-xl bg-[#7B4DFF] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#6A3CF0] transition-colors shadow-sm"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#0039A6] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#002B7F] transition-colors shadow-sm"
                 onClick={() => setShowForm(!showForm)}
               >
                 {showForm ? "Cancel Entry" : "+ Record Period Compliance Entry"}
               </button>
 
               {showForm && (
-                <form onSubmit={handleAddEntry} className="mt-3 p-5 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] space-y-3 shadow-sm">
+                <form onSubmit={handleAddEntry} className="mt-3 p-5 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] space-y-3 shadow-sm">
                   <h4 className="text-xs font-bold text-slate-900 dark:text-white">
                     Record New Period Entry for {ppa.name}
                   </h4>
@@ -1302,7 +1302,7 @@ function PpaDetail({
                     <label className="text-xs">
                       <span className="block mb-1 font-semibold text-slate-700 dark:text-slate-300">Period Label <span className="text-rose-500">*</span></span>
                       <input
-                        className="rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#1F1733] px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20 w-full"
+                        className="rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#0F172A] px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:border-[#0039A6] focus:outline-none focus:ring-2 focus:ring-[#0039A6]/20 w-full"
                         required
                         placeholder="e.g. 2026-Q1 or 2026-OCTOBER"
                         value={periodLabel}
@@ -1315,7 +1315,7 @@ function PpaDetail({
                       <select
                         value={status}
                         onChange={(e) => setStatus(e.target.value as any)}
-                        className="rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#1F1733] px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20 w-full"
+                        className="rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#0F172A] px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:border-[#0039A6] focus:outline-none focus:ring-2 focus:ring-[#0039A6]/20 w-full"
                       >
                         <option value="submitted">Submitted</option>
                         <option value="pending">Pending</option>
@@ -1328,7 +1328,7 @@ function PpaDetail({
                   <label className="text-xs block">
                     <span className="block mb-1 font-semibold text-slate-700 dark:text-slate-300">Remarks / Evaluation Notes</span>
                     <input
-                      className="rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#1F1733] px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20 w-full"
+                      className="rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#0F172A] px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:border-[#0039A6] focus:outline-none focus:ring-2 focus:ring-[#0039A6]/20 w-full"
                       placeholder="Optional assessment / remarks"
                       value={remarks}
                       onChange={(e) => setRemarks(e.target.value)}
@@ -1348,7 +1348,7 @@ function PpaDetail({
                     <button
                       type="submit"
                       disabled={busy}
-                      className="rounded-xl bg-[#7B4DFF] px-4 py-2 text-xs font-semibold text-white hover:bg-[#6A3CF0] transition-colors disabled:opacity-50"
+                      className="rounded-xl bg-[#0039A6] px-4 py-2 text-xs font-semibold text-white hover:bg-[#002B7F] transition-colors disabled:opacity-50"
                     >
                       {busy ? "Saving Entry..." : "Save Period Entry"}
                     </button>
@@ -1367,7 +1367,7 @@ function PpaDetail({
             </div>
           ) : (
             <div className="overflow-x-auto rounded-2xl border border-slate-200/60 dark:border-white/10 shadow-xs">
-              <table className="w-full min-w-[650px] text-left text-xs bg-white dark:bg-[#181126]">
+              <table className="w-full min-w-[650px] text-left text-xs bg-white dark:bg-[#0F172A]">
                 <thead className="bg-slate-50/80 dark:bg-white/5 border-b border-slate-100 dark:border-white/10 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   <tr>
                     <th scope="col" className="px-4 py-3">Period</th>
@@ -1401,7 +1401,7 @@ function PpaDetail({
                           <a
                             href={apiUrl(`/api/bagwis/ppa-entries/${entry.id}/download`)}
                             download
-                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#7B4DFF] dark:text-[#CDBBFF] hover:underline"
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0039A6] dark:text-[#93C5FD] hover:underline"
                           >
                             <span>📎</span>
                             <span className="truncate max-w-[120px]" title={entry.attachment_name}>
@@ -1489,8 +1489,8 @@ function SecurityTab() {
 
   if (loading)
     return (
-      <div className="flex flex-col items-center justify-center py-16 gap-3 rounded-2xl border border-slate-200/60 dark:border-white/10 bg-white/40 dark:bg-[#181126]/40">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#7B4DFF] border-t-transparent" />
+      <div className="flex flex-col items-center justify-center py-16 gap-3 rounded-2xl border border-slate-200/60 dark:border-white/10 bg-white/40 dark:bg-[#0F172A]/40">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0039A6] border-t-transparent" />
         <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Loading security telemetry...</span>
       </div>
     );
@@ -1512,7 +1512,7 @@ function SecurityTab() {
       )}
 
       {/* Incident list */}
-      <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#181126]/90 shadow-sm overflow-hidden">
+      <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#0F172A]/90 shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-100 dark:border-white/10 flex items-center justify-between">
           <div>
             <h3 className="text-sm font-bold text-slate-900 dark:text-white">Recent Security Telemetry</h3>
@@ -1522,7 +1522,7 @@ function SecurityTab() {
           </div>
           <button
             onClick={() => { reload(); reloadIncidents(); }}
-            className="text-xs font-semibold text-[#7B4DFF] dark:text-[#CDBBFF] hover:underline"
+            className="text-xs font-semibold text-[#0039A6] dark:text-[#93C5FD] hover:underline"
           >
             Refresh
           </button>

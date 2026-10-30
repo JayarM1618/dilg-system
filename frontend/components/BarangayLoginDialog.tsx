@@ -43,7 +43,7 @@ export default function BarangayLoginDialog({
   }
 
   const field =
-    "mt-1.5 w-full rounded-xl border border-line/40 dark:border-white/10 bg-[#F1F1F6] dark:bg-black/30 px-4 py-3 text-slate-900 dark:text-white outline-none ring-1 ring-transparent transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-black/50 focus:ring-2 focus:ring-[#7B4DFF]";
+    "mt-1.5 w-full rounded-xl border border-line/40 dark:border-white/10 bg-[#F1F1F6] dark:bg-black/30 px-4 py-3 text-slate-900 dark:text-white outline-none ring-1 ring-transparent transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:bg-white dark:focus:bg-black/50 focus:ring-2 focus:ring-[#0039A6]";
 
   return (
     <dialog
@@ -53,7 +53,7 @@ export default function BarangayLoginDialog({
         if (e.target === dialogRef.current) dialogRef.current?.close(); // click on the dimmed backdrop
       }}
       aria-labelledby={`${emailId}-title`}
-      className="m-auto w-[min(92vw,26rem)] overflow-hidden rounded-[1.75rem] bg-white dark:bg-[#1E1735] p-0 text-slate-800 dark:text-slate-100 shadow-2xl border border-line/50 dark:border-white/10 backdrop:bg-[#140B33]/50 backdrop:backdrop-blur-sm"
+      className="m-auto w-[min(92vw,26rem)] overflow-hidden rounded-[1.75rem] bg-white dark:bg-[#0F172A] p-0 text-slate-800 dark:text-slate-100 shadow-2xl border border-line/50 dark:border-white/10 backdrop:bg-[#140B33]/50 backdrop:backdrop-blur-sm"
     >
       <div className="bg-[#E6FBF3] dark:bg-emerald-950/40 px-5 sm:px-7 pb-5 sm:pb-6 pt-6 sm:pt-7 border-b border-emerald-100 dark:border-emerald-900/30">
         <div className="flex items-start justify-between gap-4">
@@ -67,7 +67,7 @@ export default function BarangayLoginDialog({
             type="button"
             onClick={() => dialogRef.current?.close()}
             aria-label="Close"
-            className="grid h-9 w-9 place-items-center rounded-full bg-white/70 dark:bg-white/10 text-slate-600 dark:text-slate-300 transition hover:bg-white dark:hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7B4DFF]"
+            className="grid h-9 w-9 place-items-center rounded-full bg-white/70 dark:bg-white/10 text-slate-600 dark:text-slate-300 transition hover:bg-white dark:hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0039A6]"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
               <path d="M6 6l12 12M18 6L6 18" />
@@ -114,7 +114,7 @@ export default function BarangayLoginDialog({
               aria-label={showPassword ? "Hide password" : "Show password"}
               title={showPassword ? "Hide password" : "Show password"}
               aria-pressed={showPassword}
-              className="absolute bottom-0 right-0 flex h-[calc(100%-0.375rem)] items-center rounded-r-xl px-3.5 text-slate-400 hover:text-[#7B4DFF] dark:text-slate-400 dark:hover:text-[#CDBBFF] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7B4DFF]"
+              className="absolute bottom-0 right-0 flex h-[calc(100%-0.375rem)] items-center rounded-r-xl px-3.5 text-slate-400 hover:text-[#0039A6] dark:text-slate-400 dark:hover:text-[#93C5FD] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0039A6]"
             >
               {showPassword ? (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -142,7 +142,7 @@ export default function BarangayLoginDialog({
         <button
           type="submit"
           disabled={busy || !email || !password}
-          className="w-full rounded-full bg-[#7B4DFF] px-6 py-3 font-semibold text-white transition hover:bg-[#6A3CF0] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7B4DFF] disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full rounded-full bg-[#0039A6] px-6 py-3 font-semibold text-white transition hover:bg-[#002B7F] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0039A6] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {busy ? "Signing in..." : "Sign in"}
         </button>

@@ -117,22 +117,28 @@ class PublicController extends Controller
     /** One barangay: profile, announcements, calendar events and programs. */
     public function barangay(int $id)
     {
-        $barangay = Barangay::where('is_active', true)->find($id);
+        $barangay = Barangay::find($id);
         abort_unless($barangay, 404, 'Barangay not found.');
 
         return response()->json([
             'barangay' => $barangay->only(['id', 'name', 'code', 'about', 'hall_address', 'hotline', 'office_hours']),
             'announcements' => $barangay->announcements()
-                ->where('published_at', '<=', now())
+                ->where(function ($q) {
+                    $q->whereNull('published_at')
+                        ->orWhere('published_at', '<=', now()->addMinutes(2));
+                })
                 ->orderByDesc('is_pinned')
                 ->orderByDesc('published_at')
-                ->limit(30)
+                ->limit(50)
                 ->get()
                 ->map(fn (BarangayAnnouncement $a) => $this->announcementRow($a)),
-            // From the start of this month, so the calendar can show the whole current month.
+            // From recent months, so the calendar and rep can see ongoing/recent events.
             'events' => $barangay->programs()
                 ->where('kind', 'event')
-                ->where('starts_at', '>=', now()->startOfMonth())
+                ->where(function ($q) {
+                    $q->whereNull('starts_at')
+                        ->orWhere('starts_at', '>=', now()->startOfMonth()->subMonths(1));
+                })
                 ->orderBy('starts_at')
                 ->limit(200)
                 ->get()

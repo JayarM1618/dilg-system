@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import SignaturePad from "@/components/threers/SignaturePad";
 import { btn, btnGhost, Notice, formatBytes } from "@/components/threers/ui";
 import type { FormField, FormTemplate } from "@/components/threers/types";
@@ -62,6 +62,60 @@ export default function FormFiller({
     position?: string;
   }>(initialSignature ?? {});
   const [localErrors, setLocalErrors] = useState<Record<string, string>>({});
+  const [lastAutoSaved, setLastAutoSaved] = useState<string | null>(null);
+
+  const storageKey = `form_draft_${template.id}`;
+
+  // Restore draft on mount if initialData is empty
+  useEffect(() => {
+    if (readOnly) return;
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.data && Object.keys(formData).length === 0) {
+          setFormData(parsed.data);
+          if (parsed.signature) setSignature(parsed.signature);
+          setLastAutoSaved(parsed.savedAt || "Restored draft");
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, [storageKey, readOnly]);
+
+  // Debounced auto-save to localStorage
+  useEffect(() => {
+    if (readOnly || Object.keys(formData).length === 0) return;
+    const timer = setTimeout(() => {
+      try {
+        const timeStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        localStorage.setItem(
+          storageKey,
+          JSON.stringify({
+            data: formData,
+            signature,
+            savedAt: timeStr,
+          })
+        );
+        setLastAutoSaved(timeStr);
+      } catch {
+        // ignore
+      }
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, [formData, signature, storageKey, readOnly]);
+
+  const clearDraft = () => {
+    try {
+      localStorage.removeItem(storageKey);
+      setFormData({});
+      setSignature({});
+      setLastAutoSaved(null);
+    } catch {
+      // ignore
+    }
+  };
 
   const updateField = useCallback((name: string, value: unknown) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -97,6 +151,13 @@ export default function FormFiller({
   const handleSave = (status: "draft" | "submitted") => {
     if (!onSave) return;
     if (status === "submitted" && !validate()) return;
+    if (status === "submitted") {
+      try {
+        localStorage.removeItem(storageKey);
+      } catch {
+        // ignore
+      }
+    }
     onSave({
       data: formData,
       status,
@@ -137,7 +198,7 @@ export default function FormFiller({
       {/* ============================================================ */}
       <div className="print:hidden rounded-xl border border-slate-200 dark:border-white/10 bg-white/95 dark:bg-[#1A1328]/95 backdrop-blur-md p-3 sm:px-5 sm:py-3.5 shadow-sm flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#0039A6]/10 text-[#0039A6] dark:bg-[#7B4DFF]/20 dark:text-[#CDBBFF]">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#0039A6]/10 text-[#0039A6] dark:bg-[#0039A6]/20 dark:text-[#93C5FD]">
             {/* Word / Document Icon */}
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -150,6 +211,20 @@ export default function FormFiller({
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
               Word / Document Mode &middot; Standard Letter (8.5&quot; &times; 11&quot;) &middot; v{template.version}
             </p>
+            {lastAutoSaved && !readOnly && (
+              <div className="flex items-center gap-1.5 text-[10px] text-emerald-600 dark:text-emerald-400 font-medium mt-0.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Draft saved locally {lastAutoSaved === "Restored draft" ? "(restored)" : `at ${lastAutoSaved}`}</span>
+                <button
+                  type="button"
+                  onClick={clearDraft}
+                  className="ml-1 text-[10px] text-slate-400 hover:text-rose-500 underline"
+                  title="Clear locally saved draft"
+                >
+                  Clear
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

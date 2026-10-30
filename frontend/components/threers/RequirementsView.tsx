@@ -31,10 +31,10 @@ const STATUS_STYLE: Record<AssignmentStatus, string> = {
   complied: "bg-[#E6FBF3] text-[#0B6B52] dark:bg-[#0E352B] dark:text-[#84DEBD]",
 };
 
-const card = "rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] shadow-sm";
+const card = "rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] shadow-sm";
 const label = "mb-1 block text-sm font-medium text-slate-800 dark:text-slate-200";
 const fileInput =
-  "block w-full text-sm text-slate-700 dark:text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#7B4DFF]/10 file:text-[#7B4DFF] dark:file:bg-[#7B4DFF]/20 dark:file:text-[#CDBBFF]";
+  "block w-full text-sm text-slate-700 dark:text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#0039A6]/10 file:text-[#0039A6] dark:file:bg-[#0039A6]/20 dark:file:text-[#93C5FD]";
 
 function StatusPill({ status }: { status: AssignmentStatus }) {
   return <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-bold ${STATUS_STYLE[status]}`}>{ASSIGNMENT_LABEL[status]}</span>;
@@ -42,7 +42,7 @@ function StatusPill({ status }: { status: AssignmentStatus }) {
 
 function DownloadLink({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <a className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#5A18C9] dark:text-[#CDBBFF] underline underline-offset-4" href={apiUrl(href)}>
+    <a className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#002B7F] dark:text-[#93C5FD] underline underline-offset-4" href={apiUrl(href)}>
       {children}
     </a>
   );
@@ -113,7 +113,7 @@ function OfficeSide({ canDelete }: { canDelete: boolean }) {
           <button
             key={v}
             onClick={() => setView(v)}
-            className={`rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors ${view === v ? "bg-white dark:bg-[#201835] text-[#5A18C9] dark:text-white shadow-sm" : "text-slate-600 dark:text-slate-300"
+            className={`rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors ${view === v ? "bg-white dark:bg-[#0F172A] text-[#002B7F] dark:text-white shadow-sm" : "text-slate-600 dark:text-slate-300"
               }`}
           >
             {v === "sent" ? "Sent requirements" : "Barangay tracker"}
@@ -269,7 +269,7 @@ function Detail({
     <div className="border-t border-slate-100 dark:border-white/10 px-5 py-4 space-y-4">
       {data.description && <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line">{data.description}</p>}
       {(data.formTemplate || data.form_template) && (
-        <div className="flex items-center gap-2 rounded-xl border border-[#7B4DFF]/30 bg-[#7B4DFF]/10 px-4 py-2.5 text-xs text-[#5A18C9] dark:text-[#CDBBFF]">
+        <div className="flex items-center gap-2 rounded-xl border border-[#0039A6]/30 bg-[#0039A6]/10 px-4 py-2.5 text-xs text-[#002B7F] dark:text-[#93C5FD]">
           <span className="font-semibold">Attached Online Form:</span>
           <span>{(data.formTemplate || data.form_template)?.title}</span>
           <span className="text-slate-400">({(data.formTemplate || data.form_template)?.fields?.length ?? 0} fields · v{(data.formTemplate || data.form_template)?.version})</span>
@@ -384,8 +384,24 @@ function AssignmentRow({ a, onChanged, setFlash }: { a: RequirementAssignmentIte
       </td>
       <td className="py-2.5">
         {a.status === "submitted" ? (
-          <div className="space-y-2 min-w-[14rem]">
+          <div className="space-y-2 min-w-[16rem]">
             <textarea className={`${field} w-full`} rows={2} placeholder="Note (required if asking for a revision)" value={notes} onChange={(e) => setNotes(e.target.value)} />
+            <div className="flex flex-wrap gap-1">
+              {[
+                { l: "✍️ Missing Signature", t: "Missing Punong Barangay signature. Please sign and re-upload." },
+                { l: "📑 Incomplete Annex", t: "Incomplete documentary annex. Please attach all required pages." },
+                { l: "🔍 Blurry Scan", t: "File scan is illegible. Please provide a clear copy." },
+              ].map((chip, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setNotes((prev) => prev ? `${prev} ${chip.t}` : chip.t)}
+                  className="rounded-md border border-slate-200 dark:border-white/10 px-1.5 py-0.5 text-[10px] text-slate-600 dark:text-slate-300 hover:border-[#0039A6] transition-colors"
+                >
+                  {chip.l}
+                </button>
+              ))}
+            </div>
             <div className="flex gap-2">
               <button className={btn} disabled={busy} onClick={() => review("complied")}>Accept</button>
               <button className={btnGhost} disabled={busy} onClick={() => review("revision")}>Ask to revise</button>
@@ -434,7 +450,7 @@ function SendForm({ onDone, onError }: { onDone: (t: string) => void; onError: (
 
   return (
     <details className={`${card} mb-6`}>
-      <summary className="cursor-pointer px-5 py-3.5 text-sm font-semibold text-[#5A18C9] dark:text-[#D1C4F9]">Send something to the barangays</summary>
+      <summary className="cursor-pointer px-5 py-3.5 text-sm font-semibold text-[#002B7F] dark:text-[#93C5FD]">Send something to the barangays</summary>
       <form onSubmit={submit} className="grid gap-4 border-t border-slate-100 dark:border-white/10 p-5 sm:grid-cols-2">
         <label className="sm:col-span-2">
           <span className={label}>Title</span>
@@ -444,7 +460,7 @@ function SendForm({ onDone, onError }: { onDone: (t: string) => void; onError: (
           <span className={label}>What is it?</span>
           <select name="kind" className={`${field} w-full`} defaultValue="file">
             {Object.entries(KIND_LABEL).map(([k, v]) => (
-              <option key={k} value={k} className="bg-white dark:bg-[#2B2542]">{v}</option>
+              <option key={k} value={k} className="bg-white dark:bg-[#1E293B]">{v}</option>
             ))}
           </select>
         </label>
@@ -455,9 +471,9 @@ function SendForm({ onDone, onError }: { onDone: (t: string) => void; onError: (
         <label className="sm:col-span-2">
           <span className={label}>Attach Form Template (optional)</span>
           <select name="form_template_id" className={`${field} w-full`} defaultValue="">
-            <option value="" className="bg-white dark:bg-[#2B2542]">-- None (Standard document / report) --</option>
+            <option value="" className="bg-white dark:bg-[#1E293B]">-- None (Standard document / report) --</option>
             {(templates.data?.data ?? []).filter((t) => t.is_active).map((t) => (
-              <option key={t.id} value={t.id} className="bg-white dark:bg-[#2B2542]">
+              <option key={t.id} value={t.id} className="bg-white dark:bg-[#1E293B]">
                 {t.title} ({t.fields.length} fields · v{t.version})
               </option>
             ))}
@@ -472,7 +488,7 @@ function SendForm({ onDone, onError }: { onDone: (t: string) => void; onError: (
           <input name="files" type="file" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.zip" className={fileInput} />
         </label>
         <label className="flex items-center gap-2 text-sm text-slate-800 dark:text-slate-200 sm:col-span-2">
-          <input type="checkbox" name="requires_response" defaultChecked className="rounded border-slate-300 text-[#7B4DFF]" />
+          <input type="checkbox" name="requires_response" defaultChecked className="rounded border-slate-300 text-[#0039A6]" />
           Barangays must send a file back (untick for information only; they just acknowledge)
         </label>
 
@@ -534,17 +550,15 @@ function BarangaySide() {
       <div className="mb-6 inline-flex rounded-xl bg-slate-100 dark:bg-black/30 p-1 border border-slate-200 dark:border-white/10">
         <button
           onClick={() => setTab("inbox")}
-          className={`rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors ${
-            tab === "inbox" ? "bg-white dark:bg-[#201835] text-[#5A18C9] dark:text-white shadow-sm" : "text-slate-600 dark:text-slate-300"
-          }`}
+          className={`rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors ${tab === "inbox" ? "bg-white dark:bg-[#0F172A] text-[#002B7F] dark:text-white shadow-sm" : "text-slate-600 dark:text-slate-300"
+            }`}
         >
           Directives Inbox
         </button>
         <button
           onClick={() => setTab("forms")}
-          className={`rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors ${
-            tab === "forms" ? "bg-white dark:bg-[#201835] text-[#5A18C9] dark:text-white shadow-sm" : "text-slate-600 dark:text-slate-300"
-          }`}
+          className={`rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors ${tab === "forms" ? "bg-white dark:bg-[#0F172A] text-[#002B7F] dark:text-white shadow-sm" : "text-slate-600 dark:text-slate-300"
+            }`}
         >
           Editable Forms &amp; E-Sign
         </button>
@@ -652,14 +666,14 @@ function InboxDetail({ id, onChanged, setFlash }: { id: number; onChanged: () =>
       {data.description && <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line">{data.description}</p>}
 
       {attachedTemplate && (
-        <div className="rounded-2xl border border-[#7B4DFF]/30 bg-gradient-to-br from-[#7B4DFF]/10 via-purple-500/5 to-transparent p-5 space-y-3">
+        <div className="rounded-2xl border border-blue-200 dark:border-blue-900/40 bg-blue-50/50 dark:bg-blue-950/20 p-5 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
                 <h4 className="text-sm font-bold text-slate-900 dark:text-white">
                   Official Form: {attachedTemplate.title}
                 </h4>
-                <span className="rounded-full bg-[#7B4DFF]/15 px-2 py-0.5 text-[10px] font-bold text-[#5A18C9] dark:text-[#CDBBFF]">
+                <span className="rounded-full bg-blue-100 dark:bg-blue-950/60 px-2 py-0.5 text-[10px] font-bold text-[#0039A6] dark:text-blue-300">
                   {attachedTemplate.fields.length} fields · v{attachedTemplate.version}
                 </span>
               </div>
@@ -698,7 +712,7 @@ function InboxDetail({ id, onChanged, setFlash }: { id: number; onChanged: () =>
           </div>
 
           {fillingTemplate && (
-            <div className="pt-3 border-t border-[#7B4DFF]/20">
+            <div className="pt-3 border-t border-[#0039A6]/20">
               <FormFiller
                 template={attachedTemplate}
                 initialData={currentSubmission?.data ?? {}}
@@ -910,14 +924,14 @@ function FormsList() {
               <button
                 key={t.id}
                 onClick={() => setActiveTemplate(t)}
-                className="text-left rounded-2xl border border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 p-5 hover:border-[#7B4DFF]/40 transition-colors"
+                className="text-left rounded-2xl border border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 p-5 hover:border-[#0039A6]/40 transition-colors"
               >
                 <h4 className="text-sm font-bold text-slate-900 dark:text-white">{t.title}</h4>
                 {t.description && (
                   <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{t.description}</p>
                 )}
                 <div className="mt-3 flex items-center gap-2">
-                  <span className="rounded-full bg-[#7B4DFF]/15 px-2 py-0.5 text-[10px] font-bold text-[#5A18C9] dark:text-[#CDBBFF]">
+                  <span className="rounded-full bg-[#0039A6]/15 px-2 py-0.5 text-[10px] font-bold text-[#002B7F] dark:text-[#93C5FD]">
                     {t.fields.length} fields
                   </span>
                   <span className="text-[10px] text-slate-400">v{t.version}</span>

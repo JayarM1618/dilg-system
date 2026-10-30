@@ -32,6 +32,21 @@ export function useFetch<T>(path: string | null, options: UseFetchOptions = {}):
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const pausedRef = useRef(false);
 
+  // Synchronously adjust state during render when path transitions (null -> string or different path)
+  const prevPathRef = useRef<string | null>(path);
+  if (prevPathRef.current !== path) {
+    prevPathRef.current = path;
+    if (path !== null) {
+      setLoading(true);
+      setError(null);
+      setData(null);
+    } else {
+      setLoading(false);
+      setError(null);
+      setData(null);
+    }
+  }
+
   useEffect(() => {
     pausedRef.current = false;
   }, [path, attempt]);
@@ -112,7 +127,8 @@ export function useFetch<T>(path: string | null, options: UseFetchOptions = {}):
     setAttempt((n) => n + 1);
   }, []);
 
-  const actualLoading = path === null ? false : loading;
+  const isAwaitingData = path !== null && data === null && error === null;
+  const actualLoading = path === null ? false : (loading || isAwaitingData);
   return {
     data,
     loading: actualLoading,

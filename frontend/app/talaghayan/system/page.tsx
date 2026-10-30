@@ -198,7 +198,7 @@ function SystemInfoTab() {
         </div>
         <div className="h-3 w-full rounded-full bg-slate-100 dark:bg-white/10 overflow-hidden">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-[#7B4DFF] to-[#5A18C9] transition-all"
+            className="h-full rounded-full bg-[#0039A6] transition-all"
             style={{ width: `${diskPct}%` }}
           />
         </div>
@@ -302,7 +302,7 @@ function StorageTab() {
           <h3 className="text-sm font-semibold text-slate-800 dark:text-white">
             Database: {data.database.name}
           </h3>
-          <span className="text-xs font-medium text-[#7B4DFF]">
+          <span className="text-xs font-medium text-[#0039A6] dark:text-blue-300">
             {formatBytes(data.database.total_size)}
           </span>
         </div>
@@ -340,7 +340,7 @@ function StorageTab() {
                     <td className="py-2 pl-4">
                       <div className="h-2 w-full rounded-full bg-slate-100 dark:bg-white/10 overflow-hidden">
                         <div
-                          className="h-full rounded-full bg-[#7B4DFF]"
+                          className="h-full rounded-full bg-[#0039A6]"
                           style={{ width: `${Math.max(pct, 1)}%` }}
                         />
                       </div>
@@ -358,7 +358,7 @@ function StorageTab() {
         <h3 className="text-sm font-semibold text-slate-800 dark:text-white mb-2">
           Uploaded Files
         </h3>
-        <p className="text-2xl font-bold text-[#7B4DFF]">
+        <p className="text-2xl font-bold text-[#0039A6] dark:text-blue-300">
           {formatBytes(data.uploads.size)}
         </p>
         <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
@@ -381,7 +381,7 @@ function StorageTab() {
                 <span className="text-xs text-slate-700 dark:text-slate-300 truncate">
                   {b.barangay}
                 </span>
-                <span className="text-xs font-semibold text-[#7B4DFF] ml-2">
+                <span className="text-xs font-semibold text-[#0039A6] dark:text-blue-300 ml-2">
                   {b.file_count}
                 </span>
               </div>
@@ -463,7 +463,7 @@ function AnalyticsTab() {
                 </span>
                 <div className="w-full flex-1 flex items-end">
                   <div
-                    className="w-full rounded-t bg-gradient-to-t from-[#7B4DFF] to-[#9B7AFF] transition-all"
+                    className="w-full rounded-t bg-[#0039A6] transition-all"
                     style={{ height: `${Math.max(pct, 3)}%` }}
                   />
                 </div>
@@ -494,7 +494,7 @@ function AnalyticsTab() {
                 </span>
                 <div className="w-full flex-1 flex items-end">
                   <div
-                    className="w-full rounded-t bg-gradient-to-t from-[#5A18C9] to-[#7B4DFF] transition-all"
+                    className="w-full rounded-t bg-[#0039A6] transition-all"
                     style={{ height: `${Math.max(pct, 3)}%` }}
                   />
                 </div>
@@ -526,7 +526,7 @@ function AnalyticsTab() {
                   </div>
                   <div className="h-1.5 w-full rounded-full bg-slate-100 dark:bg-white/10 overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-[#7B4DFF]"
+                      className="h-full rounded-full bg-[#0039A6]"
                       style={{ width: `${pct}%` }}
                     />
                   </div>
@@ -708,7 +708,7 @@ function ExportTab() {
                   value={f}
                   checked={format === f}
                   onChange={() => setFormat(f)}
-                  className="accent-[#7B4DFF]"
+                  className="accent-[#0039A6]"
                 />
                 <span className="text-xs text-slate-700 dark:text-slate-300 uppercase">
                   {f}
@@ -786,7 +786,7 @@ export default function SystemPage() {
             onClick={() => setTab(t.key)}
             className={`px-3.5 py-2 text-xs font-semibold rounded-t-xl transition-colors ${
               tab === t.key
-                ? "bg-[#7B4DFF] text-white"
+                ? "bg-[#0039A6] text-white"
                 : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"
             }`}
           >

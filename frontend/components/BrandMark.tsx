@@ -30,7 +30,7 @@ export default function BrandMark({ tone = "light", href = "/" }: BrandMarkProps
         />
       </span>
       <span className="leading-tight">
-        <span className="block font-display text-sm sm:text-base font-semibold tracking-tight text-navy-900 dark:text-white transition-colors duration-300 group-hover:text-[#7B4DFF] dark:group-hover:text-[#CDBBFF]">
+        <span className="block font-display text-sm sm:text-base font-semibold tracking-tight text-navy-900 dark:text-white transition-colors duration-300 group-hover:text-[#0039A6] dark:group-hover:text-[#93C5FD]">
           Talaghayan
         </span>
         <span className="block text-xs font-medium text-slate-500 dark:text-slate-400">

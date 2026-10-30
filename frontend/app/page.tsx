@@ -30,15 +30,15 @@ const poppins = Poppins({
 });
 
 const focusRing =
-  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7B4DFF]";
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0039A6]";
 
 /* ---------- Data for the barangay landing content ---------- */
 
 const STEPS = [
-  { title: "Office opens a period", body: "Each barangay gets the report, its period and a due date.", color: "#7B4DFF" },
-  { title: "Barangay files it", body: "The representative uploads the finished report before the deadline.", color: "#06D6A0" },
-  { title: "Office reviews", body: "Staff mark it compliant, or send it back with remarks.", color: "#F5B800" },
-  { title: "Talaghayan updates", body: "The tally changes instantly. No spreadsheet re-encoding.", color: "#F21DB4" },
+  { title: "Office opens a period", body: "Each barangay gets the report, its period and a due date.", color: "#0039A6" },
+  { title: "Barangay files it", body: "The representative uploads the finished report before the deadline.", color: "#059669" },
+  { title: "Office reviews", body: "Staff mark it compliant, or send it back with remarks.", color: "#D97706" },
+  { title: "Talaghayan updates", body: "The tally changes instantly. No spreadsheet re-encoding.", color: "#2563EB" },
 ];
 
 const STATUSES: { status: SubmissionStatus; meaning: string }[] = [
@@ -152,7 +152,7 @@ export default function ChooserPage() {
   if (!loading && user?.role === "barangay_rep") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-[#0E0A17]">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#7B4DFF] border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0039A6] border-t-transparent" />
       </div>
     );
   }
@@ -164,12 +164,7 @@ export default function ChooserPage() {
     <div
       className={`${poppins.className} relative flex min-h-screen w-full flex-col justify-between overflow-hidden bg-slate-50 dark:bg-[#0E0A17] text-slate-800 dark:text-[#EDE7FA] transition-colors duration-500 ease-out`}
     >
-      {/* Static atmospheric glows */}
-      <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -left-40 top-0 h-[40rem] w-[40rem] rounded-full bg-[#E6FBF3]/40 blur-3xl dark:bg-[#06D6A0]/10" />
-        <div className="absolute right-0 top-40 h-[40rem] w-[40rem] rounded-full bg-[#F3EDFE]/40 blur-3xl dark:bg-[#7B4DFF]/15" />
-        <div className="absolute bottom-0 left-1/3 h-[36rem] w-[36rem] rounded-full bg-[#FFF8E6]/40 blur-3xl dark:bg-[#F5A800]/10" />
-      </div>
+
 
       {/* Full-width System Navigation Header */}
       <header className="relative z-20 w-full border-b border-slate-200 dark:border-white/10 bg-white/80 dark:bg-[#150F22]/85 backdrop-blur-2xl">
@@ -177,7 +172,7 @@ export default function ChooserPage() {
           <div className="flex items-center gap-3">
             <BrandMark tone="dark" />
             <span className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-slate-100 dark:bg-white/10 px-3 py-1 text-xs font-semibold text-slate-700 dark:text-slate-300">
-              <span className="h-2 w-2 rounded-full bg-[#06D6A0]" />
+              <span className="h-2 w-2 rounded-full bg-emerald-500" />
               System Operational &bull; v2.4
             </span>
           </div>
@@ -191,7 +186,7 @@ export default function ChooserPage() {
             </Link>
             <Link
               href="/login"
-              className={`rounded-full bg-[#7B4DFF] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#6A3CF0] ${focusRing}`}
+              className={`rounded-full bg-[#0039A6] px-4 py-1.5 text-xs font-semibold text-white hover:bg-[#002B7F] transition-colors ${focusRing}`}
             >
               Enter Credentials &rarr;
             </Link>
@@ -205,8 +200,8 @@ export default function ChooserPage() {
           {/* Left Column: Authorized Accounts Roster */}
           <div className="lg:col-span-7 xl:col-span-8 space-y-6">
             <div className="border-b border-slate-200 dark:border-white/10 pb-5">
-              <div className="inline-flex items-center gap-2 rounded-full bg-[#E6FBF3] dark:bg-[#0E352B] px-3.5 py-1 text-xs font-bold text-[#0B6B52] dark:text-[#84DEBD]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#06D6A0]" />
+              <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/40 px-3.5 py-1 text-xs font-bold text-[#0039A6] dark:text-blue-300">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#0039A6] dark:bg-blue-400" />
                 Unified Identity &amp; Access Hub
               </div>
               <h1 className="mt-3 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
@@ -231,7 +226,7 @@ export default function ChooserPage() {
                     onClick={() => handleAccountClick(account)}
                     className={`relative flex flex-col justify-between rounded-2xl bg-white dark:bg-[#181126] border ${
                       isCurrentActive
-                        ? "border-[#7B4DFF] ring-2 ring-[#7B4DFF]/20"
+                        ? "border-[#0039A6] ring-2 ring-[#0039A6]/20"
                         : "border-slate-200 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20"
                     } p-5 shadow-sm cursor-pointer select-none transition-colors ${focusRing}`}
                     role="button"
@@ -246,14 +241,14 @@ export default function ChooserPage() {
                     {/* Top: Role Badge & Options Menu */}
                     <div className="flex items-center justify-between gap-2">
                       <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
                           isBarangay
-                            ? "bg-[#F1EBFF] text-[#5A18C9] dark:bg-[#352D52] dark:text-[#CDBBFF]"
-                            : "bg-[#E6FBF3] text-[#0B6B52] dark:bg-[#0E352B] dark:text-[#84DEBD]"
+                            ? "bg-blue-50 text-[#0039A6] dark:bg-blue-950/40 dark:text-blue-300 border-blue-200 dark:border-blue-800/30"
+                            : "bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/30"
                         }`}
                       >
                         <span
-                          className={`h-1.5 w-1.5 rounded-full ${isCurrentActive ? "bg-[#06D6A0]" : "bg-slate-400"}`}
+                          className={`h-1.5 w-1.5 rounded-full ${isCurrentActive ? "bg-emerald-500" : "bg-slate-400"}`}
                         />
                         {isBarangay ? "Barangay Official" : "DILG Supervisor / Admin"}
                       </span>
@@ -305,7 +300,7 @@ export default function ChooserPage() {
                     <div className="mt-4 flex items-center gap-3.5">
                       <div
                         className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-lg font-bold text-white shadow-sm"
-                        style={{ backgroundColor: account.avatarColor || "#7B4DFF" }}
+                        style={{ backgroundColor: account.avatarColor || "#0039A6" }}
                       >
                         {getInitial(account.name)}
                       </div>
@@ -325,10 +320,10 @@ export default function ChooserPage() {
 
                     {/* Bottom: Enter action */}
                     <div className="mt-5 pt-3.5 border-t border-slate-100 dark:border-white/10 flex items-center justify-between text-xs">
-                      <span className="font-semibold text-[#7B4DFF] dark:text-[#CDBBFF]">
+                      <span className="font-semibold text-[#0039A6] dark:text-blue-400">
                         {isCurrentActive ? "Active Session" : "Click to authenticate"}
                       </span>
-                      <span className="inline-flex items-center gap-1 font-bold text-[#7B4DFF] dark:text-[#CDBBFF]">
+                      <span className="inline-flex items-center gap-1 font-bold text-[#0039A6] dark:text-blue-400">
                         Access Workspace &rarr;
                       </span>
                     </div>
@@ -339,7 +334,7 @@ export default function ChooserPage() {
               {/* Add Account Card */}
               <Link
                 href="/login"
-                className={`relative flex flex-col justify-between rounded-2xl bg-white/60 dark:bg-[#181126]/60 border border-dashed border-slate-300 dark:border-white/20 p-5 shadow-sm hover:border-[#7B4DFF] dark:hover:border-[#7B4DFF] hover:bg-white dark:hover:bg-[#181126] transition-colors select-none ${focusRing}`}
+                className={`relative flex flex-col justify-between rounded-2xl bg-white/60 dark:bg-[#181126]/60 border border-dashed border-slate-300 dark:border-white/20 p-5 shadow-sm hover:border-[#0039A6] dark:hover:border-blue-500 hover:bg-white dark:hover:bg-[#181126] transition-colors select-none ${focusRing}`}
               >
                 <div className="flex items-center justify-between">
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300">
@@ -354,7 +349,7 @@ export default function ChooserPage() {
                 </div>
 
                 <div className="mt-4 flex items-center gap-3.5">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-100 dark:bg-white/10 text-[#7B4DFF] dark:text-[#CDBBFF] shadow-sm font-bold">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-100 dark:bg-white/10 text-[#0039A6] dark:text-blue-400 shadow-sm font-bold">
                     <PlusIcon />
                   </div>
 
@@ -375,7 +370,7 @@ export default function ChooserPage() {
                   <span className="text-slate-500 dark:text-slate-400 font-medium">
                     Credentials Form
                   </span>
-                  <span className="inline-flex items-center gap-1 font-bold text-[#7B4DFF] dark:text-[#CDBBFF]">
+                  <span className="inline-flex items-center gap-1 font-bold text-[#0039A6] dark:text-blue-400">
                     Open Sign In &rarr;
                   </span>
                 </div>
@@ -388,7 +383,7 @@ export default function ChooserPage() {
             {/* System Status Panel */}
             <div className="rounded-2xl bg-white dark:bg-[#181126] border border-slate-200 dark:border-white/10 p-6 shadow-sm">
               <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-[#06D6A0]" />
+                <span className="h-2 w-2 rounded-full bg-emerald-600" />
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                   DILG Makati Security Protocol
                 </span>
@@ -407,25 +402,25 @@ export default function ChooserPage() {
                 </div>
                 <div className="rounded-xl bg-slate-50 dark:bg-white/5 p-3 border border-slate-100 dark:border-white/5">
                   <p className="text-[10px] font-bold uppercase text-slate-400">Audit Status</p>
-                  <p className="text-sm font-bold text-[#06D6A0] mt-0.5">Live &amp; Monitored</p>
+                  <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400 mt-0.5">Live &amp; Monitored</p>
                 </div>
               </div>
 
               <div className="mt-4 pt-4 border-t border-slate-100 dark:border-white/10 space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
                 <div className="flex items-start gap-2">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#06D6A0] mt-0.5 shrink-0">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                   <span>End-to-end audit compliance pursuant to R.A. 7160</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#06D6A0] mt-0.5 shrink-0">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                   <span>Direct submission pipeline with validation remarks</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#06D6A0] mt-0.5 shrink-0">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                   <span>Real-time compliance dashboard for citywide tracking</span>
@@ -434,8 +429,8 @@ export default function ChooserPage() {
             </div>
 
             {/* Public Portal Callout */}
-            <div className="rounded-2xl bg-gradient-to-br from-[#F3EDFE] to-[#E6FBF3] dark:from-[#201833] dark:to-[#132A24] border border-slate-200 dark:border-white/10 p-5 shadow-sm">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 dark:bg-black/30 px-2.5 py-0.5 text-[11px] font-bold text-[#5A18C9] dark:text-[#CDBBFF]">
+            <div className="rounded-2xl bg-slate-100/90 dark:bg-white/5 border border-slate-200 dark:border-white/10 p-5 shadow-sm">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/30 px-2.5 py-0.5 text-[11px] font-bold text-[#0039A6] dark:text-blue-300">
                 Citizen Advisory Portal
               </span>
               <h4 className="mt-2.5 text-base font-bold text-slate-900 dark:text-white">
@@ -446,7 +441,7 @@ export default function ChooserPage() {
               </p>
               <Link
                 href="/citizens"
-                className={`mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-[#7B4DFF] dark:text-[#CDBBFF] hover:underline ${focusRing}`}
+                className={`mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-[#0039A6] dark:text-blue-400 hover:underline ${focusRing}`}
               >
                 Access Citizens Portal &rarr;
               </Link>
@@ -502,12 +497,7 @@ function BarangayRepLanding({
 
   return (
     <div className={`${poppins.className} min-h-screen w-full bg-slate-50 dark:bg-[#0E0A17] text-slate-800 dark:text-[#E9DFFF] transition-colors duration-500 ease-out flex flex-col`}>
-      {/* Static atmospheric glows */}
-      <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -left-40 top-0 h-[40rem] w-[40rem] rounded-full bg-[#E6FBF3]/40 blur-3xl dark:bg-[#06D6A0]/10" />
-        <div className="absolute right-0 top-40 h-[40rem] w-[40rem] rounded-full bg-[#F3EDFE]/40 blur-3xl dark:bg-[#7B4DFF]/15" />
-        <div className="absolute bottom-0 left-1/3 h-[36rem] w-[36rem] rounded-full bg-[#FFF8E6]/40 blur-3xl dark:bg-[#F5A800]/10" />
-      </div>
+
 
       {/* Full-width System Navigation Header */}
       <header className="relative z-20 w-full border-b border-slate-200 dark:border-white/10 bg-white/80 dark:bg-[#150F22]/85 backdrop-blur-2xl">
@@ -515,7 +505,7 @@ function BarangayRepLanding({
           <div className="flex items-center gap-3">
             <BrandMark tone="dark" />
             <span className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-slate-100 dark:bg-white/10 px-3 py-1 text-xs font-semibold text-slate-700 dark:text-slate-300">
-              <span className="h-2 w-2 rounded-full bg-[#06D6A0] animate-pulse" />
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
               Barangay Operations Console &bull; Real-Time
             </span>
           </div>
@@ -526,7 +516,7 @@ function BarangayRepLanding({
 
             <Link
               href="/borms"
-              className={`rounded-full bg-[#7B4DFF] px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-[#6A3CF0] transition-colors ${focusRing}`}
+              className={`rounded-full bg-[#0039A6] px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-[#002B7F] transition-colors ${focusRing}`}
             >
               Open Dashboard &rarr;
             </Link>
@@ -538,7 +528,7 @@ function BarangayRepLanding({
               Sign out
             </button>
             <span
-              className="grid h-9 w-9 sm:h-10 sm:w-10 place-items-center rounded-full bg-[#E3D5FF] text-xs sm:text-sm font-bold text-[#5A18C9] dark:bg-[#352D52] dark:text-[#CDBBFF] shadow-sm"
+              className="grid h-9 w-9 sm:h-10 sm:w-10 place-items-center rounded-full bg-blue-50 text-xs sm:text-sm font-bold text-[#0039A6] dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800/30 shadow-sm"
               aria-hidden="true"
             >
               {userName.trim().charAt(0).toUpperCase()}
@@ -551,35 +541,35 @@ function BarangayRepLanding({
       <main className="relative z-10 w-full flex-1 px-4 sm:px-8 lg:px-12 py-6 sm:py-8 space-y-6 sm:space-y-8">
         {/* Full-width Landscape Hero Banner */}
         <section
-          className={`${card} relative overflow-hidden bg-gradient-to-br from-[#E6FBF3]/90 via-[#F3EDFE]/80 to-[#E8FAFF]/90 dark:from-[#132A24]/90 dark:via-[#1F1833]/80 dark:to-[#122A30]/90 backdrop-blur-2xl border border-white/60 dark:border-white/10 shadow-lg p-6 sm:p-10`}
+          className={`${card} relative overflow-hidden bg-white dark:bg-[#181126] border border-slate-200 dark:border-white/10 shadow-sm p-6 sm:p-10`}
           aria-labelledby="hero-title"
         >
           <div className="relative grid gap-8 lg:grid-cols-12 lg:items-center">
             {/* Left: Info & actions */}
             <div className="lg:col-span-7 flex flex-col justify-center">
-              <div className="inline-flex items-center gap-2 self-start rounded-full bg-white/80 dark:bg-black/30 px-3.5 py-1 text-xs font-semibold text-[#0E5440] dark:text-[#84DEBD] ring-1 ring-[#06D6A0]/30 shadow-sm backdrop-blur-md">
-                <span className="h-2 w-2 rounded-full bg-[#06D6A0] animate-pulse" />
+              <div className="inline-flex items-center gap-2 self-start rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/40 px-3.5 py-1 text-xs font-semibold text-emerald-800 dark:text-emerald-300 shadow-sm">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                 Authenticated Representative &bull; {userName}
               </div>
 
-              <h1 id="hero-title" className="mt-4 text-balance text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#0E2B24] dark:text-[#E8F8F3] leading-tight">
+              <h1 id="hero-title" className="mt-4 text-balance text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
                 Barangay {barangayName}
               </h1>
 
-              <p className="mt-4 max-w-2xl text-sm sm:text-base leading-relaxed text-[#2C5A4D] dark:text-[#A8E2CF]">
+              <p className="mt-4 max-w-2xl text-sm sm:text-base leading-relaxed text-slate-600 dark:text-slate-300">
                 Welcome to your official DILG Makati reporting command center. Submit mandatory documents, inspect administrative compliance marks, and track report review lifecycles without spreadsheets.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <Link
                   href="/borms"
-                  className={`inline-flex items-center gap-2 rounded-full bg-[#7B4DFF] px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-[#6A3CF0] transition-colors ${focusRing}`}
+                  className={`inline-flex items-center gap-2 rounded-full bg-[#0039A6] px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#002B7F] transition-colors ${focusRing}`}
                 >
                   Enter Submissions Dashboard &rarr;
                 </Link>
                 <Link
                   href="/borms/requirements"
-                  className={`inline-flex items-center gap-2 rounded-full border border-slate-300 dark:border-white/20 bg-white/80 dark:bg-white/10 px-5 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/20 transition-colors ${focusRing}`}
+                  className={`inline-flex items-center gap-2 rounded-full border border-slate-300 dark:border-white/20 bg-white dark:bg-white/10 px-5 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/20 transition-colors ${focusRing}`}
                 >
                   {reqSummary && reqSummary.to_do > 0 ? `DILG Directives (${reqSummary.to_do})` : "View Directives"}
                 </Link>
@@ -595,25 +585,25 @@ function BarangayRepLanding({
 
             {/* Right: Telemetry KPI Cards */}
             <div className="lg:col-span-5 grid grid-cols-2 gap-3 sm:gap-4">
-              <div className="flex flex-col justify-between rounded-2xl bg-white/90 dark:bg-black/40 p-5 ring-1 ring-white/60 dark:ring-white/10 shadow-sm">
+              <div className="flex flex-col justify-between rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 p-5 shadow-sm">
                 <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">City Network</p>
                 <p className="mt-2 text-3xl sm:text-4xl font-extrabold tabular-nums text-slate-900 dark:text-white">{barangayCount}</p>
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Makati Barangays</p>
               </div>
-              <div className="flex flex-col justify-between rounded-2xl bg-white/90 dark:bg-black/40 p-5 ring-1 ring-white/60 dark:ring-white/10 shadow-sm">
+              <div className="flex flex-col justify-between rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 p-5 shadow-sm">
                 <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Status Taxonomy</p>
                 <p className="mt-2 text-3xl sm:text-4xl font-extrabold tabular-nums text-slate-900 dark:text-white">{STATUSES.length}</p>
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Standardized Stages</p>
               </div>
-              <div className="flex flex-col justify-between rounded-2xl bg-white/90 dark:bg-black/40 p-5 ring-1 ring-white/60 dark:ring-white/10 shadow-sm">
+              <div className="flex flex-col justify-between rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 p-5 shadow-sm">
                 <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Compliance Rate</p>
-                <p className="mt-2 text-2xl sm:text-3xl font-extrabold text-[#06D6A0]">{compliantPct}%</p>
+                <p className="mt-2 text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">{compliantPct}%</p>
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{compliantCount} of {total} Cleared</p>
               </div>
-              <div className="flex flex-col justify-between rounded-2xl bg-white/90 dark:bg-black/40 p-5 ring-1 ring-white/60 dark:ring-white/10 shadow-sm">
+              <div className="flex flex-col justify-between rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 p-5 shadow-sm">
                 <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">System Engine</p>
                 <div className="mt-2 flex items-center gap-2">
-                  <p className="text-xl font-bold text-[#7B4DFF] dark:text-[#CDBBFF]">Real-Time</p>
+                  <p className="text-xl font-bold text-[#0039A6] dark:text-blue-400">Real-Time</p>
                   <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                 </div>
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Instant Field Telemetry</p>
@@ -652,10 +642,10 @@ function BarangayRepLanding({
 
         {/* Row 3: Actionable Directives & Requirements from DILG */}
         {reqSummary && reqSummary.to_do > 0 ? (
-          <section className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-transparent p-6 border border-amber-400/30 dark:border-amber-400/20 backdrop-blur-sm">
+          <section className="relative overflow-hidden rounded-2xl bg-amber-50 dark:bg-amber-950/30 p-6 border border-amber-200 dark:border-amber-800/40 shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-start gap-3.5">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-amber-200/60 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 font-bold">
                   !
                 </span>
                 <div>
@@ -663,7 +653,7 @@ function BarangayRepLanding({
                     Directives Awaiting Action for Barangay {barangayName}
                   </h3>
                   <p className="mt-0.5 text-xs text-slate-600 dark:text-slate-300">
-                    You have <strong className="text-amber-600 dark:text-amber-400">{reqSummary.to_do} requirement(s)</strong> awaiting your compliance from DILG Makati
+                    You have <strong className="text-amber-800 dark:text-amber-300">{reqSummary.to_do} requirement(s)</strong> awaiting your compliance from DILG Makati
                     {reqSummary.new ? ` (${reqSummary.new} new)` : ""}
                     {reqSummary.overdue ? `, ${reqSummary.overdue} overdue` : ""}.
                   </p>
@@ -671,7 +661,7 @@ function BarangayRepLanding({
               </div>
               <Link
                 href="/borms/requirements"
-                className={`inline-flex shrink-0 items-center justify-center rounded-full bg-[#7B4DFF] px-5 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-[#6A3CF0] transition-colors ${focusRing}`}
+                className={`inline-flex shrink-0 items-center justify-center rounded-full bg-[#0039A6] px-5 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-[#002B7F] transition-colors ${focusRing}`}
               >
                 Comply Now &rarr;
               </Link>
@@ -687,10 +677,10 @@ function BarangayRepLanding({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link
               href="/borms"
-              className="flex flex-col justify-between rounded-2xl bg-white dark:bg-[#181126] border border-slate-200 dark:border-white/10 p-5 shadow-sm hover:border-[#7B4DFF] dark:hover:border-[#7B4DFF] transition-colors"
+              className="flex flex-col justify-between rounded-2xl bg-white dark:bg-[#181126] border border-slate-200 dark:border-white/10 p-5 shadow-sm hover:border-[#0039A6] dark:hover:border-blue-500 transition-colors"
             >
               <div>
-                <span className="inline-grid h-9 w-9 place-items-center rounded-xl bg-[#F1EBFF] text-[#7B4DFF] dark:bg-[#352D52] dark:text-[#CDBBFF] text-sm font-bold mb-3">
+                <span className="inline-grid h-9 w-9 place-items-center rounded-xl bg-blue-50 text-[#0039A6] dark:bg-blue-950/50 dark:text-blue-300 text-sm font-bold mb-3">
                   📂
                 </span>
                 <h3 className="font-bold text-sm text-slate-900 dark:text-white">Reports Dashboard</h3>
@@ -698,17 +688,17 @@ function BarangayRepLanding({
                   View full status logs, examiner remarks, and submission cycles.
                 </p>
               </div>
-              <span className="mt-4 text-xs font-semibold text-[#7B4DFF] dark:text-[#CDBBFF]">
+              <span className="mt-4 text-xs font-semibold text-[#0039A6] dark:text-blue-400">
                 Open dashboard &rarr;
               </span>
             </Link>
 
             <Link
               href="/borms/reports"
-              className="flex flex-col justify-between rounded-2xl bg-white dark:bg-[#181126] border border-slate-200 dark:border-white/10 p-5 shadow-sm hover:border-[#7B4DFF] dark:hover:border-[#7B4DFF] transition-colors"
+              className="flex flex-col justify-between rounded-2xl bg-white dark:bg-[#181126] border border-slate-200 dark:border-white/10 p-5 shadow-sm hover:border-[#0039A6] dark:hover:border-blue-500 transition-colors"
             >
               <div>
-                <span className="inline-grid h-9 w-9 place-items-center rounded-xl bg-[#E6FBF3] text-[#0B6B52] dark:bg-[#0E352B] dark:text-[#84DEBD] text-sm font-bold mb-3">
+                <span className="inline-grid h-9 w-9 place-items-center rounded-xl bg-emerald-50 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300 text-sm font-bold mb-3">
                   📝
                 </span>
                 <h3 className="font-bold text-sm text-slate-900 dark:text-white">Submit Report</h3>
@@ -716,17 +706,17 @@ function BarangayRepLanding({
                   Upload quarterly financial filings and monthly accomplishments.
                 </p>
               </div>
-              <span className="mt-4 text-xs font-semibold text-[#0B6B52] dark:text-[#84DEBD]">
+              <span className="mt-4 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
                 File submission &rarr;
               </span>
             </Link>
 
             <Link
               href="/borms/requirements"
-              className="flex flex-col justify-between rounded-2xl bg-white dark:bg-[#181126] border border-slate-200 dark:border-white/10 p-5 shadow-sm hover:border-[#7B4DFF] dark:hover:border-[#7B4DFF] transition-colors"
+              className="flex flex-col justify-between rounded-2xl bg-white dark:bg-[#181126] border border-slate-200 dark:border-white/10 p-5 shadow-sm hover:border-[#0039A6] dark:hover:border-blue-500 transition-colors"
             >
               <div>
-                <span className="inline-grid h-9 w-9 place-items-center rounded-xl bg-[#FFF8E6] text-[#A06C00] dark:bg-[#382C10] dark:text-[#FFD60A] text-sm font-bold mb-3">
+                <span className="inline-grid h-9 w-9 place-items-center rounded-xl bg-amber-50 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300 text-sm font-bold mb-3">
                   📑
                 </span>
                 <h3 className="font-bold text-sm text-slate-900 dark:text-white">DILG Directives</h3>
@@ -734,17 +724,17 @@ function BarangayRepLanding({
                   Review compliance tasks, required forms, and official directives.
                 </p>
               </div>
-              <span className="mt-4 text-xs font-semibold text-[#A06C00] dark:text-[#FFD60A]">
+              <span className="mt-4 text-xs font-semibold text-amber-800 dark:text-amber-300">
                 Check directives &rarr;
               </span>
             </Link>
 
             <Link
               href="/borms/community"
-              className="flex flex-col justify-between rounded-2xl bg-white dark:bg-[#181126] border border-slate-200 dark:border-white/10 p-5 shadow-sm hover:border-[#7B4DFF] dark:hover:border-[#7B4DFF] transition-colors"
+              className="flex flex-col justify-between rounded-2xl bg-white dark:bg-[#181126] border border-slate-200 dark:border-white/10 p-5 shadow-sm hover:border-[#0039A6] dark:hover:border-blue-500 transition-colors"
             >
               <div>
-                <span className="inline-grid h-9 w-9 place-items-center rounded-xl bg-[#FDE8F3] text-[#A0124F] dark:bg-[#3B1225] dark:text-[#FF80B5] text-sm font-bold mb-3">
+                <span className="inline-grid h-9 w-9 place-items-center rounded-xl bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 text-sm font-bold mb-3">
                   📢
                 </span>
                 <h3 className="font-bold text-sm text-slate-900 dark:text-white">Announcements</h3>
@@ -752,7 +742,7 @@ function BarangayRepLanding({
                   Makati City programs, circulars, and community advisories.
                 </p>
               </div>
-              <span className="mt-4 text-xs font-semibold text-[#A0124F] dark:text-[#FF80B5]">
+              <span className="mt-4 text-xs font-semibold text-slate-700 dark:text-slate-300">
                 View programs &rarr;
               </span>
             </Link>
@@ -807,7 +797,7 @@ function BarangayRepLanding({
               <details key={f.q} className="group rounded-2xl bg-slate-50 dark:bg-white/5 p-4 border border-slate-200 dark:border-white/5">
                 <summary className={`flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-sm text-slate-900 dark:text-slate-100 ${focusRing}`}>
                   {f.q}
-                  <span aria-hidden="true" className="text-lg leading-none text-[#7B4DFF] transition-transform group-open:rotate-45">+</span>
+                  <span aria-hidden="true" className="text-lg leading-none text-[#0039A6] dark:text-blue-400 transition-transform group-open:rotate-45">+</span>
                 </summary>
                 <p className="mt-2.5 text-xs leading-5 text-slate-600 dark:text-slate-300 border-t border-slate-200/50 dark:border-white/5 pt-2.5">{f.a}</p>
               </details>
@@ -816,13 +806,13 @@ function BarangayRepLanding({
         </section>
 
         {/* Closing Action Banner */}
-        <section className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#7B4DFF] to-[#5A18C9] px-6 py-8 sm:px-10 sm:py-10 text-white shadow-md">
+        <section className="relative overflow-hidden rounded-2xl bg-[#0039A6] dark:bg-[#002B7F] px-6 py-8 sm:px-10 sm:py-10 text-white shadow-sm border border-[#002B7F] dark:border-blue-900">
           <div className="relative flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
             <div>
               <h2 className="text-2xl font-bold">Manage Barangay {barangayName} Reports</h2>
-              <p className="mt-1 text-xs sm:text-sm text-[#E9DFFF]">Proceed to your authorized operations deck to file requirements and review feedback.</p>
+              <p className="mt-1 text-xs sm:text-sm text-blue-100">Proceed to your authorized operations deck to file requirements and review feedback.</p>
             </div>
-            <Link href="/borms" className={`w-full sm:w-auto text-center shrink-0 rounded-full bg-white px-7 py-3 text-sm font-bold text-[#5A18C9] hover:bg-slate-50 transition-colors ${focusRing}`}>
+            <Link href="/borms" className={`w-full sm:w-auto text-center shrink-0 rounded-full bg-white px-7 py-3 text-sm font-bold text-[#0039A6] hover:bg-slate-100 transition-colors ${focusRing}`}>
               Open Dashboard &rarr;
             </Link>
           </div>
@@ -843,7 +833,7 @@ function BarangayRepLanding({
 
 function Tile({ value, label }: { value: number; label: string }) {
   return (
-    <div className="rounded-2xl bg-[#06D6A0] px-4 py-5 text-center text-[#04281F]">
+    <div className="rounded-2xl bg-emerald-600 px-4 py-5 text-center text-white">
       <p className="text-4xl font-semibold tabular-nums">{value}</p>
       <p className="mt-1 text-sm font-medium">{label}</p>
     </div>
@@ -873,11 +863,11 @@ function DynamicLineChart({ peakPct = 24 }: { peakPct?: number }) {
           <text x="22" y={154 - i * 38} textAnchor="end" fontSize="10" fill="#7C6FA3">{v}</text>
         </g>
       ))}
-      <path d="M34 128 C52 112 62 78 86 82 S120 138 140 104 S178 36 204 44 S250 90 290 76" fill="none" stroke="#7B4DFF" strokeWidth="2.5" strokeLinecap="round" />
-      <path d="M34 140 C58 126 70 80 98 84 S132 116 152 90 S186 24 208 34 S246 62 290 106" fill="none" stroke="#F21DB4" strokeWidth="2.5" strokeLinecap="round" />
-      <line x1="208" x2="208" y1="40" y2="150" stroke="#7B4DFF" strokeWidth="1" strokeDasharray="3 3" />
+      <path d="M34 128 C52 112 62 78 86 82 S120 138 140 104 S178 36 204 44 S250 90 290 76" fill="none" stroke="#0039A6" strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M34 140 C58 126 70 80 98 84 S132 116 152 90 S186 24 208 34 S246 62 290 106" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="208" x2="208" y1="40" y2="150" stroke="#0039A6" strokeWidth="1" strokeDasharray="3 3" />
       <g transform="translate(184 6)">
-        <rect width="48" height="22" rx="5" fill="#140B33" />
+        <rect width="48" height="22" rx="5" fill="#0f172a" />
         <text x="24" y="15" textAnchor="middle" fontSize="10" fill="#fff">{peakPct}%</text>
       </g>
       {["Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"].map((m, i) => (
@@ -917,9 +907,9 @@ function DynamicRings({
   };
   return (
     <svg viewBox="0 0 120 120" className="h-24 w-24 sm:h-28 sm:w-28 shrink-0 -rotate-90" role="img" aria-label="Progress rings">
-      {ring(54, filedPct, "#F21DB4", "#FBD3EE")}
-      {ring(40, reviewPct, "#7B4DFF", "#E3D5FF")}
-      {ring(26, compliantPct, "#FFC800", "#FFF0A3")}
+      {ring(54, filedPct, "#059669", "#D1FAE5")}
+      {ring(40, reviewPct, "#0039A6", "#DBEAFE")}
+      {ring(26, compliantPct, "#D97706", "#FEF3C7")}
     </svg>
   );
 }

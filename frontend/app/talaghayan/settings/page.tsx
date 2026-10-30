@@ -10,7 +10,7 @@ import type { SystemBroadcast, ErrorLog, Paginated } from "@/types";
 
 /* ──────────────────────────── constants ──────────────────────────── */
 
-const card = "rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1F1733] shadow-sm";
+const card = "rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] shadow-sm";
 const TABS = ["General Settings", "System Broadcasts", "Error Logs"] as const;
 type Tab = (typeof TABS)[number];
 
@@ -47,8 +47,8 @@ function Toggle({ value, onChange, disabled }: { value: boolean; onChange: (v: b
       aria-checked={value}
       disabled={disabled}
       onClick={() => onChange(!value)}
-      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/30 disabled:cursor-not-allowed disabled:opacity-50 ${
-        value ? "bg-[#7B4DFF]" : "bg-slate-300 dark:bg-slate-600"
+      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#0039A6]/30 disabled:cursor-not-allowed disabled:opacity-50 ${
+        value ? "bg-[#0039A6]" : "bg-slate-300 dark:bg-slate-600"
       }`}
     >
       <span
@@ -580,7 +580,7 @@ function ErrorLogsTab() {
                           {log.trace && (
                             <div>
                               <span className="font-semibold text-slate-600 dark:text-slate-300">Stack trace:</span>
-                              <pre className="mt-1 max-h-48 overflow-auto rounded-lg bg-slate-100 dark:bg-[#181126] p-3 text-[11px] leading-relaxed text-slate-600 dark:text-slate-400 whitespace-pre-wrap break-all">
+                              <pre className="mt-1 max-h-48 overflow-auto rounded-lg bg-slate-100 dark:bg-[#0F172A] p-3 text-[11px] leading-relaxed text-slate-600 dark:text-slate-400 whitespace-pre-wrap break-all">
                                 {log.trace}
                               </pre>
                             </div>
@@ -629,14 +629,14 @@ function SettingsContent() {
       <SystemAdminTabs />
 
       {/* Tab bar */}
-      <div className="flex gap-1 rounded-xl bg-slate-100 dark:bg-[#181126] p-1">
+      <div className="flex gap-1 rounded-xl bg-slate-100 dark:bg-[#0F172A] p-1">
         {TABS.map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             className={`flex-1 rounded-lg px-3 py-2 text-xs sm:text-sm font-semibold transition-colors ${
               tab === t
-                ? "bg-white dark:bg-[#1F1733] text-[#7B4DFF] shadow-sm"
+                ? "bg-white dark:bg-[#0F172A] text-[#0039A6] shadow-sm"
                 : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white"
             }`}
           >

@@ -24,6 +24,8 @@ use App\Http\Controllers\Api\SecurityDashboardController;
 use App\Http\Controllers\Api\SecurityIncidentController;
 use App\Http\Controllers\Api\SessionController;
 use App\Http\Controllers\Api\SubmissionController;
+use App\Http\Controllers\Api\SupervisorActionController;
+use App\Http\Controllers\Api\SupportTicketController;
 use App\Http\Controllers\Api\SystemBroadcastController;
 use App\Http\Controllers\Api\SystemInfoController;
 use App\Http\Controllers\Api\SystemSettingsController;
@@ -128,6 +130,15 @@ Route::middleware(['auth:sanctum', 'verified', 'password.expired'])->group(funct
     Route::post('/requirements/{requirement}/received', [RequirementController::class, 'markReceived'])->whereNumber('requirement');
     Route::post('/requirements/{requirement}/respond', [RequirementController::class, 'respond'])->whereNumber('requirement');
 
+    // Concerns, Communication & Support Tickets (Barangay Rep -> DILG Officer -> Super Admin)
+    Route::get('/support-tickets', [SupportTicketController::class, 'index']);
+    Route::post('/support-tickets', [SupportTicketController::class, 'store']);
+    Route::get('/support-tickets/{ticket}', [SupportTicketController::class, 'show'])->whereNumber('ticket');
+    Route::post('/support-tickets/{ticket}/accept', [SupportTicketController::class, 'accept'])->whereNumber('ticket');
+    Route::post('/support-tickets/{ticket}/escalate', [SupportTicketController::class, 'escalate'])->whereNumber('ticket');
+    Route::post('/support-tickets/{ticket}/resolve', [SupportTicketController::class, 'resolve'])->whereNumber('ticket');
+    Route::post('/support-tickets/{ticket}/messages', [SupportTicketController::class, 'reply'])->whereNumber('ticket');
+
     // Security incident reporting - open to all roles, formalizing what used to be
     // informal email forwarding to ICTO
     Route::get('/security-incidents', [SecurityIncidentController::class, 'index']);
@@ -198,6 +209,12 @@ Route::middleware(['auth:sanctum', 'verified', 'password.expired'])->group(funct
         Route::delete('/bagwis/ppas/{ppa}', [BagwisPpaController::class, 'destroy'])->whereNumber('ppa');
         Route::post('/bagwis/ppas/{ppa}/entries', [BagwisPpaController::class, 'storeEntry'])->whereNumber('ppa');
         Route::patch('/bagwis/ppa-entries/{entry}/review', [BagwisPpaController::class, 'reviewEntry'])->whereNumber('entry');
+
+        // Supervisor follow-up & executive reporting operations
+        Route::post('/supervisor/send-reminders', [SupervisorActionController::class, 'sendReminders']);
+        Route::get('/supervisor/compliance-summary', [SupervisorActionController::class, 'complianceSummary']);
+        Route::get('/supervisor/checklist/{barangay}', [SupervisorActionController::class, 'barangayChecklist'])->whereNumber('barangay');
+        Route::post('/supervisor/checklist/{barangay}/notes', [SupervisorActionController::class, 'saveBarangayNote'])->whereNumber('barangay');
     });
 
     // --- Super admin only ---

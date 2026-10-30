@@ -274,3 +274,55 @@ export interface SystemInfo {
   queue_driver: string;
   mail_driver: string;
 }
+
+export type TicketStatus =
+  | "pending_acceptance"
+  | "in_progress"
+  | "escalated"
+  | "resolved"
+  | "closed";
+
+export type TicketCategory =
+  | "borms_reporting"
+  | "deadline_extension"
+  | "technical_issue"
+  | "policy_inquiry"
+  | "compliance_dispute"
+  | "general_inquiry";
+
+export interface SupportTicketMessage {
+  id: number;
+  support_ticket_id: number;
+  user_id: number;
+  message: string;
+  is_escalation_note?: boolean;
+  created_at: string;
+  updated_at: string;
+  user?: { id: number; name: string; role: Role };
+}
+
+export interface SupportTicket {
+  id: number;
+  ticket_number: string;
+  barangay_id?: number | null;
+  user_id: number;
+  category: TicketCategory;
+  subject: string;
+  description: string;
+  priority: "normal" | "urgent" | "critical";
+  status: TicketStatus;
+  accepted_by?: { id: number; name: string; role: Role } | number | null;
+  accepted_at?: string | null;
+  escalated_by?: { id: number; name: string; role: Role } | number | null;
+  escalation_reason?: string | null;
+  escalated_at?: string | null;
+  resolved_by?: { id: number; name: string; role: Role } | number | null;
+  resolution_notes?: string | null;
+  resolved_at?: string | null;
+  created_at: string;
+  updated_at: string;
+  barangay?: { id: number; name: string; code: string } | null;
+  creator?: { id: number; name: string; role: Role } | null;
+  messages_count?: number;
+  messages?: SupportTicketMessage[];
+}

@@ -100,7 +100,7 @@ export default function ResourcesView() {
             onClick={() => setResourceTab("files")}
             className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs sm:text-sm font-semibold transition-colors ${
               resourceTab === "files"
-                ? "bg-white dark:bg-[#201835] text-[#0039A6] dark:text-white shadow-xs"
+                ? "bg-white dark:bg-[#0F172A] text-[#0039A6] dark:text-white shadow-xs"
                 : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
@@ -115,7 +115,7 @@ export default function ResourcesView() {
             onClick={() => setResourceTab("templates")}
             className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs sm:text-sm font-semibold transition-colors ${
               resourceTab === "templates"
-                ? "bg-white dark:bg-[#201835] text-[#0039A6] dark:text-white shadow-xs"
+                ? "bg-white dark:bg-[#0F172A] text-[#0039A6] dark:text-white shadow-xs"
                 : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
@@ -148,15 +148,15 @@ export default function ResourcesView() {
             <label className="text-sm w-full sm:w-auto">
               <span className="mb-1 block text-muted dark:text-slate-400">Type</span>
               <select className={`${field} w-full sm:w-auto`} value={type} onChange={(e) => setType(e.target.value)}>
-                <option value="" className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">All types</option>
+                <option value="" className="bg-white dark:bg-[#1E293B] text-slate-900 dark:text-slate-100">All types</option>
                 {TYPES.map((t) => (
-                  <option key={t} value={t} className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">{TYPE_LABEL[t]}</option>
+                  <option key={t} value={t} className="bg-white dark:bg-[#1E293B] text-slate-900 dark:text-slate-100">{TYPE_LABEL[t]}</option>
                 ))}
               </select>
             </label>
             {isOffice && (
               <label className="flex items-center gap-2 pb-2 text-sm text-slate-800 dark:text-slate-200 cursor-pointer">
-                <input type="checkbox" checked={history} onChange={(e) => setHistory(e.target.checked)} className="rounded border-line dark:border-white/20 text-[#7B4DFF] focus:ring-[#7B4DFF] bg-white dark:bg-black/30" />
+                <input type="checkbox" checked={history} onChange={(e) => setHistory(e.target.checked)} className="rounded border-line dark:border-white/20 text-[#0039A6] focus:ring-[#0039A6] bg-white dark:bg-black/30" />
                 Show older and withdrawn versions
               </label>
             )}
@@ -171,7 +171,7 @@ export default function ResourcesView() {
               <button onClick={reload} className="underline underline-offset-4">Try again</button>
             </p>
           ) : groupedBySection.length === 0 && ungrouped.length === 0 ? (
-            <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] py-12 text-center text-slate-500 dark:text-slate-400">
+            <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] py-12 text-center text-slate-500 dark:text-slate-400">
               {isOffice ? "Nothing has been uploaded yet. Use the form above to add the first resource." : "No resources have been published yet."}
             </div>
           ) : (
@@ -214,10 +214,10 @@ function ResourceSection({
   onArchive: (r: ResourceItem) => void;
 }) {
   return (
-    <section className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] shadow-sm overflow-hidden">
+    <section className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] shadow-sm overflow-hidden">
       <div className="border-b border-slate-100 dark:border-white/10 px-6 py-4 flex items-center justify-between">
         <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-[#7B4DFF]" />
+          <span className="h-2 w-2 rounded-full bg-[#0039A6]" />
           {title}
         </h2>
         <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/10 px-2.5 py-0.5 rounded-full">
@@ -235,7 +235,7 @@ function ResourceSection({
                     {r.title}
                   </p>
                   <span className="text-xs font-mono font-semibold text-slate-500 dark:text-slate-400">v{r.version}</span>
-                  <span className="rounded-full px-2 py-0.5 text-[10px] font-bold bg-[#7B4DFF]/10 text-[#7B4DFF] dark:bg-[#7B4DFF]/20 dark:text-[#CDBBFF]">
+                  <span className="rounded-full px-2 py-0.5 text-[10px] font-bold bg-[#0039A6]/10 text-[#0039A6] dark:bg-[#0039A6]/20 dark:text-[#93C5FD]">
                     {TYPE_LABEL[r.type] ?? r.type}
                   </span>
                   <span
@@ -249,7 +249,7 @@ function ResourceSection({
                   </span>
                 </div>
                 {r.category && (
-                  <p className="mt-1 text-xs font-medium text-[#7B4DFF] dark:text-[#CDBBFF]">
+                  <p className="mt-1 text-xs font-medium text-[#0039A6] dark:text-[#93C5FD]">
                     Mandatory for: {r.category.name} ({r.category.cycle})
                   </p>
                 )}
@@ -330,7 +330,7 @@ function UploadForm({
 
   return (
     <details open className="mb-6 rounded-lg border border-line dark:border-white/10 bg-white dark:bg-white/5">
-      <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-navy-800 dark:text-[#D1C4F9]">
+      <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-navy-800 dark:text-[#93C5FD]">
         Publish a form, guideline, toolkit, or citizen chart for the barangays
       </summary>
       <form onSubmit={submit} className="grid gap-4 border-t border-line dark:border-white/10 p-4 sm:grid-cols-2">
@@ -343,7 +343,7 @@ function UploadForm({
           <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">Resource Group</span>
           <select className={`${field} w-full`} value={resourceGroup} onChange={(e) => setResourceGroup(e.target.value)}>
             {RESOURCE_GROUPS.map((g) => (
-              <option key={g} value={g} className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">
+              <option key={g} value={g} className="bg-white dark:bg-[#1E293B] text-slate-900 dark:text-slate-100">
                 {RESOURCE_GROUP_LABEL[g]}
               </option>
             ))}
@@ -354,7 +354,7 @@ function UploadForm({
           <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">Type</span>
           <select name="type" className={`${field} w-full`} value={type} onChange={(e) => setType(e.target.value as (typeof TYPES)[number])}>
             {TYPES.map((t) => (
-              <option key={t} value={t} className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">{TYPE_LABEL[t]}</option>
+              <option key={t} value={t} className="bg-white dark:bg-[#1E293B] text-slate-900 dark:text-slate-100">{TYPE_LABEL[t]}</option>
             ))}
           </select>
         </label>
@@ -363,9 +363,9 @@ function UploadForm({
           <label className="text-sm">
             <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">Report it is used for</span>
             <select name="report_category_id" required className={`${field} w-full`} defaultValue="">
-              <option value="" disabled className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">Choose a report...</option>
+              <option value="" disabled className="bg-white dark:bg-[#1E293B] text-slate-900 dark:text-slate-100">Choose a report...</option>
               {categories.map((c) => (
-                <option key={c.id} value={c.id} className="bg-white dark:bg-[#2B2542] text-slate-900 dark:text-slate-100">{c.name}</option>
+                <option key={c.id} value={c.id} className="bg-white dark:bg-[#1E293B] text-slate-900 dark:text-slate-100">{c.name}</option>
               ))}
             </select>
           </label>
@@ -393,7 +393,7 @@ function UploadForm({
         {type !== "drive_link" && (
           <label className="text-sm sm:col-span-2">
             <span className="mb-1 block font-medium text-slate-800 dark:text-slate-200">File (PDF, Word, Excel or PowerPoint, up to 10 MB)</span>
-            <input name="file" type="file" required accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" className="block w-full text-sm text-slate-700 dark:text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#7B4DFF]/10 file:text-[#7B4DFF] dark:file:bg-[#7B4DFF]/20 dark:file:text-[#CDBBFF]" />
+            <input name="file" type="file" required accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" className="block w-full text-sm text-slate-700 dark:text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#0039A6]/10 file:text-[#0039A6] dark:file:bg-[#0039A6]/20 dark:file:text-[#93C5FD]" />
           </label>
         )}
 

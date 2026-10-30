@@ -66,14 +66,14 @@ export default function SystemAdminTabs() {
               href={m.href}
               className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-all duration-200 ${
                 active
-                  ? "bg-white dark:bg-[#201835] text-[#5A18C9] dark:text-white shadow-sm ring-1 ring-slate-200/60 dark:ring-white/10 font-bold"
+                  ? "bg-white dark:bg-[#0F172A] text-[#002B7F] dark:text-white shadow-sm ring-1 ring-slate-200/60 dark:ring-white/10 font-bold"
                   : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/5 font-medium"
               }`}
             >
               <div
                 className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ${
                   active
-                    ? "bg-[#7B4DFF]/15 text-[#7B4DFF] dark:bg-[#7B4DFF]/25 dark:text-[#CDBBFF]"
+                    ? "bg-[#0039A6]/15 text-[#0039A6] dark:bg-[#0039A6]/25 dark:text-[#93C5FD]"
                     : "bg-slate-200/60 dark:bg-white/10 text-slate-500 dark:text-slate-400"
                 }`}
               >

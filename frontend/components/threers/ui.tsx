@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 
 export const btn =
-  "inline-flex items-center justify-center gap-2 rounded-xl bg-[#7B4DFF] px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-[#6A3CF0] transition-colors disabled:cursor-not-allowed disabled:opacity-50 select-none";
+  "inline-flex items-center justify-center gap-2 rounded-xl bg-[#0039A6] px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-[#002B7F] transition-colors disabled:cursor-not-allowed disabled:opacity-50 select-none";
 export const btnGhost =
-  "inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-white/20 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors disabled:cursor-not-allowed disabled:opacity-50 select-none";
+  "inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-white/20 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors disabled:cursor-not-allowed disabled:opacity-50 select-none";
 export const field =
-  "rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#1F1733] px-3.5 py-2 text-xs sm:text-sm text-slate-900 dark:text-white transition focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20";
+  "rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#0F172A] px-3.5 py-2 text-xs sm:text-sm text-slate-900 dark:text-white transition focus:border-[#0039A6] focus:outline-none focus:ring-2 focus:ring-[#0039A6]/20";
 
 export function formatBytes(n: number): string {
   if (n < 1024) return `${n} B`;

@@ -94,7 +94,7 @@ export default function SubmitReport({ onFlash, onDone }: { onFlash: (f: Flash) 
   return (
     <section
       aria-labelledby="h-submit"
-      className="mb-8 rounded-2xl bg-white dark:bg-[#181126] p-6 sm:p-7 border border-slate-200 dark:border-white/10 shadow-sm"
+      className="mb-8 rounded-2xl bg-white dark:bg-[#0F172A] p-6 sm:p-7 border border-slate-200 dark:border-white/10 shadow-sm"
     >
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-white/10 pb-4">
         <div>
@@ -130,7 +130,7 @@ export default function SubmitReport({ onFlash, onDone }: { onFlash: (f: Flash) 
               required
               value={categoryId}
               onChange={(e) => pickCategory(e.target.value)}
-              className="w-full rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#1F1733] px-3.5 py-2.5 text-sm text-slate-900 dark:text-white transition focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20"
+              className="w-full rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#0F172A] px-3.5 py-2.5 text-sm text-slate-900 dark:text-white transition focus:border-[#0039A6] focus:outline-none focus:ring-2 focus:ring-[#0039A6]/20"
             >
               <option value="">Choose a report type...</option>
               {options.map((o) => (
@@ -151,7 +151,7 @@ export default function SubmitReport({ onFlash, onDone }: { onFlash: (f: Flash) 
               disabled={!category}
               value={period}
               onChange={(e) => setPeriod(e.target.value)}
-              className="w-full rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#1F1733] px-3.5 py-2.5 text-sm text-slate-900 dark:text-white transition focus:border-[#7B4DFF] focus:outline-none focus:ring-2 focus:ring-[#7B4DFF]/20 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-xl border border-slate-300 dark:border-white/15 bg-slate-50/50 dark:bg-[#0F172A] px-3.5 py-2.5 text-sm text-slate-900 dark:text-white transition focus:border-[#0039A6] focus:outline-none focus:ring-2 focus:ring-[#0039A6]/20 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {!category && <option value="">Select a report category first</option>}
               {category?.periods.map((p) => (
@@ -171,8 +171,8 @@ export default function SubmitReport({ onFlash, onDone }: { onFlash: (f: Flash) 
 
           {/* Download Official Form Template Link */}
           {category?.template && (
-            <div className="sm:col-span-2 flex items-center gap-2 rounded-xl bg-[#F3EDFE]/70 dark:bg-[#7B4DFF]/10 border border-[#E3DEF5] dark:border-[#7B4DFF]/20 p-3 text-xs">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#7B4DFF] dark:text-[#CDBBFF] shrink-0">
+            <div className="sm:col-span-2 flex items-center gap-2 rounded-xl bg-[#EBF2FF]/70 dark:bg-[#0039A6]/10 border border-[#CBD5E1] dark:border-[#0039A6]/20 p-3 text-xs">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#0039A6] dark:text-[#93C5FD] shrink-0">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                 <polyline points="7 10 12 15 17 10" />
                 <line x1="12" y1="15" x2="12" y2="3" />
@@ -180,7 +180,7 @@ export default function SubmitReport({ onFlash, onDone }: { onFlash: (f: Flash) 
               <span>
                 Need the official document template?{" "}
                 <a
-                  className="font-bold text-[#5A18C9] dark:text-[#CDBBFF] underline underline-offset-4"
+                  className="font-bold text-[#002B7F] dark:text-[#93C5FD] underline underline-offset-4"
                   href={apiUrl(`/api/resources/${category.template.id}/download`)}
                 >
                   Download current DILG Makati template (v{category.template.version})
@@ -194,14 +194,14 @@ export default function SubmitReport({ onFlash, onDone }: { onFlash: (f: Flash) 
             <span className="mb-1.5 block text-sm font-semibold text-slate-800 dark:text-slate-200">
               Document Attachment (PDF, Word, or Excel &bull; max 10 MB) <span className="text-rose-500">*</span>
             </span>
-            <div className="relative flex items-center gap-4 rounded-xl border border-dashed border-slate-300 dark:border-white/20 bg-slate-50/50 dark:bg-[#1F1733]/50 p-4 transition-colors">
+            <div className="relative flex items-center gap-4 rounded-xl border border-dashed border-slate-300 dark:border-white/20 bg-slate-50/50 dark:bg-[#0F172A]/50 p-4 transition-colors">
               <input
                 key={inputKey}
                 type="file"
                 required
                 accept={ALLOWED.join(",")}
                 onChange={(e) => pickFile(e.target.files?.[0] ?? null)}
-                className="block w-full text-xs sm:text-sm text-slate-600 dark:text-slate-300 file:mr-4 file:rounded-full file:border-0 file:bg-[#7B4DFF] file:px-4 file:py-2 file:text-xs file:font-bold file:text-white hover:file:bg-[#6A3CF0] file:transition-colors file:cursor-pointer"
+                className="block w-full text-xs sm:text-sm text-slate-600 dark:text-slate-300 file:mr-4 file:rounded-full file:border-0 file:bg-[#0039A6] file:px-4 file:py-2 file:text-xs file:font-bold file:text-white hover:file:bg-[#002B7F] file:transition-colors file:cursor-pointer"
               />
             </div>
           </div>
@@ -211,7 +211,7 @@ export default function SubmitReport({ onFlash, onDone }: { onFlash: (f: Flash) 
             <button
               type="submit"
               disabled={busy || !category || !chosen?.can_upload || !file}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#7B4DFF] px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#6A3CF0] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0039A6] px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#002B7F] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <line x1="22" y1="2" x2="11" y2="13" />

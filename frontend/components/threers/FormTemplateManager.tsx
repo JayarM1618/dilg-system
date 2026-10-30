@@ -14,7 +14,7 @@ import {
   type RequirementItem,
 } from "./types";
 
-const card = "rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] shadow-sm";
+const card = "rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] shadow-sm";
 const label = "mb-1 block text-sm font-medium text-slate-800 dark:text-slate-200";
 
 interface Flash {
@@ -115,7 +115,7 @@ export default function FormTemplateManager({
       <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white/70 dark:bg-white/5 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0039A6]/10 text-[#0039A6] dark:bg-[#7B4DFF]/20 dark:text-[#CDBBFF]">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0039A6]/10 text-[#0039A6] dark:bg-[#0039A6]/20 dark:text-[#93C5FD]">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
@@ -456,11 +456,11 @@ export function FormTemplateCreator({
   };
 
   return (
-    <div className="rounded-2xl border border-slate-300 dark:border-white/10 bg-white dark:bg-[#181126] shadow-xl overflow-hidden">
+    <div className="rounded-2xl border border-slate-300 dark:border-white/10 bg-white dark:bg-[#0F172A] shadow-xl overflow-hidden">
       {/* ============================================================ */}
       {/* 1. GOOGLE DOCS / MICROSOFT WORD APPLICATION TOOLBAR          */}
       {/* ============================================================ */}
-      <div className="border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#1F1733] px-4 py-3 sm:px-6 flex flex-wrap items-center justify-between gap-3">
+      <div className="border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#0F172A] px-4 py-3 sm:px-6 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#0039A6] text-white shadow-xs">
             {/* Word Document Icon */}
@@ -489,7 +489,7 @@ export function FormTemplateCreator({
               onClick={() => setActiveTab("builder")}
               className={`rounded-md px-3 py-1.5 transition-colors ${
                 activeTab === "builder"
-                  ? "bg-white dark:bg-[#201835] text-[#0039A6] dark:text-white shadow-xs font-bold"
+                  ? "bg-white dark:bg-[#0F172A] text-[#0039A6] dark:text-white shadow-xs font-bold"
                   : "text-slate-600 dark:text-slate-400"
               }`}
             >
@@ -500,7 +500,7 @@ export function FormTemplateCreator({
               onClick={() => setActiveTab("preview")}
               className={`rounded-md px-3 py-1.5 transition-colors ${
                 activeTab === "preview"
-                  ? "bg-white dark:bg-[#201835] text-[#0039A6] dark:text-white shadow-xs font-bold"
+                  ? "bg-white dark:bg-[#0F172A] text-[#0039A6] dark:text-white shadow-xs font-bold"
                   : "text-slate-600 dark:text-slate-400"
               }`}
             >
@@ -1012,7 +1012,7 @@ function SendTemplateModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="flex flex-col w-full max-w-xl max-h-[90vh] bg-white dark:bg-[#181126] rounded-2xl border border-slate-200 dark:border-white/10 shadow-2xl overflow-hidden">
+      <div className="flex flex-col w-full max-w-xl max-h-[90vh] bg-white dark:bg-[#0F172A] rounded-2xl border border-slate-200 dark:border-white/10 shadow-2xl overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-white/10 bg-slate-50 dark:bg-white/5">
           <div>
             <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -1057,7 +1057,7 @@ function SendTemplateModal({
                 className={`${field} w-full`}
               >
                 {Object.entries(KIND_LABEL).map(([k, v]) => (
-                  <option key={k} value={k} className="bg-white dark:bg-[#2B2542]">{v}</option>
+                  <option key={k} value={k} className="bg-white dark:bg-[#1E293B]">{v}</option>
                 ))}
               </select>
             </label>

@@ -42,10 +42,10 @@ export default function ReportSetup({ onChanged }: { onChanged?: () => void }) {
   }
 
   return (
-    <details className="mb-6 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#181126]/90 backdrop-blur-md shadow-sm overflow-hidden transition-all">
-      <summary className="cursor-pointer px-5 py-3.5 text-xs sm:text-sm font-semibold text-slate-800 dark:text-[#D1C4F9] hover:text-[#7B4DFF] dark:hover:text-white transition-colors select-none flex items-center justify-between">
+    <details className="mb-6 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#0F172A]/90 backdrop-blur-md shadow-sm overflow-hidden transition-all">
+      <summary className="cursor-pointer px-5 py-3.5 text-xs sm:text-sm font-semibold text-slate-800 dark:text-[#93C5FD] hover:text-[#0039A6] dark:hover:text-white transition-colors select-none flex items-center justify-between">
         <span className="flex items-center gap-2">
-          <span className="inline-flex items-center justify-center h-5 w-5 rounded-md bg-[#7B4DFF]/10 text-[#7B4DFF] dark:text-[#CDBBFF]">
+          <span className="inline-flex items-center justify-center h-5 w-5 rounded-md bg-[#0039A6]/10 text-[#0039A6] dark:text-[#93C5FD]">
             +
           </span>
           Create a new report type for barangays
@@ -89,7 +89,7 @@ export default function ReportSetup({ onChanged }: { onChanged?: () => void }) {
                 aria-label="Filing cycle"
               >
                 {CYCLES.map(([v, l]) => (
-                  <option key={v} value={v} className="bg-white dark:bg-[#1E1735]">{l}</option>
+                  <option key={v} value={v} className="bg-white dark:bg-[#0F172A]">{l}</option>
                 ))}
               </select>
             </div>

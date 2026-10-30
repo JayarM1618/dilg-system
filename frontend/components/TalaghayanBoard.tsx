@@ -34,7 +34,7 @@ export default function TalaghayanBoard() {
       {/* ── Page Header ── */}
       <div>
         <div className="flex flex-wrap items-center gap-2.5 mb-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F1EBFF] dark:bg-[#352D52] px-3 py-0.5 text-xs font-bold text-[#5A18C9] dark:text-[#CDBBFF]">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#EBF2FF] dark:bg-[#1E293B] px-3 py-0.5 text-xs font-bold text-[#002B7F] dark:text-[#93C5FD]">
             Sub-System of Talaghayan
           </span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
@@ -42,7 +42,7 @@ export default function TalaghayanBoard() {
             Live Board &bull; Real-Time Sync
           </span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#1B1235] dark:text-white transition-colors duration-500 ease-out">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] dark:text-white transition-colors duration-500 ease-out">
           BORMS Operations Board
         </h1>
         <p className="mt-1 text-sm sm:text-base text-slate-500 dark:text-[#C9BCEB] transition-colors duration-500 ease-out">
@@ -69,11 +69,11 @@ export default function TalaghayanBoard() {
               label="Barangays"
               value={summary.total_barangays}
               icon={<BarangayIcon />}
-              accentFrom="from-[#7B4DFF]/10"
-              accentTo="to-[#A78BFA]/5"
-              darkAccentFrom="dark:from-[#7B4DFF]/20"
-              darkAccentTo="dark:to-[#A78BFA]/10"
-              iconBg="bg-[#E3D5FF] text-[#5A18C9] dark:bg-[#5A18C9]/30 dark:text-[#CDBBFF]"
+              accentFrom="from-[#0039A6]/10"
+              accentTo="to-[#60A5FA]/5"
+              darkAccentFrom="dark:from-[#0039A6]/20"
+              darkAccentTo="dark:to-[#60A5FA]/10"
+              iconBg="bg-[#DBEAFE] text-[#002B7F] dark:bg-[#002B7F]/30 dark:text-[#93C5FD]"
             />
             <StatCard
               label="Pending"
@@ -129,24 +129,24 @@ export default function TalaghayanBoard() {
           </svg>
           Barangay Compliance
         </h2>
-        <div className="rounded-2xl bg-white/60 dark:bg-white/5 backdrop-blur-xl border border-white/50 dark:border-white/10 shadow-[0_15px_35px_-5px_rgba(0,0,0,0.08),inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[0_15px_35px_-5px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all duration-500 ease-out overflow-hidden">
+        <div className="rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-white/10 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] text-left text-sm">
               <caption className="sr-only">Compliance rate and latest report statuses per barangay</caption>
               <thead>
-                <tr className="border-b border-[#EDE7FA]/60 dark:border-white/10">
-                  <th scope="col" className="px-5 py-4 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-[#7C6FA3]">Barangay</th>
-                  <th scope="col" className="px-5 py-4 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-[#7C6FA3]">Compliance Rate</th>
-                  <th scope="col" className="px-5 py-4 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-[#7C6FA3]">Latest Statuses</th>
+                <tr className="border-b border-slate-200 dark:border-white/10">
+                  <th scope="col" className="px-5 py-4 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-400">Barangay</th>
+                  <th scope="col" className="px-5 py-4 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-400">Compliance Rate</th>
+                  <th scope="col" className="px-5 py-4 text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-400">Latest Statuses</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#EDE7FA]/40 dark:divide-white/5">
+              <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                 {loading ? (
                   <tr>
                     <td colSpan={3} className="px-5 py-14 text-center">
                       <div className="flex flex-col items-center gap-3">
-                        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#7B4DFF] border-t-transparent" />
-                        <span className="text-sm text-slate-400 dark:text-[#7C6FA3]">Loading the tally...</span>
+                        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0039A6] border-t-transparent" />
+                        <span className="text-sm text-slate-400 dark:text-slate-400">Loading the tally...</span>
                       </div>
                     </td>
                   </tr>
@@ -154,23 +154,23 @@ export default function TalaghayanBoard() {
                   <tr>
                     <td colSpan={3} className="px-5 py-14 text-center">
                       <p className="font-medium text-rose-600 dark:text-rose-400">{error}</p>
-                      <button onClick={retry} className="mt-3 rounded-full border border-[#EDE7FA] dark:border-[#2B2542] px-4 py-1.5 text-sm font-semibold text-[#5A18C9] dark:text-[#CDBBFF] transition-colors hover:bg-white/50 dark:hover:bg-[#2B2542]/50">
+                      <button onClick={retry} className="mt-3 rounded-full border border-slate-200 dark:border-white/15 px-4 py-1.5 text-sm font-semibold text-[#0039A6] dark:text-blue-300 transition-colors hover:bg-slate-50 dark:hover:bg-white/5">
                         Try again
                       </button>
                     </td>
                   </tr>
                 ) : rows.length === 0 ? (
                   <tr>
-                    <td colSpan={3} className="px-5 py-14 text-center text-slate-400 dark:text-[#7C6FA3]">
+                    <td colSpan={3} className="px-5 py-14 text-center text-slate-400 dark:text-slate-400">
                       No barangays yet. Add barangays and report periods to start the tally.
                     </td>
                   </tr>
                 ) : (
                   rows.map((row) => (
-                    <tr key={row.barangay.id} className="transition-colors duration-300 hover:bg-[#7B4DFF]/5 dark:hover:bg-[#7B4DFF]/10">
-                      <th scope="row" className="whitespace-nowrap px-5 py-4 text-left font-medium text-[#1B1235] dark:text-white">
+                    <tr key={row.barangay.id} className="transition-colors duration-200 hover:bg-slate-50 dark:hover:bg-white/5">
+                      <th scope="row" className="whitespace-nowrap px-5 py-4 text-left font-medium text-slate-900 dark:text-white">
                         <div className="flex items-center gap-3">
-                          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#E3D5FF]/60 dark:bg-[#5A18C9]/20 text-xs font-bold text-[#5A18C9] dark:text-[#CDBBFF] transition-colors duration-500">
+                          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-blue-100 dark:bg-white/10 text-xs font-bold text-[#0039A6] dark:text-blue-300 transition-colors">
                             {row.barangay.name.charAt(0).toUpperCase()}
                           </span>
                           {row.barangay.name}
@@ -182,10 +182,10 @@ export default function TalaghayanBoard() {
                             <div
                               className={`h-full rounded-full transition-all duration-700 ease-out ${
                                 row.compliance_rate >= 80
-                                  ? "bg-gradient-to-r from-emerald-400 to-emerald-500"
+                                  ? "bg-emerald-500"
                                   : row.compliance_rate >= 40
-                                  ? "bg-gradient-to-r from-amber-400 to-amber-500"
-                                  : "bg-gradient-to-r from-rose-400 to-rose-500"
+                                  ? "bg-amber-500"
+                                  : "bg-rose-500"
                               }`}
                               style={{ width: `${row.compliance_rate}%` }}
                             />
@@ -230,33 +230,29 @@ function StatCard({
   label,
   value,
   icon,
-  accentFrom,
-  accentTo,
-  darkAccentFrom,
-  darkAccentTo,
   iconBg,
-  valueColor = "text-[#1B1235] dark:text-white",
+  valueColor = "text-slate-900 dark:text-white",
 }: {
   label: string;
   value: number;
   icon: React.ReactNode;
-  accentFrom: string;
-  accentTo: string;
-  darkAccentFrom: string;
-  darkAccentTo: string;
+  accentFrom?: string;
+  accentTo?: string;
+  darkAccentFrom?: string;
+  darkAccentTo?: string;
   iconBg: string;
   valueColor?: string;
 }) {
   return (
-    <div className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br ${accentFrom} ${accentTo} ${darkAccentFrom} ${darkAccentTo} bg-white/60 dark:bg-white/5 backdrop-blur-xl border border-white/50 dark:border-white/10 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.08)] px-4 py-5 sm:px-5 sm:py-6 transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.1),inset_0_1px_1px_rgba(255,255,255,1)] dark:hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.6),inset_0_1px_1px_rgba(255,255,255,0.15)]`}>
+    <div className="group relative overflow-hidden rounded-2xl bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-white/10 shadow-sm px-4 py-5 sm:px-5 sm:py-6 transition-all duration-300 hover:border-slate-300 dark:hover:border-white/20">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-[#A99BD4] transition-colors duration-500 ease-out">{label}</p>
-          <p className={`mt-1 text-2xl sm:text-3xl font-bold tabular-nums ${valueColor} transition-colors duration-500 ease-out`}>
+          <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">{label}</p>
+          <p className={`mt-1 text-2xl sm:text-3xl font-bold tabular-nums ${valueColor}`}>
             {value}
           </p>
         </div>
-        <span className={`grid h-10 w-10 sm:h-11 sm:w-11 shrink-0 place-items-center rounded-xl ${iconBg} transition-all duration-500 ease-out group-hover:scale-110`}>
+        <span className={`grid h-10 w-10 sm:h-11 sm:w-11 shrink-0 place-items-center rounded-xl ${iconBg} transition-transform group-hover:scale-105`}>
           {icon}
         </span>
       </div>

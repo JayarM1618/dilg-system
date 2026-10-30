@@ -21,6 +21,63 @@ const AVATAR_PALETTE = [
   "#0891B2", // Cyan
 ];
 
+export const DEFAULT_ACCOUNTS: SavedAccount[] = [
+  {
+    id: 1,
+    name: "DILG Makati Admin",
+    email: "admin@dilg.gov.ph",
+    role: "super_admin",
+    barangayName: null,
+    avatarColor: "#0039A6",
+    lastUsedAt: 1,
+  },
+  {
+    id: 2,
+    name: "DILG Makati Supervisor",
+    email: "supervisor@dilg.gov.ph",
+    role: "office_supervisor",
+    barangayName: null,
+    avatarColor: "#059669",
+    lastUsedAt: 2,
+  },
+  {
+    id: 3,
+    name: "Bangkal Representative",
+    email: "rep.bangkal@barangay.test",
+    role: "barangay_rep",
+    barangayName: "Bangkal",
+    avatarColor: "#0284C7",
+    lastUsedAt: 3,
+  },
+  {
+    id: 4,
+    name: "Poblacion Representative",
+    email: "rep.poblacion@barangay.test",
+    role: "barangay_rep",
+    barangayName: "Poblacion",
+    avatarColor: "#7C3AED",
+    lastUsedAt: 4,
+  },
+  {
+    id: 7,
+    name: "San Antonio Representative",
+    email: "rep.san.antonio@barangay.test",
+    role: "barangay_rep",
+    barangayName: "San Antonio",
+    avatarColor: "#EA580C",
+    lastUsedAt: 5,
+  },
+  {
+    id: 8,
+    name: "Guadalupe Nuevo Representative",
+    email: "reynaldomaramag5@gmail.com",
+    role: "barangay_rep",
+    barangayName: "Guadalupe Nuevo",
+    avatarColor: "#DB2777",
+    lastUsedAt: 6,
+  },
+];
+
 export function getAvatarColor(key: string | number): string {
   const str = String(key || "user");
   let hash = 0;
@@ -32,14 +89,14 @@ export function getAvatarColor(key: string | number): string {
 }
 
 export function getSavedAccounts(): SavedAccount[] {
-  if (typeof window === "undefined") return [];
+  if (typeof window === "undefined") return DEFAULT_ACCOUNTS;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
+    if (!raw) return DEFAULT_ACCOUNTS;
     const list = JSON.parse(raw);
-    return Array.isArray(list) ? list : [];
+    return Array.isArray(list) && list.length > 0 ? list : DEFAULT_ACCOUNTS;
   } catch {
-    return [];
+    return DEFAULT_ACCOUNTS;
   }
 }
 

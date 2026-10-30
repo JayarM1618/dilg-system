@@ -8,6 +8,8 @@ import ThreeRsTabs from "./ThreeRsTabs";
 import BarangayReports from "./BarangayReports";
 import SKReportsView from "./SKReportsView";
 import ReportSetup from "./ReportSetup";
+import SendRemindersModal from "@/components/supervisor/SendRemindersModal";
+import ExecutiveComplianceSummaryModal from "@/components/supervisor/ExecutiveComplianceSummaryModal";
 import {
   PageTitle,
   Pager,
@@ -62,7 +64,7 @@ export default function ReportsView() {
               onClick={() => setSector(t.key)}
               className={`flex-1 min-w-fit flex items-center justify-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
                 sector === t.key
-                  ? "bg-[#7B4DFF] text-white shadow-sm"
+                  ? "bg-[#0039A6] text-white shadow-sm"
                   : "text-slate-600 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-white/10"
               }`}
             >
@@ -157,7 +159,7 @@ function OfficeDashboard() {
     <>
       {/* Sleek pill tab bar - fully isolated from ReportSetup */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <div className="inline-flex p-1.5 rounded-2xl bg-white/90 dark:bg-[#181126]/90 backdrop-blur-md border border-slate-200/80 dark:border-white/10 shadow-sm">
+        <div className="inline-flex p-1.5 rounded-2xl bg-white/90 dark:bg-[#0F172A]/90 backdrop-blur-md border border-slate-200/80 dark:border-white/10 shadow-sm">
           {tabs
             .filter((t) => t.show)
             .map((t) => (
@@ -166,7 +168,7 @@ function OfficeDashboard() {
                 onClick={() => setTab(t.key)}
                 className={`flex items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-xs font-semibold transition-all duration-200 ${
                   tab === t.key
-                    ? "bg-gradient-to-r from-[#7B4DFF] to-[#9254DE] text-white shadow-md shadow-[#7B4DFF]/30 font-bold"
+                    ? "bg-[#0039A6] text-white shadow-sm font-bold"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/5"
                 }`}
               >
@@ -194,6 +196,8 @@ function ComplianceSection() {
   const periods = useFetch<{ data: Period[] }>(user ? "/api/reports/periods" : null);
   const [period, setPeriod] = useState("");
   const [search, setSearch] = useState("");
+  const [showRemindersModal, setShowRemindersModal] = useState(false);
+  const [showSummaryModal, setShowSummaryModal] = useState(false);
 
   const qs = period ? `?period_label=${encodeURIComponent(period)}` : "";
   const { data: report, loading, reload } = useFetch<ComplianceReport>(user ? `/api/reports/compliance${qs}` : null);
@@ -213,7 +217,7 @@ function ComplianceSection() {
   return (
     <div className="space-y-6">
       {/* Controls & Filter Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#181126]/80 backdrop-blur-md shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-md shadow-sm">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
@@ -224,9 +228,9 @@ function ComplianceSection() {
               value={period}
               onChange={(e) => setPeriod(e.target.value)}
             >
-              <option value="" className="bg-white dark:bg-[#2B2542]">Latest active period</option>
+              <option value="" className="bg-white dark:bg-[#1E293B]">Latest active period</option>
               {periodList.map((p) => (
-                <option key={p.period_label} value={p.period_label} className="bg-white dark:bg-[#2B2542]">
+                <option key={p.period_label} value={p.period_label} className="bg-white dark:bg-[#1E293B]">
                   {p.period_label}
                 </option>
               ))}
@@ -260,6 +264,24 @@ function ComplianceSection() {
 
         <div className="flex items-center gap-2">
           <button
+            type="button"
+            onClick={() => setShowRemindersModal(true)}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-blue-200 dark:border-blue-800/40 bg-blue-50 dark:bg-blue-950/30 px-3 py-1.5 text-xs font-semibold text-[#0039A6] dark:text-blue-300 hover:bg-blue-100 transition-colors shadow-xs"
+          >
+            <span>⏰</span>
+            <span>Send Reminders</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowSummaryModal(true)}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 dark:border-white/20 bg-white dark:bg-[#1E293B] px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors shadow-xs"
+          >
+            <span>📄</span>
+            <span>Summary Report</span>
+          </button>
+
+          <button
             onClick={() => reload()}
             className={`${btnGhost} text-xs`}
             title="Refresh compliance metrics"
@@ -284,12 +306,12 @@ function ComplianceSection() {
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-16 gap-3 rounded-2xl border border-slate-200/60 dark:border-white/10 bg-white/40 dark:bg-[#181126]/40">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#7B4DFF] border-t-transparent" />
+        <div className="flex flex-col items-center justify-center py-16 gap-3 rounded-2xl border border-slate-200/60 dark:border-white/10 bg-white/40 dark:bg-[#0F172A]/40">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0039A6] border-t-transparent" />
           <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Loading compliance records...</span>
         </div>
       ) : !report ? (
-        <div className="p-8 text-center rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#181126]/80">
+        <div className="p-8 text-center rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#0F172A]/80">
           <p className="text-sm text-slate-500 dark:text-slate-400">No compliance data available for this period.</p>
         </div>
       ) : (
@@ -382,7 +404,7 @@ function ComplianceSection() {
           )}
 
           {/* By Barangay Compliance Table */}
-          <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#181126]/90 shadow-sm overflow-hidden">
+          <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#0F172A]/90 shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-100 dark:border-white/10 flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white">Compliance by Barangay</h3>
@@ -428,7 +450,7 @@ function ComplianceSection() {
                         >
                           <td className="px-6 py-3.5 font-medium text-slate-900 dark:text-white">
                             <div className="flex items-center gap-2.5">
-                              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#7B4DFF]/10 text-[#7B4DFF] dark:text-[#CDBBFF] text-xs font-bold">
+                              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#0039A6]/10 text-[#0039A6] dark:text-[#93C5FD] text-xs font-bold">
                                 {row.barangay.name.substring(0, 2).toUpperCase()}
                               </span>
                               <div>
@@ -477,6 +499,18 @@ function ComplianceSection() {
           </div>
         </>
       )}
+
+      {/* Supervisor Compliance Operations Modals */}
+      <SendRemindersModal
+        isOpen={showRemindersModal}
+        onClose={() => setShowRemindersModal(false)}
+        onSuccess={() => reload()}
+      />
+
+      <ExecutiveComplianceSummaryModal
+        isOpen={showSummaryModal}
+        onClose={() => setShowSummaryModal(false)}
+      />
     </div>
   );
 }
@@ -518,7 +552,7 @@ function CategoriesSection() {
   return (
     <div className="space-y-6">
       {/* Header with "+ Create Report" action for supervisors */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#181126]/80 backdrop-blur-md shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-md shadow-sm">
         <div>
           <h2 className="text-base font-bold text-slate-900 dark:text-white">Report Catalogue & Requirements</h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -544,7 +578,7 @@ function CategoriesSection() {
       )}
 
       {/* Filter Row */}
-      <div className="flex flex-wrap items-center gap-3 p-4 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#181126]/80 backdrop-blur-md">
+      <div className="flex flex-wrap items-center gap-3 p-4 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-md">
         {/* Search */}
         <div className="relative flex-1 min-w-[200px]">
           <input
@@ -576,9 +610,9 @@ function CategoriesSection() {
           value={cycleFilter}
           onChange={(e) => setCycleFilter(e.target.value)}
         >
-          <option value="" className="bg-white dark:bg-[#2B2542]">All cycles</option>
+          <option value="" className="bg-white dark:bg-[#1E293B]">All cycles</option>
           {cycles.map((c) => (
-            <option key={c} value={c} className="bg-white dark:bg-[#2B2542]">
+            <option key={c} value={c} className="bg-white dark:bg-[#1E293B]">
               {CYCLE_LABEL[c] ?? c}
             </option>
           ))}
@@ -590,9 +624,9 @@ function CategoriesSection() {
           value={sectorFilter}
           onChange={(e) => setSectorFilter(e.target.value)}
         >
-          <option value="" className="bg-white dark:bg-[#2B2542]">All sectors</option>
+          <option value="" className="bg-white dark:bg-[#1E293B]">All sectors</option>
           {uniqueSectors.map((s) => (
-            <option key={s} value={s} className="bg-white dark:bg-[#2B2542]">
+            <option key={s} value={s} className="bg-white dark:bg-[#1E293B]">
               {s}
             </option>
           ))}
@@ -600,7 +634,7 @@ function CategoriesSection() {
 
         {(cycleFilter || sectorFilter || search) && (
           <button
-            className={`${btnGhost} text-[#7B4DFF] dark:text-[#CDBBFF] text-xs`}
+            className={`${btnGhost} text-[#0039A6] dark:text-[#93C5FD] text-xs`}
             onClick={() => { setCycleFilter(""); setSectorFilter(""); setSearch(""); }}
           >
             Reset
@@ -609,12 +643,12 @@ function CategoriesSection() {
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-16 gap-3 rounded-2xl border border-slate-200/60 dark:border-white/10 bg-white/40 dark:bg-[#181126]/40">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#7B4DFF] border-t-transparent" />
+        <div className="flex flex-col items-center justify-center py-16 gap-3 rounded-2xl border border-slate-200/60 dark:border-white/10 bg-white/40 dark:bg-[#0F172A]/40">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0039A6] border-t-transparent" />
           <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Loading report catalogue...</span>
         </div>
       ) : filteredCats.length === 0 ? (
-        <div className="p-8 text-center rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#181126]/80">
+        <div className="p-8 text-center rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#0F172A]/80">
           <p className="text-sm text-slate-500 dark:text-slate-400">
             {cats.length === 0 ? "No report categories defined yet." : "No reports match your filters."}
           </p>
@@ -624,7 +658,7 @@ function CategoriesSection() {
           {cycles.filter((c) => grouped[c]?.length).map((cycle) => (
             <div key={cycle} className="space-y-3">
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center rounded-full bg-[#7B4DFF]/10 dark:bg-[#7B4DFF]/20 px-3 py-1 text-xs font-bold text-[#7B4DFF] dark:text-[#CDBBFF] uppercase tracking-wider">
+                <span className="inline-flex items-center rounded-full bg-[#0039A6]/10 dark:bg-[#0039A6]/20 px-3 py-1 text-xs font-bold text-[#0039A6] dark:text-[#93C5FD] uppercase tracking-wider">
                   {CYCLE_LABEL[cycle] ?? cycle}
                 </span>
                 <span className="text-xs text-slate-500 dark:text-slate-400">
@@ -650,7 +684,7 @@ function CategoryCard({ category: cat }: { category: Category }) {
   const sectorIcon = SECTOR_ICON[cat.sector ?? ""] ?? "📄";
 
   return (
-    <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#181126]/90 shadow-sm overflow-hidden transition-all duration-200 hover:border-slate-300 dark:hover:border-white/20">
+    <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#0F172A]/90 shadow-sm overflow-hidden transition-all duration-200 hover:border-slate-300 dark:hover:border-white/20">
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
@@ -766,7 +800,7 @@ function SecuritySection() {
   return (
     <div className="space-y-6">
       {/* Header with "+ Report Incident" */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#181126]/80 backdrop-blur-md shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-md shadow-sm">
         <div>
           <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
@@ -789,12 +823,12 @@ function SecuritySection() {
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-16 gap-3 rounded-2xl border border-slate-200/60 dark:border-white/10 bg-white/40 dark:bg-[#181126]/40">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#7B4DFF] border-t-transparent" />
+        <div className="flex flex-col items-center justify-center py-16 gap-3 rounded-2xl border border-slate-200/60 dark:border-white/10 bg-white/40 dark:bg-[#0F172A]/40">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#0039A6] border-t-transparent" />
           <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Loading security telemetry...</span>
         </div>
       ) : !security ? (
-        <div className="p-8 text-center rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#181126]/80">
+        <div className="p-8 text-center rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#0F172A]/80">
           <p className="text-sm text-slate-500 dark:text-slate-400">Security telemetry currently unavailable.</p>
         </div>
       ) : (
@@ -855,7 +889,7 @@ function SecuritySection() {
           </div>
 
           {/* Incidents Log Table */}
-          <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#181126]/90 shadow-sm overflow-hidden">
+          <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#0F172A]/90 shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-100 dark:border-white/10 flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white">Reported Security Incidents</h3>
@@ -1017,7 +1051,7 @@ function ReportIncidentModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-      <div className="w-full max-w-lg rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] p-6 shadow-2xl">
+      <div className="w-full max-w-lg rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] p-6 shadow-2xl">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-white/10">
           <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <span>🛡</span> Report Security Incident
@@ -1080,7 +1114,7 @@ function ReportIncidentModal({
               type="file"
               name="evidence"
               accept=".png,.jpg,.jpeg,.pdf,.txt"
-              className="text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#7B4DFF]/10 file:text-[#7B4DFF] hover:file:bg-[#7B4DFF]/20 cursor-pointer"
+              className="text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#0039A6]/10 file:text-[#0039A6] hover:file:bg-[#0039A6]/20 cursor-pointer"
             />
           </div>
 
@@ -1113,7 +1147,7 @@ function AuditLog() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3 p-4 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#181126]/80">
+      <div className="flex items-center justify-between gap-3 p-4 rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/80 dark:bg-[#0F172A]/80">
         <label className="text-sm flex items-center gap-2">
           <span className="text-slate-600 dark:text-slate-400 font-semibold text-xs uppercase tracking-wider">
             Filter by action:
@@ -1127,7 +1161,7 @@ function AuditLog() {
         </label>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#181126] shadow-sm overflow-hidden">
+      <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[700px] text-left text-sm">
             <caption className="sr-only">Audit log entries</caption>
@@ -1251,7 +1285,7 @@ function Breakdown({ title, data }: { title: string; data: Record<string, number
   const total = entries.reduce((s, [, v]) => s + v, 0) || 1;
 
   return (
-    <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#181126]/90 p-5 shadow-sm">
+    <div className="rounded-2xl border border-slate-200/80 dark:border-white/10 bg-white/90 dark:bg-[#0F172A]/90 p-5 shadow-sm">
       <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3.5">
         {title}
       </h4>
@@ -1271,7 +1305,7 @@ function Breakdown({ title, data }: { title: string; data: Record<string, number
               </div>
               <div className="h-1.5 rounded-full bg-slate-100 dark:bg-white/10 overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-[#7B4DFF] to-[#9254DE] transition-all duration-300"
+                  className="h-full rounded-full bg-[#0039A6] transition-all duration-300"
                   style={{ width: `${(val / total) * 100}%` }}
                 />
               </div>

@@ -63,9 +63,9 @@ function getCategoryMeta(type: string): CategoryMeta {
   if (type.startsWith("requirement")) {
     return {
       label: "Directive",
-      badgeBg: "bg-[#F1EBFF] dark:bg-[#2F2154]",
-      badgeText: "text-[#7B4DFF] dark:text-[#CDBBFF]",
-      iconBg: "bg-[#7B4DFF]/15 text-[#7B4DFF] dark:bg-[#7B4DFF]/30 dark:text-[#D1C4F9]",
+      badgeBg: "bg-[#EBF2FF] dark:bg-[#0F172A]",
+      badgeText: "text-[#0039A6] dark:text-[#93C5FD]",
+      iconBg: "bg-[#0039A6]/15 text-[#0039A6] dark:bg-[#0039A6]/30 dark:text-[#93C5FD]",
       actionText: "Comply Directive",
       icon: (cls = "h-4 w-4") => (
         <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -129,11 +129,26 @@ function getCategoryMeta(type: string): CategoryMeta {
     };
   }
 
+  if (type.startsWith("ticket") || type.startsWith("concern") || type.startsWith("support")) {
+    return {
+      label: "Concern Desk",
+      badgeBg: "bg-blue-100 dark:bg-blue-950/60",
+      badgeText: "text-[#0039A6] dark:text-[#93C5FD]",
+      iconBg: "bg-[#0039A6]/15 text-[#0039A6] dark:bg-[#0039A6]/30 dark:text-[#93C5FD]",
+      actionText: "Open Conversation",
+      icon: (cls = "h-4 w-4") => (
+        <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        </svg>
+      ),
+    };
+  }
+
   return {
     label: "Notice",
     badgeBg: "bg-slate-100 dark:bg-white/10",
     badgeText: "text-slate-600 dark:text-slate-300",
-    iconBg: "bg-[#7B4DFF]/15 text-[#7B4DFF] dark:bg-[#7B4DFF]/30 dark:text-[#D1C4F9]",
+    iconBg: "bg-[#0039A6]/15 text-[#0039A6] dark:bg-[#0039A6]/30 dark:text-[#93C5FD]",
     actionText: "View Details",
     icon: (cls = "h-4 w-4") => (
       <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -162,6 +177,19 @@ function NotificationRow({
 
   const handleClick = () => {
     if (unread) onRead(notif.id);
+    if (notif.type.startsWith("ticket") || notif.action_url?.includes("ticket=")) {
+      let ticketId: number | null = null;
+      if (notif.action_url?.includes("ticket=")) {
+        const match = notif.action_url.match(/ticket=(\d+)/);
+        if (match) ticketId = parseInt(match[1], 10);
+      }
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("open-concerns-desk", { detail: { id: ticketId } })
+        );
+      }
+      return;
+    }
     if (notif.action_url) onNavigate(notif.action_url);
   };
 
@@ -199,8 +227,8 @@ function NotificationRow({
               &bull; {timeAgo(notif.created_at)}
             </span>
             {unread && (
-              <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-[#7B4DFF]/15 px-2 py-0.5 text-[10px] font-bold text-[#7B4DFF] dark:text-[#CDBBFF]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#7B4DFF] animate-pulse" />
+              <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-[#0039A6]/15 px-2 py-0.5 text-[10px] font-bold text-[#0039A6] dark:text-[#93C5FD]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#0039A6] animate-pulse" />
                 New
               </span>
             )}
@@ -228,7 +256,7 @@ function NotificationRow({
             </span>
 
             {notif.action_url && (
-              <span className="inline-flex items-center gap-1 font-semibold text-[#7B4DFF] dark:text-[#CDBBFF] group-hover:translate-x-0.5 transition-transform">
+              <span className="inline-flex items-center gap-1 font-semibold text-[#0039A6] dark:text-[#93C5FD] group-hover:translate-x-0.5 transition-transform">
                 {meta.actionText} &rarr;
               </span>
             )}
@@ -245,7 +273,7 @@ function NotificationRow({
                 e.stopPropagation();
                 onRead(notif.id);
               }}
-              className="p-1 rounded-md text-slate-400 hover:text-[#7B4DFF] hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
+              className="p-1 rounded-md text-slate-400 hover:text-[#0039A6] hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12" />
@@ -347,7 +375,7 @@ export default function NotificationBell() {
         type="button"
         aria-expanded={open}
         aria-label={`System Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ""}`}
-        className="relative group grid h-10 w-10 place-items-center rounded-full border border-slate-200 dark:border-white/15 bg-white/70 dark:bg-white/5 backdrop-blur-md text-slate-700 dark:text-slate-200 transition-all duration-300 hover:border-[#7B4DFF]/60 hover:bg-[#F3EDFE]/60 dark:hover:bg-[#7B4DFF]/15 hover:text-[#7B4DFF] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7B4DFF]"
+        className="relative group grid h-10 w-10 place-items-center rounded-full border border-slate-200 dark:border-white/15 bg-white/70 dark:bg-white/5 backdrop-blur-md text-slate-700 dark:text-slate-200 transition-all duration-300 hover:border-[#0039A6]/60 hover:bg-[#EBF2FF]/60 dark:hover:bg-[#0039A6]/15 hover:text-[#0039A6] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0039A6]"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -365,8 +393,8 @@ export default function NotificationBell() {
 
         {/* Live Unread Badge */}
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-gradient-to-r from-[#7B4DFF] to-[#6A3CF0] px-1 text-[10px] font-black tracking-tight text-white shadow-md ring-2 ring-white dark:ring-[#150F22] animate-in zoom-in-75 duration-300">
-            <span className="absolute inset-0 rounded-full bg-[#7B4DFF] opacity-40 animate-ping" />
+          <span className="absolute -top-1 -right-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#0039A6] px-1 text-[10px] font-black tracking-tight text-white shadow-md ring-2 ring-white dark:ring-[#150F22] animate-in zoom-in-75 duration-300">
+            <span className="absolute inset-0 rounded-full bg-[#0039A6] opacity-40 animate-ping" />
             <span className="relative z-10">{unreadCount > 99 ? "99+" : unreadCount}</span>
           </span>
         )}
@@ -381,10 +409,10 @@ export default function NotificationBell() {
             if (latestToast.action_url) router.push(normalizeActionUrl(latestToast.action_url));
             dismissToast();
           }}
-          className="fixed top-5 right-5 z-50 w-84 sm:w-96 rounded-2xl bg-white/95 dark:bg-[#1C142E]/95 backdrop-blur-2xl border border-[#7B4DFF]/30 p-4 shadow-2xl shadow-[#7B4DFF]/20 cursor-pointer animate-in fade-in slide-in-from-top-4 duration-300 transition-transform hover:scale-[1.02]"
+          className="fixed top-5 right-5 z-50 w-84 sm:w-96 rounded-2xl bg-white/95 dark:bg-[#0F172A]/95 backdrop-blur-2xl border border-[#0039A6]/30 p-4 shadow-2xl shadow-sm cursor-pointer animate-in fade-in slide-in-from-top-4 duration-300 transition-transform hover:scale-[1.02]"
         >
           <div className="flex items-start gap-3">
-            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#7B4DFF]/15 text-[#7B4DFF] dark:text-[#CDBBFF]">
+            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#0039A6]/15 text-[#0039A6] dark:text-[#93C5FD]">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                 <path d="M13.73 21a2 2 0 0 1-3.46 0" />
@@ -392,7 +420,7 @@ export default function NotificationBell() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#7B4DFF] dark:text-[#CDBBFF]">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#0039A6] dark:text-[#93C5FD]">
                   New Notification
                 </span>
                 <button
@@ -425,7 +453,7 @@ export default function NotificationBell() {
       {/* ── Executive Notification Center Panel ── */}
       {open && (
         <div
-          className="absolute right-0 top-full mt-3 w-[360px] sm:w-[440px] max-h-[34rem] overflow-hidden rounded-2xl border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-[#181126]/95 backdrop-blur-2xl shadow-2xl shadow-purple-950/20 dark:shadow-black/70 z-50 flex flex-col animate-in fade-in zoom-in-95 duration-200"
+          className="absolute right-0 top-full mt-3 w-[360px] sm:w-[440px] max-h-[34rem] overflow-hidden rounded-2xl border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-[#0F172A]/95 backdrop-blur-2xl shadow-2xl shadow-purple-950/20 dark:shadow-black/70 z-50 flex flex-col animate-in fade-in zoom-in-95 duration-200"
         >
           {/* Panel Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-black/10">
@@ -444,7 +472,7 @@ export default function NotificationBell() {
                 <button
                   type="button"
                   onClick={markAllRead}
-                  className="font-semibold text-[#7B4DFF] hover:text-[#5A18C9] dark:text-[#CDBBFF] dark:hover:text-white transition-colors"
+                  className="font-semibold text-[#0039A6] hover:text-[#002B7F] dark:text-[#93C5FD] dark:hover:text-white transition-colors"
                 >
                   Mark all read
                 </button>
@@ -479,7 +507,7 @@ export default function NotificationBell() {
                   type="button"
                   onClick={() => setActiveTab(tab.id as typeof activeTab)}
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${active
-                      ? "bg-[#7B4DFF] text-white shadow-xs"
+                      ? "bg-[#0039A6] text-white shadow-xs"
                       : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/10"
                     }`}
                 >
@@ -503,7 +531,7 @@ export default function NotificationBell() {
           <div className="flex-1 overflow-y-auto max-h-[22rem] divide-y divide-slate-100 dark:divide-white/5">
             {loading && notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-14 gap-3">
-                <div className="h-7 w-7 animate-spin rounded-full border-2 border-[#7B4DFF] border-t-transparent" />
+                <div className="h-7 w-7 animate-spin rounded-full border-2 border-[#0039A6] border-t-transparent" />
                 <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">Syncing telemetry feed...</span>
               </div>
             ) : filteredNotifications.length === 0 ? (
@@ -545,7 +573,7 @@ export default function NotificationBell() {
             <button
               type="button"
               onClick={() => refresh()}
-              className="text-[#7B4DFF] dark:text-[#CDBBFF] font-semibold hover:underline"
+              className="text-[#0039A6] dark:text-[#93C5FD] font-semibold hover:underline"
             >
               Refresh &orarr;
             </button>

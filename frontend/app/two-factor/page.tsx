@@ -3,7 +3,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Poppins } from "next/font/google";
-import QRCode from "qrcode";
 import BrandMark from "@/components/BrandMark";
 import { useAuth } from "@/hooks/useAuth";
 import { api, ApiError } from "@/lib/api";
@@ -12,7 +11,7 @@ import { homeFor } from "@/lib/roles";
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
 
 const focusRing =
-  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7B4DFF]";
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0039A6]";
 
 type SetupStep = "intro" | "scan" | "verify" | "recovery" | "done";
 
@@ -47,19 +46,7 @@ export default function TwoFactorPage() {
       setQrDataUrl("");
       return;
     }
-    QRCode.toDataURL(qrUri, {
-      width: 220,
-      margin: 2,
-      color: {
-        dark: "#1A102F",
-        light: "#FFFFFF",
-      },
-    })
-      .then((url) => setQrDataUrl(url))
-      .catch((err) => {
-        console.error("Failed to generate QR code canvas:", err);
-        setQrDataUrl(`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(qrUri)}`);
-      });
+    setQrDataUrl(`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(qrUri)}`);
   }, [qrUri]);
 
   // If 2FA is already enabled, show the "enabled" state
@@ -162,17 +149,12 @@ export default function TwoFactorPage() {
 
   return (
     <div className={`${poppins.className} min-h-screen w-full bg-slate-50 dark:bg-[#0E0A17] text-slate-800 dark:text-[#E9DFFF] transition-colors duration-500 ease-out flex flex-col`}>
-      <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -left-40 top-0 h-[40rem] w-[40rem] rounded-full bg-[#F3EDFE]/40 blur-3xl dark:bg-[#7B4DFF]/15" />
-        <div className="absolute right-0 bottom-0 h-[40rem] w-[40rem] rounded-full bg-[#E6FBF3]/40 blur-3xl dark:bg-[#06D6A0]/10" />
-      </div>
-
       <header className="relative z-20 w-full border-b border-slate-200 dark:border-white/10 bg-white/80 dark:bg-[#150F22]/85 backdrop-blur-2xl">
         <div className="w-full flex items-center justify-between px-4 sm:px-8 lg:px-12 py-3.5 sm:py-4">
           <div className="flex items-center gap-3">
             <button
               onClick={() => router.push(homeFor(user.role))}
-              className={`grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#F1EBFF] text-[#7B4DFF] hover:bg-[#E3D5FF] dark:bg-[#2C2344] dark:text-[#CDBBFF] ${focusRing}`}
+              className={`grid h-9 w-9 shrink-0 place-items-center rounded-full bg-slate-100 text-[#0039A6] hover:bg-slate-200 dark:bg-white/10 dark:text-white ${focusRing}`}
               aria-label="Back to dashboard"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -180,7 +162,7 @@ export default function TwoFactorPage() {
               </svg>
             </button>
             <BrandMark tone="dark" />
-            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-[#F1EBFF] dark:bg-[#2C2145] px-3 py-1 text-xs font-semibold text-[#7B4DFF] dark:text-[#CDBBFF]">
+            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-blue-50 text-[#0039A6] border border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900 px-3 py-1 text-xs font-semibold">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
               </svg>
@@ -271,7 +253,7 @@ export default function TwoFactorPage() {
           {!isEnabled && step === "intro" && (
             <>
               <div className="text-center mb-6">
-                <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-[#F1EBFF] dark:bg-[#2C2145] text-[#7B4DFF] dark:text-[#CDBBFF] mb-4">
+                <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-blue-50 dark:bg-blue-950/40 text-[#0039A6] dark:text-blue-300 mb-4">
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                     <path d="M9 12l2 2 4-4" />
@@ -288,7 +270,7 @@ export default function TwoFactorPage() {
               <div className="space-y-3 mb-6">
                 {["Download an authenticator app on your phone", "Scan the QR code we provide", "Enter the 6-digit code to verify"].map((text, i) => (
                   <div key={i} className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
-                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#F1EBFF] dark:bg-[#2C2145] text-xs font-bold text-[#7B4DFF] dark:text-[#CDBBFF]">
+                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-blue-50 dark:bg-blue-950/40 text-xs font-bold text-[#0039A6] dark:text-blue-300">
                       {i + 1}
                     </span>
                     {text}
@@ -305,7 +287,7 @@ export default function TwoFactorPage() {
               <button
                 onClick={handleEnable}
                 disabled={submitting}
-                className={`w-full rounded-xl bg-[#7B4DFF] py-3.5 px-4 text-sm font-bold text-white shadow-lg shadow-[#7B4DFF]/25 hover:bg-[#6A3CF0] active:bg-[#5A18C9] disabled:opacity-60 transition-colors flex items-center justify-center gap-2 ${focusRing}`}
+                className={`w-full rounded-xl bg-[#0039A6] py-3.5 px-4 text-sm font-bold text-white shadow-sm hover:bg-[#002B7F] disabled:opacity-60 transition-colors flex items-center justify-center gap-2 ${focusRing}`}
               >
                 {submitting ? (
                   <>
@@ -343,7 +325,7 @@ export default function TwoFactorPage() {
                     />
                   ) : (
                     <div className="flex flex-col items-center justify-center p-6 text-slate-400 gap-2">
-                      <span className="h-6 w-6 rounded-full border-2 border-[#7B4DFF] border-t-transparent animate-spin" />
+                      <span className="h-6 w-6 rounded-full border-2 border-[#0039A6] border-t-transparent animate-spin" />
                       <span className="text-xs">Generating QR code...</span>
                     </div>
                   )}
@@ -373,7 +355,7 @@ export default function TwoFactorPage() {
                   setStep("verify");
                   setTimeout(() => codeRefs.current[0]?.focus(), 100);
                 }}
-                className={`w-full rounded-xl bg-[#7B4DFF] py-3.5 px-4 text-sm font-bold text-white shadow-lg shadow-[#7B4DFF]/25 hover:bg-[#6A3CF0] transition-colors ${focusRing}`}
+                className={`w-full rounded-xl bg-[#0039A6] py-3.5 px-4 text-sm font-bold text-white shadow-sm hover:bg-[#002B7F] transition-colors ${focusRing}`}
               >
                 I&apos;ve Scanned the Code &rarr;
               </button>
@@ -401,7 +383,7 @@ export default function TwoFactorPage() {
                     value={digit}
                     onChange={(e) => handleCodeInput(i, e.target.value)}
                     onKeyDown={(e) => handleCodeKeyDown(i, e.key)}
-                    className={`w-12 h-14 text-center text-xl font-bold rounded-xl bg-slate-50 dark:bg-[#201833] text-slate-900 dark:text-white outline-none ring-1 ring-slate-200 dark:ring-white/10 transition focus:ring-2 focus:ring-[#7B4DFF] ${focusRing}`}
+                    className={`w-12 h-14 text-center text-xl font-bold rounded-xl bg-slate-50 dark:bg-[#201833] text-slate-900 dark:text-white outline-none ring-1 ring-slate-200 dark:ring-white/10 transition focus:ring-2 focus:ring-[#0039A6] ${focusRing}`}
                     aria-label={`Digit ${i + 1}`}
                     disabled={submitting}
                   />
@@ -473,7 +455,7 @@ export default function TwoFactorPage() {
                   setStep("done");
                   setTimeout(() => router.push(homeFor(user.role)), 2000);
                 }}
-                className={`w-full rounded-xl bg-[#7B4DFF] py-3.5 px-4 text-sm font-bold text-white shadow-lg shadow-[#7B4DFF]/25 hover:bg-[#6A3CF0] transition-colors ${focusRing}`}
+                className={`w-full rounded-xl bg-[#0039A6] py-3.5 px-4 text-sm font-bold text-white shadow-sm hover:bg-[#002B7F] transition-colors ${focusRing}`}
               >
                 I&apos;ve Saved My Codes &rarr; Finish Setup
               </button>

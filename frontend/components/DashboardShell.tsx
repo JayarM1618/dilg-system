@@ -5,7 +5,9 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import BrandMark from "@/components/BrandMark";
 import NotificationBell from "@/components/NotificationBell";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import UserProfileModal from "@/components/UserProfileModal";
+import SystemAssistantLauncher from "@/components/support/SystemAssistantLauncher";
 import { useAuth } from "@/hooks/useAuth";
 import { ROLE_INFO, homeFor } from "@/lib/roles";
 import type { Role } from "@/types";
@@ -159,7 +161,7 @@ function getBreadcrumbLabel(pathname: string): string {
 }
 
 const focusRing =
-  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7B4DFF]";
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0039A6]";
 
 export default function DashboardShell({ allow, children }: { allow: Role[]; children: ReactNode }) {
   const { user, loading, logout, verification, security } = useAuth();
@@ -201,10 +203,10 @@ export default function DashboardShell({ allow, children }: { allow: Role[]; chi
   const show2FAPrompt = !user.two_factor_enabled && user.role !== "super_admin";
 
   return (
-    <div className="min-h-screen text-slate-800 dark:text-[#E9DFFF] transition-colors duration-500 ease-out p-3 sm:p-6 lg:p-8">
+    <div className="min-h-screen text-slate-800 dark:text-[#DBEAFE] transition-colors duration-500 ease-out p-3 sm:p-6 lg:p-8">
       <div className="relative mx-auto flex min-h-[calc(100vh-1.5rem)] w-full flex-col overflow-hidden bg-white/40 dark:bg-[#1B142F]/40 backdrop-blur-3xl shadow-[0_30px_80px_-30px_rgba(91,60,200,0.35)] dark:shadow-[0_30px_80px_-30px_rgba(0,0,0,0.8)] border border-white/40 dark:border-white/10 rounded-2xl sm:rounded-[2rem] sm:min-h-[calc(100vh-3rem)] lg:min-h-[calc(100vh-4rem)] transition-colors duration-500 ease-out">
 
-        <header className="border-b border-[#EDE7FA] dark:border-[#2B2542]">
+        <header className="border-b border-[#CBD5E1] dark:border-[#1E293B]">
           <div className="mx-auto flex w-full items-center justify-between gap-3 px-4 py-3 sm:px-8 sm:py-4">
             <BrandMark tone="dark" href={info.home} />
             <div className="flex items-center gap-2.5 sm:gap-4">
@@ -214,7 +216,7 @@ export default function DashboardShell({ allow, children }: { allow: Role[]; chi
                 onClick={() => setShowProfile(true)}
                 title="View Official Profile & Records"
                 aria-label="View Official Profile"
-                className={`group flex items-center gap-2.5 rounded-full p-1 sm:pr-3.5 border border-[#EDE7FA] dark:border-[#2B2542] hover:border-[#7B4DFF]/50 dark:hover:border-[#7B4DFF]/60 hover:bg-white/60 dark:hover:bg-[#2B2542]/60 transition-all duration-200 text-left ${focusRing}`}
+                className={`group flex items-center gap-2.5 rounded-full p-1 sm:pr-3.5 border border-[#CBD5E1] dark:border-[#1E293B] hover:border-[#0039A6]/50 dark:hover:border-[#0039A6]/60 hover:bg-white/60 dark:hover:bg-[#1E293B]/60 transition-all duration-200 text-left ${focusRing}`}
               >
                 <div className="relative shrink-0">
                   {user.profile_photo_url ? (
@@ -222,10 +224,10 @@ export default function DashboardShell({ allow, children }: { allow: Role[]; chi
                     <img
                       src={user.profile_photo_url}
                       alt={user.name}
-                      className="h-8 w-8 sm:h-9 sm:w-9 rounded-full object-cover border-2 border-[#7B4DFF]/30 group-hover:border-[#7B4DFF] shadow-sm transition-colors"
+                      className="h-8 w-8 sm:h-9 sm:w-9 rounded-full object-cover border-2 border-[#0039A6]/30 group-hover:border-[#0039A6] shadow-sm transition-colors"
                     />
                   ) : (
-                    <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-gradient-to-tr from-[#5A18C9] to-[#8C52FF] text-xs font-bold text-white shadow-sm border-2 border-[#7B4DFF]/30 group-hover:border-[#7B4DFF] transition-colors">
+                    <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-[#0039A6] text-xs font-bold text-white shadow-sm border-2 border-blue-200 dark:border-blue-900 group-hover:border-[#0039A6] transition-colors">
                       {user.name.slice(0, 2).toUpperCase()}
                     </div>
                   )}
@@ -233,7 +235,7 @@ export default function DashboardShell({ allow, children }: { allow: Role[]; chi
                 </div>
                 <div className="hidden text-left sm:block">
                   <div className="flex items-center gap-1.5">
-                    <p className="font-semibold text-xs leading-tight text-slate-800 dark:text-slate-100 group-hover:text-[#7B4DFF] dark:group-hover:text-[#CDBBFF] transition-colors truncate max-w-[140px]">
+                    <p className="font-semibold text-xs leading-tight text-slate-800 dark:text-slate-100 group-hover:text-[#0039A6] dark:group-hover:text-[#93C5FD] transition-colors truncate max-w-[140px]">
                       {user.name}
                     </p>
                     {user.two_factor_enabled && (
@@ -250,10 +252,11 @@ export default function DashboardShell({ allow, children }: { allow: Role[]; chi
                 </div>
               </button>
 
+              <ThemeToggle />
               <NotificationBell />
               <button
                 onClick={() => void logout()}
-                className={`rounded-full border border-[#EDE7FA] dark:border-[#2B2542] px-3.5 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-semibold text-[#5A18C9] dark:text-[#CDBBFF] transition-colors duration-500 ease-out hover:bg-white/50 dark:hover:bg-[#2B2542]/50 ${focusRing}`}
+                className={`rounded-full border border-[#CBD5E1] dark:border-[#1E293B] px-3.5 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm font-semibold text-[#002B7F] dark:text-[#93C5FD] transition-colors duration-500 ease-out hover:bg-white/50 dark:hover:bg-[#1E293B]/50 ${focusRing}`}
               >
                 Sign out
               </button>
@@ -300,9 +303,9 @@ export default function DashboardShell({ allow, children }: { allow: Role[]; chi
 
         {/* ── 2FA Setup Prompt (non-blocking) ── */}
         {show2FAPrompt && !isPendingVerification && !isRejected && (
-          <div className="border-b border-[#D7CEF2] dark:border-[#2B2542] bg-[#F3EDFE] dark:bg-[#1E1636] px-4 py-2.5 sm:px-8">
+          <div className="border-b border-[#CBD5E1] dark:border-[#1E293B] bg-[#EBF2FF] dark:bg-[#0F172A] px-4 py-2.5 sm:px-8">
             <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2 text-xs text-[#5A18C9] dark:text-[#CDBBFF]">
+              <div className="flex items-center gap-2 text-xs text-[#002B7F] dark:text-[#93C5FD]">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
@@ -310,7 +313,7 @@ export default function DashboardShell({ allow, children }: { allow: Role[]; chi
               </div>
               <Link
                 href="/two-factor"
-                className={`shrink-0 rounded-full bg-[#7B4DFF] px-3.5 py-1.5 text-xs font-bold text-white hover:bg-[#6A3CF0] transition ${focusRing}`}
+                className={`shrink-0 rounded-full bg-[#0039A6] px-3.5 py-1.5 text-xs font-bold text-white hover:bg-[#002B7F] transition ${focusRing}`}
               >
                 Set Up 2FA
               </Link>
@@ -321,22 +324,42 @@ export default function DashboardShell({ allow, children }: { allow: Role[]; chi
         {info.nav.length > 0 && !isPendingVerification && !isRejected && (
           <nav
             aria-label="Dashboard"
-            className="border-b border-[#EDE7FA] dark:border-[#2B2542] bg-white/40 dark:bg-black/20 px-4 sm:px-8 py-2.5 overflow-x-auto scrollbar-none"
+            className="border-b border-[#CBD5E1] dark:border-[#1E293B] bg-white/40 dark:bg-black/20 px-4 sm:px-8 py-2.5 overflow-x-auto scrollbar-none"
           >
             <div className="mx-auto flex w-full min-w-max items-center gap-2">
               {info.nav.map((item) => {
+                const hasCommunityTab = info.nav.some(
+                  (n) =>
+                    n.href === "/borms/community" ||
+                    n.href === "/user/community" ||
+                    n.label.toLowerCase().includes("announcement")
+                );
+                const isCommunityPath =
+                  pathname.startsWith("/borms/community") ||
+                  pathname.startsWith("/user/community");
+                const isCommunityItem =
+                  item.href === "/borms/community" ||
+                  item.href === "/user/community" ||
+                  item.label.toLowerCase().includes("announcement");
+
                 const isSystemAdminItem = item.href === "/talaghayan/settings";
                 const isSystemAdminPath =
                   pathname.startsWith("/talaghayan/settings") ||
                   pathname.startsWith("/talaghayan/security") ||
                   pathname.startsWith("/talaghayan/archive") ||
                   pathname.startsWith("/talaghayan/system");
-                const active =
-                  isSystemAdminItem && isSystemAdminPath
-                    ? true
-                    : item.href === info.home
-                    ? pathname === item.href
-                    : pathname.startsWith(item.href);
+
+                let active = false;
+                if (hasCommunityTab && isCommunityPath) {
+                  active = isCommunityItem;
+                } else if (isSystemAdminPath) {
+                  active = isSystemAdminItem;
+                } else if (item.href === info.home) {
+                  active = pathname === item.href;
+                } else {
+                  active = pathname.startsWith(item.href);
+                }
+
                 const icon = getNavIcon(item.label);
                 return (
                   <Link
@@ -345,7 +368,7 @@ export default function DashboardShell({ allow, children }: { allow: Role[]; chi
                     aria-current={active ? "page" : undefined}
                     className={`group flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 ${focusRing} ${
                       active
-                        ? "bg-[#7B4DFF] text-white shadow-md shadow-[#7B4DFF]/30 dark:shadow-[#7B4DFF]/20"
+                        ? "bg-[#0039A6] text-white shadow-sm"
                         : "text-slate-600 dark:text-[#C9BCEB] hover:bg-slate-200/60 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white"
                     }`}
                   >
@@ -407,39 +430,11 @@ export default function DashboardShell({ allow, children }: { allow: Role[]; chi
           ) : (
             <>
               {pathname !== info.home && (
-                <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-[#EDE7FA]/70 dark:border-white/10 pb-4">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (typeof window !== "undefined" && window.history.length > 1) {
-                        router.back();
-                      } else {
-                        router.push(info.home);
-                      }
-                    }}
-                    className={`group inline-flex items-center gap-2 rounded-full border border-slate-200/90 dark:border-white/15 bg-white/70 dark:bg-white/5 px-4 py-1.5 text-xs sm:text-sm font-semibold text-slate-700 dark:text-[#E0D5FC] shadow-sm backdrop-blur-md transition-all hover:border-[#7B4DFF]/60 hover:bg-[#F3EDFE] dark:hover:bg-[#7B4DFF]/20 hover:text-[#5A18C9] dark:hover:text-white active:scale-95 ${focusRing}`}
-                    aria-label="Back to previous page"
-                  >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="transition-transform group-hover:-translate-x-1"
-                    >
-                      <path d="M19 12H5M12 19l-7-7 7-7" />
-                    </svg>
-                    <span>Back</span>
-                  </button>
-
+                <div className="mb-6 flex items-center justify-between gap-3 border-b border-[#CBD5E1]/70 dark:border-white/10 pb-4">
                   <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-medium text-slate-400 dark:text-[#7C6FA3]">
                     <Link
                       href={info.home}
-                      className="hover:text-[#5A18C9] dark:hover:text-[#CDBBFF] hover:underline transition-colors"
+                      className="hover:text-[#002B7F] dark:hover:text-[#93C5FD] hover:underline transition-colors"
                     >
                       {user.role === "super_admin"
                         ? "Talaghayan Hub"
@@ -461,6 +456,7 @@ export default function DashboardShell({ allow, children }: { allow: Role[]; chi
       </div>
 
       <UserProfileModal isOpen={showProfile} onClose={() => setShowProfile(false)} />
+      <SystemAssistantLauncher />
     </div>
   );
 }

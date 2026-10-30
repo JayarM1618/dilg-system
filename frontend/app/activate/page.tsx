@@ -12,13 +12,13 @@ import { apiSend } from "@/lib/http";
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
 
 const focusRing =
-  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7B4DFF]";
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0039A6]";
 
 const field =
-  "w-full rounded-xl bg-slate-50 dark:bg-[#201833] py-3 pl-10 pr-4 text-sm text-slate-900 dark:text-white outline-none ring-1 ring-slate-200 dark:ring-white/10 transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-[#7B4DFF]";
+  "w-full rounded-xl bg-slate-50 dark:bg-[#0F172A] py-3 pl-10 pr-4 text-sm text-slate-900 dark:text-white outline-none ring-1 ring-slate-200 dark:ring-white/10 transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-[#0039A6]";
 
 const fieldNoIcon =
-  "w-full rounded-xl bg-slate-50 dark:bg-[#201833] py-3 px-4 text-sm text-slate-900 dark:text-white outline-none ring-1 ring-slate-200 dark:ring-white/10 transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-[#7B4DFF]";
+  "w-full rounded-xl bg-slate-50 dark:bg-[#0F172A] py-3 px-4 text-sm text-slate-900 dark:text-white outline-none ring-1 ring-slate-200 dark:ring-white/10 transition placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-[#0039A6]";
 
 /* ─── Step indicator labels ─── */
 const STEPS = [
@@ -83,7 +83,7 @@ function ActivateFlow() {
       {/* Atmospheric Glows */}
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -left-40 top-0 h-[40rem] w-[40rem] rounded-full bg-[#E6FBF3]/40 blur-3xl dark:bg-[#06D6A0]/10" />
-        <div className="absolute right-0 top-40 h-[40rem] w-[40rem] rounded-full bg-[#F3EDFE]/40 blur-3xl dark:bg-[#7B4DFF]/15" />
+        <div className="absolute right-0 top-40 h-[40rem] w-[40rem] rounded-full bg-blue-50/20 blur-3xl dark:bg-[#0039A6]/15" />
         <div className="absolute bottom-0 left-1/3 h-[36rem] w-[36rem] rounded-full bg-[#FFF8E6]/40 blur-3xl dark:bg-[#F5A800]/10" />
       </div>
 
@@ -91,7 +91,7 @@ function ActivateFlow() {
       <header className="relative z-20 w-full border-b border-slate-200 dark:border-white/10 bg-white/80 dark:bg-[#150F22]/85 backdrop-blur-2xl">
         <div className="w-full flex items-center justify-between px-4 sm:px-8 lg:px-12 py-3.5 sm:py-4">
           <div className="flex items-center gap-3">
-            <Link href="/" className={`grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#F1EBFF] text-[#7B4DFF] hover:bg-[#E3D5FF] dark:bg-[#2C2344] dark:text-[#CDBBFF] ${focusRing}`} aria-label="Go back to home">
+            <Link href="/" className={`grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#EBF2FF] text-[#0039A6] hover:bg-[#DBEAFE] dark:bg-[#1E293B] dark:text-[#93C5FD] ${focusRing}`} aria-label="Go back to home">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
             </Link>
             <BrandMark tone="dark" />
@@ -100,7 +100,7 @@ function ActivateFlow() {
               Account Activation
             </span>
           </div>
-          <Link href="/login" className={`rounded-full bg-white dark:bg-white/10 px-4 py-2 text-xs sm:text-sm font-semibold text-[#5A18C9] dark:text-[#CDBBFF] ring-1 ring-[#D7CEF2] dark:ring-white/15 hover:bg-slate-50 dark:hover:bg-white/15 ${focusRing}`}>
+          <Link href="/login" className={`rounded-full bg-white dark:bg-white/10 px-4 py-2 text-xs sm:text-sm font-semibold text-[#002B7F] dark:text-[#93C5FD] ring-1 ring-[#CBD5E1] dark:ring-white/15 hover:bg-slate-50 dark:hover:bg-white/15 ${focusRing}`}>
             Sign In &rarr;
           </Link>
         </div>
@@ -113,7 +113,7 @@ function ActivateFlow() {
           {/* Loading */}
           {state === "loading" && (
             <div className="py-20 text-center">
-              <div className="inline-block h-8 w-8 animate-spin rounded-full border-3 border-solid border-[#7B4DFF] border-r-transparent" />
+              <div className="inline-block h-8 w-8 animate-spin rounded-full border-3 border-solid border-[#0039A6] border-r-transparent" />
               <p className="mt-4 text-sm font-medium text-slate-600 dark:text-slate-300">Validating activation link...</p>
             </div>
           )}
@@ -147,7 +147,7 @@ function ActivateFlow() {
                   You can sign in right away, but your access will be limited until an administrator reviews and verifies your account. You will receive a notification once verified.
                 </p>
               </div>
-              <Link href="/login" className={`mt-6 inline-flex w-full items-center justify-center rounded-full bg-[#7B4DFF] py-3.5 text-sm font-semibold text-white shadow-md shadow-[#7B4DFF]/25 hover:bg-[#6A3CF0] ${focusRing}`}>
+              <Link href="/login" className={`mt-6 inline-flex w-full items-center justify-center rounded-full bg-[#0039A6] py-3.5 text-sm font-semibold text-white shadow-md shadow-sm hover:bg-[#002B7F] ${focusRing}`}>
                 Sign In &rarr;
               </Link>
             </div>
@@ -161,9 +161,9 @@ function ActivateFlow() {
                 <div className="flex items-center justify-between mb-3">
                   {STEPS.map((s, i) => (
                     <div key={s.key} className="flex items-center flex-1 last:flex-none">
-                      <div className={`flex items-center gap-2 ${i <= step ? "text-[#7B4DFF] dark:text-[#CDBBFF]" : "text-slate-400 dark:text-slate-500"}`}>
+                      <div className={`flex items-center gap-2 ${i <= step ? "text-[#0039A6] dark:text-[#93C5FD]" : "text-slate-400 dark:text-slate-500"}`}>
                         <div className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-bold transition-colors ${
-                          i < step ? "bg-[#06D6A0] text-white" : i === step ? "bg-[#7B4DFF] text-white" : "bg-slate-200 dark:bg-white/10 text-slate-500 dark:text-slate-400"
+                          i < step ? "bg-[#06D6A0] text-white" : i === step ? "bg-[#0039A6] text-white" : "bg-slate-200 dark:bg-white/10 text-slate-500 dark:text-slate-400"
                         }`}>
                           {i < step ? (
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
@@ -183,12 +183,12 @@ function ActivateFlow() {
 
               {/* Account Info Banner */}
               <div className="mb-6 rounded-2xl bg-purple-50 dark:bg-white/5 border border-purple-100 dark:border-white/10 p-4 flex items-center gap-4">
-                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#F1EBFF] dark:bg-[#2C2145]">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7B4DFF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#EBF2FF] dark:bg-[#1E293B]">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0039A6" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-bold text-slate-900 dark:text-white">{invite.name}</p>
-                  <p className="text-xs text-[#7B4DFF] dark:text-[#CDBBFF]">{invite.email}</p>
+                  <p className="text-xs text-[#0039A6] dark:text-[#93C5FD]">{invite.email}</p>
                   <p className="text-xs text-slate-500 dark:text-slate-400">{invite.barangay ? `Barangay ${invite.barangay}` : "DILG Makati Operations Office"}</p>
                 </div>
               </div>
@@ -242,7 +242,7 @@ function StepTerms({ token, onDone }: { token: string; onDone: () => void }) {
       <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-1">Terms & Conditions</h2>
       <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">Please read and accept the terms before proceeding.</p>
 
-      <div className="rounded-2xl bg-slate-50 dark:bg-[#201833] border border-slate-200 dark:border-white/10 p-5 max-h-64 overflow-y-auto text-xs text-slate-700 dark:text-slate-300 leading-relaxed space-y-3">
+      <div className="rounded-2xl bg-slate-50 dark:bg-[#0F172A] border border-slate-200 dark:border-white/10 p-5 max-h-64 overflow-y-auto text-xs text-slate-700 dark:text-slate-300 leading-relaxed space-y-3">
         <p className="font-bold text-sm text-slate-900 dark:text-white">DILG Makati Talaghayan Portal — Terms of Use</p>
 
         <p><strong>1. Authorized Use.</strong> This system is provided exclusively for official use by authorized personnel of the Department of the Interior and Local Government (DILG) Makati City Field Office and designated Barangay Representatives. Access credentials are non-transferable.</p>
@@ -267,7 +267,7 @@ function StepTerms({ token, onDone }: { token: string; onDone: () => void }) {
           type="checkbox"
           checked={accepted}
           onChange={(e) => setAccepted(e.target.checked)}
-          className="mt-0.5 h-5 w-5 rounded border-slate-300 text-[#7B4DFF] focus:ring-[#7B4DFF] dark:border-white/20 dark:bg-black/30"
+          className="mt-0.5 h-5 w-5 rounded border-slate-300 text-[#0039A6] focus:ring-[#0039A6] dark:border-white/20 dark:bg-black/30"
         />
         <span className="text-sm text-slate-700 dark:text-slate-300">
           I have read and agree to the <strong>Terms & Conditions</strong> and the <strong>Data Privacy Policy</strong> of the DILG Makati Talaghayan Portal.
@@ -282,7 +282,7 @@ function StepTerms({ token, onDone }: { token: string; onDone: () => void }) {
         type="button"
         disabled={!accepted || saving}
         onClick={submit}
-        className={`mt-6 w-full rounded-full bg-[#7B4DFF] py-3.5 text-sm font-semibold text-white shadow-md shadow-[#7B4DFF]/25 hover:bg-[#6A3CF0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${focusRing}`}
+        className={`mt-6 w-full rounded-full bg-[#0039A6] py-3.5 text-sm font-semibold text-white shadow-md shadow-sm hover:bg-[#002B7F] transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${focusRing}`}
       >
         {saving ? "Saving..." : "Accept & Continue"}
       </button>
@@ -391,7 +391,7 @@ function StepProfile({ token, invite, onDone }: { token: string; invite: Invite;
         </div>
 
         <div className="flex items-center gap-2">
-          <input id="show-pw" type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-[#7B4DFF] focus:ring-[#7B4DFF] dark:border-white/20 dark:bg-black/30" />
+          <input id="show-pw" type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-[#0039A6] focus:ring-[#0039A6] dark:border-white/20 dark:bg-black/30" />
           <label htmlFor="show-pw" className="text-xs text-slate-600 dark:text-slate-300 cursor-pointer select-none">Show passwords</label>
         </div>
 
@@ -399,7 +399,7 @@ function StepProfile({ token, invite, onDone }: { token: string; invite: Invite;
           <div className="rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 p-3 text-xs font-medium text-rose-700 dark:text-rose-300">{error}</div>
         )}
 
-        <button type="submit" disabled={saving} className={`w-full rounded-full bg-[#7B4DFF] py-3.5 text-sm font-semibold text-white shadow-md shadow-[#7B4DFF]/25 hover:bg-[#6A3CF0] transition-colors disabled:opacity-60 ${focusRing}`}>
+        <button type="submit" disabled={saving} className={`w-full rounded-full bg-[#0039A6] py-3.5 text-sm font-semibold text-white shadow-md shadow-sm hover:bg-[#002B7F] transition-colors disabled:opacity-60 ${focusRing}`}>
           {saving ? "Saving..." : "Save Profile & Continue"}
         </button>
       </form>
@@ -586,10 +586,10 @@ function StepPhoto({ token, onDone }: { token: string; onDone: () => void }) {
               {/* Circular Camera Viewport — ONLY inside the circle is visible */}
               <div className="relative mx-auto w-64 h-64 sm:w-80 sm:h-80 md:w-88 md:h-88">
                 {/* Outer animated pulse halo */}
-                <div className="absolute -inset-2.5 rounded-full border-2 border-[#7B4DFF]/30 dark:border-[#7B4DFF]/40 animate-pulse pointer-events-none" />
+                <div className="absolute -inset-2.5 rounded-full border-2 border-[#0039A6]/30 dark:border-[#0039A6]/40 animate-pulse pointer-events-none" />
 
                 {/* Viewfinder: circular clip */}
-                <div className="relative w-full h-full rounded-full overflow-hidden border-4 border-[#7B4DFF] shadow-[0_0_50px_rgba(123,77,255,0.35)] bg-slate-950">
+                <div className="relative w-full h-full rounded-full overflow-hidden border-4 border-[#0039A6] shadow-[0_0_50px_rgba(0,57,166,0.25)] bg-slate-950">
                   <video
                     ref={videoRef}
                     autoPlay
@@ -621,7 +621,7 @@ function StepPhoto({ token, onDone }: { token: string; onDone: () => void }) {
               <button
                 type="button"
                 onClick={capturePhoto}
-                className={`w-full rounded-full bg-[#7B4DFF] py-3.5 text-sm font-semibold text-white shadow-md shadow-[#7B4DFF]/25 hover:bg-[#6A3CF0] transition-colors flex items-center justify-center gap-2 ${focusRing}`}
+                className={`w-full rounded-full bg-[#0039A6] py-3.5 text-sm font-semibold text-white shadow-md shadow-sm hover:bg-[#002B7F] transition-colors flex items-center justify-center gap-2 ${focusRing}`}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
@@ -668,7 +668,7 @@ function StepPhoto({ token, onDone }: { token: string; onDone: () => void }) {
               type="button"
               disabled={saving}
               onClick={submit}
-              className={`flex-1 rounded-full bg-[#7B4DFF] py-3.5 text-sm font-semibold text-white shadow-md shadow-[#7B4DFF]/25 hover:bg-[#6A3CF0] disabled:opacity-60 transition-colors flex items-center justify-center gap-2 ${focusRing}`}
+              className={`flex-1 rounded-full bg-[#0039A6] py-3.5 text-sm font-semibold text-white shadow-md shadow-sm hover:bg-[#002B7F] disabled:opacity-60 transition-colors flex items-center justify-center gap-2 ${focusRing}`}
             >
               {saving ? (
                 <>
@@ -719,7 +719,7 @@ function StepComplete({ token, onDone }: { token: string; onDone: () => void }) 
 
   return (
     <div className="rounded-3xl bg-white dark:bg-[#171126] border border-slate-200 dark:border-white/10 p-6 sm:p-8 shadow-2xl text-center">
-      <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-[#F1EBFF] text-[#7B4DFF] dark:bg-[#2C2145] dark:text-[#CDBBFF]">
+      <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-[#EBF2FF] text-[#0039A6] dark:bg-[#1E293B] dark:text-[#93C5FD]">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
       </div>
       <h2 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">All Steps Completed!</h2>

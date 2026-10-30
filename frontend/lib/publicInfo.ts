@@ -43,7 +43,7 @@ export const CATEGORIES: { value: string; label: string; bg: string; fg: string 
   { value: "health", label: "Health", bg: "#FFD6EA", fg: "#A0124F" },
   { value: "livelihood", label: "Livelihood", bg: "#FFF0A3", fg: "#7A5B00" },
   { value: "education", label: "Education", bg: "#C5F0FF", fg: "#0B6180" },
-  { value: "peace_and_order", label: "Peace & order", bg: "#E3D5FF", fg: "#5A18C9" },
+  { value: "peace_and_order", label: "Peace & order", bg: "#DBEAFE", fg: "#002B7F" },
   { value: "environment", label: "Environment", bg: "#BDF3DE", fg: "#0B6B52" },
   { value: "sports_youth", label: "Sports & youth", bg: "#FFE0C2", fg: "#8A4300" },
   { value: "social_services", label: "Social services", bg: "#DCE4FF", fg: "#2A3FA0" },

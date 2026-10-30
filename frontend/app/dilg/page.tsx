@@ -24,10 +24,10 @@ const SECTIONS = [
 
 
 const STEPS = [
-  { title: "Office opens a period", body: "Each barangay gets the report, its period and a due date.", color: "#7B4DFF" },
-  { title: "Barangay files it", body: "The representative uploads the finished report before the deadline.", color: "#06D6A0" },
-  { title: "Office reviews", body: "Staff mark it compliant, or send it back with remarks.", color: "#F5B800" },
-  { title: "Talaghayan updates", body: "The tally changes instantly. No spreadsheet re-encoding.", color: "#F21DB4" },
+  { title: "Office opens a period", body: "Each barangay gets the report, its period and a due date.", color: "#0039A6" },
+  { title: "Barangay files it", body: "The representative uploads the finished report before the deadline.", color: "#059669" },
+  { title: "Office reviews", body: "Staff mark it compliant, or send it back with remarks.", color: "#D97706" },
+  { title: "Talaghayan updates", body: "The tally changes instantly. No spreadsheet re-encoding.", color: "#2563EB" },
 ];
 
 const STATUSES: { status: SubmissionStatus; meaning: string }[] = [
@@ -48,7 +48,7 @@ const FAQ = [
 
 const card = "min-w-0 rounded-3xl p-6";
 const focusRing =
-  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7B4DFF]";
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0039A6]";
 
 /* ------------------------------------------------------------------ */
 /* Page                                                                */
@@ -79,25 +79,18 @@ export default function DilgSignInPage() {
 
   return (
     <div className={`${poppins.className} min-h-screen w-full bg-slate-50 dark:bg-[#0E0A17] text-slate-800 dark:text-[#E9DFFF] transition-colors duration-500 ease-out flex flex-col`}>
-      {/* Static atmospheric glows */}
-      <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -left-40 top-0 h-[40rem] w-[40rem] rounded-full bg-[#E6FBF3]/40 blur-3xl dark:bg-[#06D6A0]/10" />
-        <div className="absolute right-0 top-40 h-[40rem] w-[40rem] rounded-full bg-[#F3EDFE]/40 blur-3xl dark:bg-[#7B4DFF]/15" />
-        <div className="absolute bottom-0 left-1/3 h-[36rem] w-[36rem] rounded-full bg-[#FFF8E6]/40 blur-3xl dark:bg-[#F5A800]/10" />
-      </div>
-
       {/* Full-width System Navigation Header */}
       <header className="relative z-20 w-full border-b border-slate-200 dark:border-white/10 bg-white/80 dark:bg-[#150F22]/85 backdrop-blur-2xl">
         <div className="w-full flex items-center justify-between px-4 sm:px-8 lg:px-12 py-3.5 sm:py-4">
           <div className="flex items-center gap-2 sm:gap-3">
-            <Link href="/" className={`grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#F1EBFF] text-[#7B4DFF] hover:bg-[#E3D5FF] dark:bg-[#2C2344] dark:text-[#CDBBFF] ${focusRing}`} aria-label="Go back to home">
+            <Link href="/" className={`grid h-9 w-9 shrink-0 place-items-center rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-200 ${focusRing}`} aria-label="Go back to home">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M19 12H5M12 19l-7-7 7-7"/>
               </svg>
             </Link>
             <BrandMark tone="dark" />
             <span className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-slate-100 dark:bg-white/10 px-3 py-1 text-xs font-semibold text-slate-700 dark:text-slate-300">
-              <span className="h-2 w-2 rounded-full bg-[#06D6A0] animate-pulse" />
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
               DILG Central Command &bull; Real-Time
             </span>
           </div>
@@ -106,12 +99,12 @@ export default function DilgSignInPage() {
             {user && <NotificationBell />}
             <Link
               href={cta.href}
-              className={`rounded-full bg-[#7B4DFF] px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-[#6A3CF0] transition-colors ${focusRing} ${loading ? "invisible" : ""}`}
+              className={`rounded-full bg-[#0039A6] px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-[#002B7F] transition-colors ${focusRing} ${loading ? "invisible" : ""}`}
             >
               {cta.label}
             </Link>
             <span
-              className="grid h-9 w-9 sm:h-10 sm:w-10 place-items-center rounded-full bg-[#E3D5FF] text-sm font-semibold text-[#5A18C9] dark:bg-[#352D52] dark:text-[#CDBBFF]"
+              className="grid h-9 w-9 sm:h-10 sm:w-10 place-items-center rounded-full bg-blue-50 text-sm font-semibold text-[#0039A6] dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800/30"
               aria-hidden="true"
             >
               {user ? user.name.trim().charAt(0).toUpperCase() : <ShieldIcon />}
@@ -124,35 +117,35 @@ export default function DilgSignInPage() {
       <main className="relative z-10 w-full flex-1 px-4 sm:px-8 lg:px-12 py-6 sm:py-8 space-y-6 sm:space-y-8">
         {/* Full-width Landscape Hero Banner */}
         <section
-          className={`${card} relative overflow-hidden bg-gradient-to-br from-[#E6FBF3]/90 via-[#F3EDFE]/80 to-[#E8FAFF]/90 dark:from-[#132A24]/90 dark:via-[#1F1833]/80 dark:to-[#122A30]/90 backdrop-blur-2xl border border-white/60 dark:border-white/10 shadow-lg p-6 sm:p-10`}
+          className={`${card} relative overflow-hidden bg-white dark:bg-[#181126] border border-slate-200 dark:border-white/10 shadow-sm p-6 sm:p-10`}
           aria-labelledby="hero-title"
         >
           <div className="relative grid gap-8 lg:grid-cols-12 lg:items-center">
             {/* Left: Info & actions */}
             <div className="lg:col-span-7 flex flex-col justify-center">
-              <div className="inline-flex items-center gap-2 self-start rounded-full bg-white/80 dark:bg-black/30 px-3.5 py-1 text-xs font-semibold text-[#0E5440] dark:text-[#84DEBD] ring-1 ring-[#06D6A0]/30 shadow-sm backdrop-blur-md">
-                <span className="h-2 w-2 rounded-full bg-[#06D6A0] animate-pulse" />
+              <div className="inline-flex items-center gap-2 self-start rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/40 px-3.5 py-1 text-xs font-semibold text-emerald-800 dark:text-emerald-300 shadow-sm">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                 DILG Field Office &bull; Makati City
               </div>
 
-              <h1 id="hero-title" className="mt-4 text-balance text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-[#0E2B24] dark:text-[#E8F8F3] leading-tight">
+              <h1 id="hero-title" className="mt-4 text-balance text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
                 Barangay Compliance &amp; Oversight Console
               </h1>
 
-              <p className="mt-4 max-w-2xl text-sm sm:text-base leading-relaxed text-[#2C5A4D] dark:text-[#A8E2CF]">
+              <p className="mt-4 max-w-2xl text-sm sm:text-base leading-relaxed text-slate-600 dark:text-slate-300">
                 Every barangay submission audited in one unified system. Review uploaded reports, append administrative remarks, verify compliance benchmarks, and track citywide governance performance without manual spreadsheets.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <Link
                   href={cta.href}
-                  className={`inline-flex items-center gap-2 rounded-full bg-[#7B4DFF] px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-[#6A3CF0] transition-colors ${focusRing}`}
+                  className={`inline-flex items-center gap-2 rounded-full bg-[#0039A6] px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#002B7F] transition-colors ${focusRing}`}
                 >
                   {cta.label} &rarr;
                 </Link>
                 <a
                   href="#journey"
-                  className={`inline-flex items-center gap-2 rounded-full border border-slate-300 dark:border-white/20 bg-white/80 dark:bg-white/10 px-5 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/20 transition-colors ${focusRing}`}
+                  className={`inline-flex items-center gap-2 rounded-full border border-slate-300 dark:border-white/20 bg-white dark:bg-white/10 px-5 py-3 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/20 transition-colors ${focusRing}`}
                 >
                   Workflow Guide
                 </a>
@@ -161,27 +154,27 @@ export default function DilgSignInPage() {
 
             {/* Right: Telemetry KPI Cards */}
             <div className="lg:col-span-5 grid grid-cols-2 gap-3 sm:gap-4">
-              <div className="flex flex-col justify-between rounded-2xl bg-white/90 dark:bg-black/40 p-5 ring-1 ring-white/60 dark:ring-white/10 shadow-sm">
+              <div className="flex flex-col justify-between rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 p-5 shadow-sm">
                 <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total LGUs</p>
                 <p className="mt-2 text-3xl sm:text-4xl font-extrabold tabular-nums text-slate-900 dark:text-white">{barangays.length}</p>
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Makati Barangays</p>
               </div>
-              <div className="flex flex-col justify-between rounded-2xl bg-white/90 dark:bg-black/40 p-5 ring-1 ring-white/60 dark:ring-white/10 shadow-sm">
+              <div className="flex flex-col justify-between rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 p-5 shadow-sm">
                 <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Compliance Rate</p>
-                <p className="mt-2 text-3xl sm:text-4xl font-extrabold text-[#06D6A0]">
+                <p className="mt-2 text-3xl sm:text-4xl font-extrabold text-emerald-600 dark:text-emerald-400">
                   {realtime.data ? `${Math.round(realtime.data.compliance_rate)}%` : "100%"}
                 </p>
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">City Audit Clearance</p>
               </div>
-              <div className="flex flex-col justify-between rounded-2xl bg-white/90 dark:bg-black/40 p-5 ring-1 ring-white/60 dark:ring-white/10 shadow-sm">
+              <div className="flex flex-col justify-between rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 p-5 shadow-sm">
                 <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Audit Protocol</p>
-                <p className="mt-2 text-xl font-bold text-[#06D6A0]">R.A. 7160</p>
+                <p className="mt-2 text-xl font-bold text-emerald-600 dark:text-emerald-400">R.A. 7160</p>
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Statutory Compliance</p>
               </div>
-              <div className="flex flex-col justify-between rounded-2xl bg-white/90 dark:bg-black/40 p-5 ring-1 ring-white/60 dark:ring-white/10 shadow-sm">
+              <div className="flex flex-col justify-between rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 p-5 shadow-sm">
                 <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Processing</p>
                 <div className="mt-2 flex items-center gap-2">
-                  <p className="text-xl font-bold text-[#7B4DFF] dark:text-[#CDBBFF]">Real-Time</p>
+                  <p className="text-xl font-bold text-[#0039A6] dark:text-blue-400">Real-Time</p>
                   <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                 </div>
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Automated Tally</p>
@@ -266,7 +259,7 @@ export default function DilgSignInPage() {
               <details key={f.q} className="group rounded-2xl bg-slate-50 dark:bg-white/5 p-4 border border-slate-200 dark:border-white/5">
                 <summary className={`flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-sm text-slate-900 dark:text-slate-100 ${focusRing}`}>
                   {f.q}
-                  <span aria-hidden="true" className="text-lg leading-none text-[#7B4DFF] transition-transform group-open:rotate-45">+</span>
+                  <span aria-hidden="true" className="text-lg leading-none text-[#0039A6] dark:text-blue-400 transition-transform group-open:rotate-45">+</span>
                 </summary>
                 <p className="mt-2.5 text-xs leading-5 text-slate-600 dark:text-slate-300 border-t border-slate-200/50 dark:border-white/5 pt-2.5">{f.a}</p>
               </details>
@@ -275,13 +268,13 @@ export default function DilgSignInPage() {
         </section>
 
         {/* Closing Action Banner */}
-        <section className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#7B4DFF] to-[#5A18C9] px-6 py-8 sm:px-10 sm:py-10 text-white shadow-md">
+        <section className="relative overflow-hidden rounded-2xl bg-[#0039A6] dark:bg-[#002B7F] px-6 py-8 sm:px-10 sm:py-10 text-white shadow-sm border border-[#002B7F] dark:border-blue-900">
           <div className="relative flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
             <div>
               <h2 className="text-2xl font-bold">Access the Central DILG Command Center</h2>
-              <p className="mt-1 text-xs sm:text-sm text-[#E9DFFF]">Log in with your official DILG Makati credentials to manage cycles, audit submissions, and export analytics.</p>
+              <p className="mt-1 text-xs sm:text-sm text-blue-100">Log in with your official DILG Makati credentials to manage cycles, audit submissions, and export analytics.</p>
             </div>
-            <Link href={cta.href} className={`w-full sm:w-auto text-center shrink-0 rounded-full bg-white px-7 py-3 text-sm font-bold text-[#5A18C9] hover:bg-slate-50 transition-colors ${focusRing}`}>
+            <Link href={cta.href} className={`w-full sm:w-auto text-center shrink-0 rounded-full bg-white px-7 py-3 text-sm font-bold text-[#0039A6] hover:bg-slate-100 transition-colors ${focusRing}`}>
               {cta.label} &rarr;
             </Link>
           </div>
@@ -302,7 +295,7 @@ export default function DilgSignInPage() {
 
 function Tile({ value, label }: { value: number; label: string }) {
   return (
-    <div className="rounded-2xl bg-[#06D6A0] px-4 py-5 text-center text-[#04281F]">
+    <div className="rounded-2xl bg-emerald-600 px-4 py-5 text-center text-white">
       <p className="text-4xl font-semibold tabular-nums">{value}</p>
       <p className="mt-1 text-sm font-medium">{label}</p>
     </div>
@@ -332,11 +325,11 @@ function SampleLineChart() {
           <text x="22" y={154 - i * 38} textAnchor="end" fontSize="10" fill="#7C6FA3">{v}</text>
         </g>
       ))}
-      <path d="M34 128 C52 112 62 78 86 82 S120 138 140 104 S178 36 204 44 S250 90 290 76" fill="none" stroke="#7B4DFF" strokeWidth="2.5" strokeLinecap="round" />
-      <path d="M34 140 C58 126 70 80 98 84 S132 116 152 90 S186 24 208 34 S246 62 290 106" fill="none" stroke="#F21DB4" strokeWidth="2.5" strokeLinecap="round" />
-      <line x1="208" x2="208" y1="40" y2="150" stroke="#7B4DFF" strokeWidth="1" strokeDasharray="3 3" />
+      <path d="M34 128 C52 112 62 78 86 82 S120 138 140 104 S178 36 204 44 S250 90 290 76" fill="none" stroke="#0039A6" strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M34 140 C58 126 70 80 98 84 S132 116 152 90 S186 24 208 34 S246 62 290 106" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="208" x2="208" y1="40" y2="150" stroke="#0039A6" strokeWidth="1" strokeDasharray="3 3" />
       <g transform="translate(184 6)">
-        <rect width="48" height="22" rx="5" fill="#140B33" />
+        <rect width="48" height="22" rx="5" fill="#0f172a" />
         <text x="24" y="15" textAnchor="middle" fontSize="10" fill="#fff">24%</text>
       </g>
       {["Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"].map((m, i) => (
@@ -358,9 +351,9 @@ function SampleRings() {
   };
   return (
     <svg viewBox="0 0 120 120" className="h-24 w-24 sm:h-28 sm:w-28 shrink-0 -rotate-90" role="img" aria-label="Sample progress rings">
-      {ring(54, 0.92, "#F21DB4", "#FBD3EE")}
-      {ring(40, 0.7, "#7B4DFF", "#E3D5FF")}
-      {ring(26, 0.5, "#FFC800", "#FFF0A3")}
+      {ring(54, 0.92, "#059669", "#D1FAE5")}
+      {ring(40, 0.7, "#0039A6", "#DBEAFE")}
+      {ring(26, 0.5, "#D97706", "#FEF3C7")}
     </svg>
   );
 }

@@ -54,14 +54,14 @@ interface ActivityPage {
 const ROLE_TAG: Record<string, { label: string; cls: string }> = {
   super_admin: { label: "Super admin", cls: "bg-[#FFF8E6] text-[#7A5B00] dark:bg-amber-400/15 dark:text-amber-200" },
   office_supervisor: { label: "DILG supervisor", cls: "bg-[#E8FAFF] text-[#0A5C73] dark:bg-sky-400/15 dark:text-sky-200" },
-  barangay_rep: { label: "Barangay rep", cls: "bg-[#F3EDFE] text-[#5A18C9] dark:bg-[#7B4DFF]/25 dark:text-[#D1C4F9]" },
+  barangay_rep: { label: "Barangay rep", cls: "bg-[#EBF2FF] text-[#002B7F] dark:bg-[#0039A6]/25 dark:text-[#93C5FD]" },
 };
 
 const GROUP_DOT: Record<string, string> = {
   auth: "#94A3B8",
-  reports: "#7B4DFF",
+  reports: "#0039A6",
   resources: "#06D6A0",
-  incidents: "#F21DB4",
+  incidents: "#D97706",
   content: "#F5B800",
   accounts: "#0EA5E9",
   exports: "#64748B",
@@ -69,9 +69,9 @@ const GROUP_DOT: Record<string, string> = {
 };
 
 const focusRing =
-  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7B4DFF]";
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0039A6]";
 const field =
-  "rounded-xl bg-white dark:bg-[#2B2542] px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none ring-1 ring-[#E3DEF5] dark:ring-[#433A66] placeholder:text-slate-400 focus:ring-2 focus:ring-[#7B4DFF]";
+  "rounded-xl bg-white dark:bg-[#1E293B] px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 outline-none ring-1 ring-[#CBD5E1] dark:ring-[#334155] placeholder:text-slate-400 focus:ring-2 focus:ring-[#0039A6]";
 
 function when(iso: string | null): string {
   if (!iso) return "No activity yet";
@@ -184,7 +184,7 @@ export default function MonitoringPage() {
             summary.retry();
             setTick((n) => n + 1);
           }}
-          className={`rounded-full border border-[#7B4DFF] px-4 py-2 text-sm font-semibold text-[#5A18C9] transition-colors hover:bg-[#7B4DFF] hover:text-white dark:text-[#D1C4F9] ${focusRing}`}
+          className={`rounded-full border border-[#0039A6] px-4 py-2 text-sm font-semibold text-[#002B7F] transition-colors hover:bg-[#0039A6] hover:text-white dark:text-[#93C5FD] ${focusRing}`}
         >
           Refresh
         </button>
@@ -194,7 +194,7 @@ export default function MonitoringPage() {
       {summary.error && <p className="mt-6 font-medium text-bad dark:text-rose-400">{summary.error}</p>}
       <section aria-label="Summary" className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label="Actions today" value={s?.totals.actions_today} bg="bg-[#E6FBF3] dark:bg-emerald-400/10" />
-        <Stat label="Actions, last 7 days" value={s?.totals.actions_7d} bg="bg-[#F3EDFE] dark:bg-[#7B4DFF]/15" />
+        <Stat label="Actions, last 7 days" value={s?.totals.actions_7d} bg="bg-[#EBF2FF] dark:bg-[#0039A6]/15" />
         <Stat label="People active, 7 days" value={s?.totals.active_users_7d} bg="bg-[#E8FAFF] dark:bg-sky-400/10" />
         <Stat
           label="Accounts waiting to activate"
@@ -210,7 +210,7 @@ export default function MonitoringPage() {
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="font-medium text-[#1B1235] dark:text-white">Activity, last 14 days</h2>
             <span className="flex items-center gap-4 text-xs text-slate-600 dark:text-slate-300">
-              <Legend color="#7B4DFF" label={`DILG office (${s?.by_role_7d.office ?? 0} this week)`} />
+              <Legend color="#0039A6" label={`DILG office (${s?.by_role_7d.office ?? 0} this week)`} />
               <Legend color="#06D6A0" label={`Barangay reps (${s?.by_role_7d.reps ?? 0} this week)`} />
             </span>
           </div>
@@ -218,7 +218,7 @@ export default function MonitoringPage() {
             {(s?.daily ?? []).map((d) => (
               <div key={d.date} className="flex h-full flex-1 flex-col justify-end" title={`${d.date}: ${d.office} office, ${d.reps} barangay`}>
                 <div className="w-full rounded-t-md bg-[#06D6A0]" style={{ height: `${(d.reps / maxDay) * 100}%` }} />
-                <div className={`w-full bg-[#7B4DFF] ${d.reps === 0 ? "rounded-t-md" : ""}`} style={{ height: `${(d.office / maxDay) * 100}%` }} />
+                <div className={`w-full bg-[#0039A6] ${d.reps === 0 ? "rounded-t-md" : ""}`} style={{ height: `${(d.office / maxDay) * 100}%` }} />
                 {d.office + d.reps === 0 && <div className="h-0.5 w-full rounded bg-slate-300 dark:bg-white/20" />}
               </div>
             ))}
@@ -253,7 +253,7 @@ export default function MonitoringPage() {
         <p className="mt-1 text-sm text-muted dark:text-slate-400">Pick a barangay to filter the feed below to its representatives.</p>
         <div className="mt-4 overflow-x-auto">
           <table className="w-full min-w-[720px] text-left text-sm">
-            <thead className="text-[#5B4C8A] dark:text-[#D1C4F9]">
+            <thead className="text-[#5B4C8A] dark:text-[#93C5FD]">
               <tr>
                 <th className="py-2 pr-3 font-semibold">Barangay</th>
                 <th className="py-2 pr-3 font-semibold">Account</th>
@@ -272,7 +272,7 @@ export default function MonitoringPage() {
                   : a.deactivated > 0 ? { t: "Deactivated", c: "bg-bad-bg text-bad dark:bg-rose-500/20 dark:text-rose-300" }
                   : { t: "No account", c: "bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-300" };
                 return (
-                  <tr key={b.id} className={String(b.id) === barangayId ? "bg-[#F3EDFE]/60 dark:bg-white/5" : ""}>
+                  <tr key={b.id} className={String(b.id) === barangayId ? "bg-[#EBF2FF]/60 dark:bg-white/5" : ""}>
                     <th scope="row" className="py-2.5 pr-3 text-left font-medium text-[#1B1235] dark:text-white">
                       <button
                         type="button"
@@ -325,7 +325,7 @@ export default function MonitoringPage() {
           <input type="date" value={to} onChange={(e) => changeFilter(setTo)(e.target.value)} aria-label="To date" className={field} />
         </div>
         {barangayId && (
-          <button type="button" onClick={() => changeFilter(setBarangayId)("")} className={`mt-3 rounded-full bg-[#F3EDFE] px-3 py-1 text-xs font-semibold text-[#5A18C9] dark:bg-[#7B4DFF]/25 dark:text-[#D1C4F9] ${focusRing}`}>
+          <button type="button" onClick={() => changeFilter(setBarangayId)("")} className={`mt-3 rounded-full bg-[#EBF2FF] px-3 py-1 text-xs font-semibold text-[#002B7F] dark:bg-[#0039A6]/25 dark:text-[#93C5FD] ${focusRing}`}>
             Barangay: {s?.barangays.find((b) => String(b.id) === barangayId)?.name} &times; clear
           </button>
         )}
@@ -367,13 +367,13 @@ export default function MonitoringPage() {
 
         {feed && feed.last_page > 1 && (
           <nav className="mt-4 flex items-center justify-between text-sm" aria-label="Pages">
-            <button type="button" disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className={`rounded-full px-4 py-1.5 font-semibold text-[#5A18C9] disabled:opacity-40 dark:text-[#D1C4F9] ${focusRing}`}>
+            <button type="button" disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className={`rounded-full px-4 py-1.5 font-semibold text-[#002B7F] disabled:opacity-40 dark:text-[#93C5FD] ${focusRing}`}>
               &larr; Newer
             </button>
             <span className="text-slate-500 dark:text-slate-400">
               Page {feed.current_page} of {feed.last_page} &middot; {feed.total} transactions
             </span>
-            <button type="button" disabled={page >= feed.last_page} onClick={() => setPage((p) => p + 1)} className={`rounded-full px-4 py-1.5 font-semibold text-[#5A18C9] disabled:opacity-40 dark:text-[#D1C4F9] ${focusRing}`}>
+            <button type="button" disabled={page >= feed.last_page} onClick={() => setPage((p) => p + 1)} className={`rounded-full px-4 py-1.5 font-semibold text-[#002B7F] disabled:opacity-40 dark:text-[#93C5FD] ${focusRing}`}>
               Older &rarr;
             </button>
           </nav>

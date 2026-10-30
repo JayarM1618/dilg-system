@@ -54,15 +54,15 @@
 
 .dark {
   color-scheme: dark;
-  --color-paper: #120d20;
-  --color-ink: #f1ecfc;
-  --color-muted: #a69bbd;
-  --color-line: #352d4b;
-  --color-navy-50: #231b36;
-  --color-navy-100: #2f2549;
-  --color-navy-700: #d5caf2;
-  --color-navy-800: #ece5ff;
-  --color-navy-900: #f8f6ff;
+  --color-paper: #0b1329;
+  --color-ink: #f8fafc;
+  --color-muted: #94a3b8;
+  --color-line: #1e293b;
+  --color-navy-50: #0f172a;
+  --color-navy-100: #1e293b;
+  --color-navy-700: #cbd5e1;
+  --color-navy-800: #e2e8f0;
+  --color-navy-900: #f8fafc;
 }
 
 body {

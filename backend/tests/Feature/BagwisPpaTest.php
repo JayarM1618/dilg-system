@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\BagwisPpa;
+use App\Models\Barangay;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -42,8 +43,9 @@ class BagwisPpaTest extends TestCase
         $this->assertEquals('Makati_CADAC_Guide.pdf', $createResponse->json('attachment_name'));
 
         // 3. Barangay rep can view and download
+        $barangay = Barangay::firstOrCreate(['id' => 1], ['name' => 'Bangkal', 'code' => 'BGY-001', 'is_active' => true]);
         $rep = User::where('role', 'barangay_rep')->first()
-            ?? User::factory()->create(['role' => 'barangay_rep', 'is_active' => true, 'barangay_id' => 1]);
+            ?? User::factory()->create(['role' => 'barangay_rep', 'is_active' => true, 'barangay_id' => $barangay->id]);
 
         $listRep = $this->actingAs($rep)->getJson('/api/bagwis/ppas');
         $listRep->assertStatus(200);

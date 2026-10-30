@@ -130,13 +130,13 @@ function ArchivePage() {
               onClick={() => switchType(key)}
               className={`rounded-2xl border p-3 text-center transition-all ${
                 selectedType === key
-                  ? "border-[#7B4DFF] bg-[#7B4DFF]/10 dark:bg-[#7B4DFF]/20 ring-2 ring-[#7B4DFF]/30"
+                  ? "border-[#0039A6] bg-[#0039A6]/10 dark:bg-[#0039A6]/20 ring-2 ring-[#0039A6]/30"
                   : active
-                  ? "border-slate-200 dark:border-white/10 bg-white dark:bg-[#1F1733] hover:border-[#7B4DFF]/50 shadow-sm"
-                  : "border-slate-200 dark:border-white/10 bg-white dark:bg-[#1F1733] opacity-60 shadow-sm"
+                  ? "border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] hover:border-[#0039A6]/50 shadow-sm"
+                  : "border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] opacity-60 shadow-sm"
               }`}
             >
-              <p className={`text-2xl font-bold ${active ? "text-[#7B4DFF]" : "text-slate-400 dark:text-slate-500"}`}>
+              <p className={`text-2xl font-bold ${active ? "text-[#0039A6]" : "text-slate-400 dark:text-slate-500"}`}>
                 {count}
               </p>
               <p className="mt-0.5 text-[10px] font-medium text-slate-500 dark:text-slate-400 leading-tight">
@@ -148,7 +148,7 @@ function ArchivePage() {
       </div>
 
       {/* ── Type pills + search ── */}
-      <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#1F1733] shadow-sm">
+      <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0F172A] shadow-sm">
         <div className="flex flex-col gap-3 border-b border-slate-100 dark:border-white/5 p-4 sm:flex-row sm:items-center sm:justify-between">
           {/* Type pills */}
           <div className="flex flex-wrap gap-1.5">
@@ -158,7 +158,7 @@ function ArchivePage() {
                 onClick={() => switchType(key)}
                 className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                   selectedType === key
-                    ? "bg-[#7B4DFF] text-white"
+                    ? "bg-[#0039A6] text-white"
                     : "bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10"
                 }`}
               >
@@ -217,7 +217,7 @@ function ArchivePage() {
                           Try a different search term or{" "}
                           <button
                             onClick={() => { setSearch(""); setAppliedSearch(""); }}
-                            className="text-[#7B4DFF] hover:underline"
+                            className="text-[#0039A6] hover:underline"
                           >
                             clear the filter
                           </button>
